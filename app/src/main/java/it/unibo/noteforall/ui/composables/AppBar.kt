@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import it.unibo.noteforall.ui.theme.Teal800
 
@@ -29,6 +30,7 @@ fun AppBar(title: String) {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowBack,
+                        tint = Color.White,
                         contentDescription = "Back button"
                     )
                 }
@@ -37,11 +39,19 @@ fun AppBar(title: String) {
         actions = {
             if ((title == "Home") || (title == "Saved")) {
                 IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Outlined.FilterAlt, "Filter button")
+                    Icon(
+                        imageVector = Icons.Outlined.FilterAlt,
+                        tint = Color.White,
+                        contentDescription = "Filter button"
+                    )
                 }
             } else if (title == "My Profile") {
                 IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Outlined.Edit, "Edit profile button")
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        tint = Color.White,
+                        contentDescription = "Edit profile button"
+                    )
                 }
             }
         },
