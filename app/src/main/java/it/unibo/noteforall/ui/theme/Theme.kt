@@ -21,16 +21,18 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80*/
     primary = Teal800,
-    //secondary = Teal200,
+    secondary = Teal200,
     background = Teal200,
+    onPrimary = Color.White,
     onSecondary = Color.Black,
     onBackground = Color.Black
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Teal800,
-    //secondary = Teal200,
+    secondary = Teal200,
     background = Teal200,
+    onPrimary = Color.White,
     onSecondary = Color.Black,
     onBackground = Color.Black
 
