@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.signup
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SignupScreen() {
@@ -68,7 +71,9 @@ fun SignupScreen() {
                     Text(text = "Signup")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { /*TODO*/ }) {
+                TextButton(
+                    onClick = { /*TODO*/ }, shape = RoundedCornerShape(50), border = BorderStroke(1.dp, Color.Black)
+                ) {
                     Text(text = "Already have an account?")
                 }
             }

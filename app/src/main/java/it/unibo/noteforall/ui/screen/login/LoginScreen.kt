@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.login
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material.TitleCard
 
 @Composable
 fun LoginScreen() {
@@ -57,12 +59,7 @@ fun LoginScreen() {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
-                    onClick = { /*TODO*/ }, modifier = Modifier
-                        .border(2.dp, Color.Black)
-                        .clip(
-                            RoundedCornerShape(6.dp)
-                        )
-                        .padding(4.dp)
+                    onClick = { /*TODO*/ }, shape = RoundedCornerShape(50), border = BorderStroke(1.dp, Color.Black)
                 ) {
                     Text(text = "Don't have an account?")
                 }
