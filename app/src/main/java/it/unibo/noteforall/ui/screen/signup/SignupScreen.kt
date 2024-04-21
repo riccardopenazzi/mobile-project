@@ -1,4 +1,4 @@
-package it.unibo.noteforall.ui.screen
+package it.unibo.noteforall.ui.screen.signup
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
@@ -23,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 
 @Composable
 fun SignupScreen() {
