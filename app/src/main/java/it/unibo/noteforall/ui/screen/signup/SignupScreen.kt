@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.signup
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -24,10 +25,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun SignupScreen() {
+fun SignupScreen(db: FirebaseFirestore) {
+    var name by remember {
+        mutableStateOf("")
+    }
+    var surname by remember {
+        mutableStateOf("")
+    }
+    var email by remember {
+        mutableStateOf("")
+    }
+    var username by remember {
+        mutableStateOf("")
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
+    var repeatPassword by remember {
+        mutableStateOf("")
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -53,30 +77,91 @@ fun SignupScreen() {
                         .clickable { /* TODO */ }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                listOf(
-                    "Name",
-                    "Surname",
-                    "Email",
-                    "Username",
-                    "Password",
-                    "Repeat password"
-                ).forEach { label ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = "", onValueChange = {}, label = {
-                        Text(text = label)
-                    })
-                }
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(text = "Name") })
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = surname,
+                    onValueChange = { surname = it },
+                    label = { Text(text = "Surname") })
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text(text = "Email") })
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text(text = "Username") })
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(text = "Password") })
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = repeatPassword,
+                    onValueChange = { repeatPassword = it },
+                    label = { Text(text = "Repeat password") })
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = {
+                    execSignup(
+                        name,
+                        surname,
+                        email,
+                        username,
+                        password,
+                        repeatPassword,
+                        db
+                    )
+                }) {
                     Text(text = "Signup")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
-                    onClick = { /*TODO*/ }, shape = RoundedCornerShape(50), border = BorderStroke(1.dp, Color.Black)
+                    onClick = { /*TODO*/ },
+                    shape = RoundedCornerShape(50),
+                    border = BorderStroke(1.dp, Color.Black)
                 ) {
                     Text(text = "Already have an account?")
                 }
             }
         }
+    }
+}
+
+fun execSignup(
+    name: String,
+    surname: String,
+    email: String,
+    username: String,
+    password: String,
+    repeatPassword: String,
+    db: FirebaseFirestore
+) {
+    if (name.isNotEmpty() &&
+        surname.isNotEmpty() &&
+        email.isNotEmpty() &&
+        username.isNotEmpty() &&
+        password.isNotEmpty() &&
+        repeatPassword.isNotEmpty() &&
+        password == repeatPassword
+    ) {
+        val user = hashMapOf(
+            "name" to name,
+            "surname" to surname,
+            "email" to email,
+            "username" to username,
+            "password" to password
+        )
+        db.collection("users").add(user).addOnSuccessListener { documentReference ->
+            Log.d("debSignup", "DocumentSnapshot added with ID: ${documentReference.id}")
+        }
+            .addOnFailureListener { e ->
+                Log.w("debSignup", "Error adding document", e)
+            }
     }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "69865414979",
+    "project_id": "noteforall-2f581",
+    "storage_bucket": "noteforall-2f581.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69865414979:android:28a6ce176e692f251a0ff6",
+        "android_client_info": {
+          "package_name": "it.unibo.noteforall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAO5uOpJpdNYAErJsY0v4t1m0RncPfrnWE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
