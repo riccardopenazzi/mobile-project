@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.TitleCard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.utils.CurrentUser
+import it.unibo.noteforall.utils.CurrentUserSingleton
 
 @Composable
 fun LoginScreen(db: FirebaseFirestore) {
@@ -92,7 +94,13 @@ fun execLogin(key: String, password: String, db: FirebaseFirestore) {
                 if ((user.getString("email") == key || user.getString("username") == key) &&
                     user.getString("password") == password
                 ) {
-                    Log.i("debLogin", "Login success")
+                    Log.i("debLogin", "Login success test id = ${user.id}")
+                    val currentUser = CurrentUser (
+                        id = user.id,
+                        key = key
+                    )
+                    CurrentUserSingleton.currentUser = currentUser
+                    Log.i("debLogin", "current user info: ${CurrentUserSingleton.currentUser!!.id} ${CurrentUserSingleton.currentUser!!.key}")
                     return@addOnSuccessListener
                 }
             }

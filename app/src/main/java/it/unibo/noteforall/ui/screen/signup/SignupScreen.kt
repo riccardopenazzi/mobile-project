@@ -31,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.utils.CurrentUser
+import it.unibo.noteforall.utils.CurrentUserSingleton
 
 @Composable
 fun SignupScreen(db: FirebaseFirestore) {
@@ -159,6 +161,11 @@ fun execSignup(
         )
         db.collection("users").add(user).addOnSuccessListener { documentReference ->
             Log.d("debSignup", "DocumentSnapshot added with ID: ${documentReference.id}")
+            val currentUser = CurrentUser (
+                id = documentReference.id,
+                key = username
+            )
+            CurrentUserSingleton.currentUser = currentUser
         }
             .addOnFailureListener { e ->
                 Log.w("debSignup", "Error adding document", e)
