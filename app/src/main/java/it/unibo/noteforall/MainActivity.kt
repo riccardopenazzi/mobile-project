@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,10 +53,11 @@ import it.unibo.noteforall.utils.navigation.Screens
 
 class MainActivity : ComponentActivity() {
     val db = Firebase.firestore
+    private val isNavbarVisible = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //Added just to simulate a logged user---------------------
-        val currentUser = CurrentUser (
+        val currentUser = CurrentUser(
             id = "IzLnDGab6LfPTBPrKE9I",
             key = ""
         )
@@ -86,7 +88,7 @@ class MainActivity : ComponentActivity() {
                     ) { contentPadding ->
                         HomeScreen(modifier = Modifier.padding(contentPadding))
                     }*/
-                    CustomNavigationBar(db)
+                    CustomNavigationBar(isNavbarVisible, db)
                 }
             }
         }
@@ -94,7 +96,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CustomNavigationBar(db: FirebaseFirestore) {
+fun CustomNavigationBar(isNavbarVisibile: MutableState<Boolean>, db: FirebaseFirestore) {
     val navigationController = rememberNavController()
     val selected = remember {
         mutableStateOf(Icons.Filled.Home)
@@ -102,74 +104,77 @@ fun CustomNavigationBar(db: FirebaseFirestore) {
 
     Scaffold(
         bottomBar = {
-            BottomAppBar {
-                //Home
-                IconButton(
-                    onClick = {
-                        selected.value = Icons.Default.Home
-                        navigationController.navigate(Screens.Home.screen) {
-                            popUpTo(0)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = null,
-                        modifier = Modifier.size(26.dp),
-                        tint = if (selected.value == Icons.Default.Home) Color.White else Color.Black
-                    )
-                }
-                //Saved
-                IconButton(
-                    onClick = {
-                        selected.value = Icons.Default.Star
-                        navigationController.navigate(Screens.Saved.screen) {
-                            popUpTo(0)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(26.dp),
-                        tint = if (selected.value == Icons.Default.Star) Color.White else Color.Black
-                    )
-                }
-                //Search
-                IconButton(
-                    onClick = {
-                        selected.value = Icons.Default.Search
-                        navigationController.navigate(Screens.Search.screen) {
-                            popUpTo(0)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        modifier = Modifier.size(26.dp),
-                        tint = if (selected.value == Icons.Default.Search) Color.White else Color.Black
-                    )
-                }
-                //Home
-                IconButton(
-                    onClick = {
-                        selected.value = Icons.Default.Person
-                        navigationController.navigate(Screens.Profile.screen) {
-                            popUpTo(0)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(26.dp),
-                        tint = if (selected.value == Icons.Default.Person) Color.White else Color.Black
-                    )
+            if (isNavbarVisibile.value) {
+
+                BottomAppBar {
+                    //Home
+                    IconButton(
+                        onClick = {
+                            selected.value = Icons.Default.Home
+                            navigationController.navigate(Screens.Home.screen) {
+                                popUpTo(0)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp),
+                            tint = if (selected.value == Icons.Default.Home) Color.White else Color.Black
+                        )
+                    }
+                    //Saved
+                    IconButton(
+                        onClick = {
+                            selected.value = Icons.Default.Star
+                            navigationController.navigate(Screens.Saved.screen) {
+                                popUpTo(0)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp),
+                            tint = if (selected.value == Icons.Default.Star) Color.White else Color.Black
+                        )
+                    }
+                    //Search
+                    IconButton(
+                        onClick = {
+                            selected.value = Icons.Default.Search
+                            navigationController.navigate(Screens.Search.screen) {
+                                popUpTo(0)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp),
+                            tint = if (selected.value == Icons.Default.Search) Color.White else Color.Black
+                        )
+                    }
+                    //Home
+                    IconButton(
+                        onClick = {
+                            selected.value = Icons.Default.Person
+                            navigationController.navigate(Screens.Profile.screen) {
+                                popUpTo(0)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp),
+                            tint = if (selected.value == Icons.Default.Person) Color.White else Color.Black
+                        )
+                    }
                 }
             }
         }
@@ -179,11 +184,26 @@ fun CustomNavigationBar(db: FirebaseFirestore) {
             startDestination = Screens.Home.screen,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(Screens.Home.screen) { HomeScreen(modifier = Modifier.padding(paddingValues)) }
-            composable(Screens.Saved.screen) { SavedNotesScreen() }
-            composable(Screens.Search.screen) { SearchScreen() }
-            composable(Screens.Profile.screen) { MyProfileScreen(navigationController) }
-            composable(Screens.EditProfile.screen) { EditProfileScreen(navigationController, db) }
+            composable(Screens.Home.screen) {
+                isNavbarVisibile.value = true
+                HomeScreen(modifier = Modifier.padding(paddingValues))
+            }
+            composable(Screens.Saved.screen) {
+                isNavbarVisibile.value = true
+                SavedNotesScreen()
+            }
+            composable(Screens.Search.screen) {
+                isNavbarVisibile.value = true
+                SearchScreen()
+            }
+            composable(Screens.Profile.screen) {
+                isNavbarVisibile.value = true
+                MyProfileScreen(navigationController)
+            }
+            composable(Screens.EditProfile.screen) {
+                isNavbarVisibile.value = false
+                EditProfileScreen(navigationController, db)
+            }
         }
 
     }
