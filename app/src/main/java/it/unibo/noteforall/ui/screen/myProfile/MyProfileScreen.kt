@@ -24,14 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
-fun MyProfileScreen() {
+fun MyProfileScreen(navigationController: NavHostController) {
     Scaffold(
-        topBar = { AppBar(title = "My Profile") }
+        topBar = { AppBar(title = "My Profile", navigationController) }
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier

@@ -19,12 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.AppBar
 
 @Composable
-fun EditProfileScreen() {
+fun EditProfileScreen(navController: NavHostController) {
     Scaffold(
-        topBar = { AppBar(title = "Edit Profile") }
+        topBar = { AppBar(title = "Edit Profile", navController) }
     ) {contentPadding ->
         LazyColumn(
             modifier = Modifier

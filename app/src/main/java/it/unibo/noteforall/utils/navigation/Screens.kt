@@ -5,4 +5,5 @@ sealed class Screens (val screen: String) {
     data object Profile: Screens("profile")
     data object Saved: Screens("saved")
     data object Search: Screens("search")
+    data object EditProfile: Screens("edit_profile")
 }

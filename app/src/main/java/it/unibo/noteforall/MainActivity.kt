@@ -38,6 +38,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.BottomBar
+import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
@@ -162,12 +163,17 @@ fun CustomNavigationBar() {
                 }
             }
         }
-    ) {paddingValues ->
-        NavHost(navController = navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)) {
+    ) { paddingValues ->
+        NavHost(
+            navController = navigationController,
+            startDestination = Screens.Home.screen,
+            modifier = Modifier.padding(paddingValues)
+        ) {
             composable(Screens.Home.screen) { HomeScreen(modifier = Modifier.padding(paddingValues)) }
             composable(Screens.Saved.screen) { SavedNotesScreen() }
-            composable(Screens.Search.screen) { SearchScreen()}
-            composable(Screens.Profile.screen) { MyProfileScreen() }
+            composable(Screens.Search.screen) { SearchScreen() }
+            composable(Screens.Profile.screen) { MyProfileScreen(navigationController) }
+            composable(Screens.EditProfile.screen) { EditProfileScreen(navigationController) }
         }
 
     }
