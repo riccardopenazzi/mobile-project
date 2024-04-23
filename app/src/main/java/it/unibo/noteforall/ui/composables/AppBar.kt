@@ -28,8 +28,12 @@ fun AppBar(title: String, navController: NavHostController? = null) {
         navigationIcon = {
             if ((title == "Note") || (title == "Profile") || (title == "Edit Profile")) {
                 IconButton(onClick = {
-                    navController?.popBackStack()
-                    Log.i("debBack", "Premuto go back")
+                    //--------------------BAD SOLUTION----------
+                    if (title == "Edit Profile") {
+                        navController?.navigate(Screens.Profile.screen)
+                        Log.i("debBack", "Premuto go back")
+                    }
+                    //---------------------------------------------
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowBack,
