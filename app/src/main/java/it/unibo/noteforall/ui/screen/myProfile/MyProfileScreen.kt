@@ -30,10 +30,8 @@ import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
-fun MyProfileScreen(navigationController: NavHostController) {
-    Scaffold(
-        topBar = { AppBar(title = "My Profile", navigationController) }
-    ) { contentPadding ->
+fun MyProfileScreen(navController: NavHostController) {
+    Scaffold() { contentPadding ->
         LazyColumn(
             modifier = Modifier
                 .padding(contentPadding)
@@ -92,7 +90,7 @@ fun MyProfileScreen(navigationController: NavHostController) {
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    PrintUserNotes()
+                    PrintUserNotes(navController)
                 }
             }
         }
@@ -100,8 +98,8 @@ fun MyProfileScreen(navigationController: NavHostController) {
 }
 
 @Composable
-fun PrintUserNotes() {
+fun PrintUserNotes(navController: NavHostController) {
     for (i in 0..9) {
-        NoteCard()
+        NoteCard(navController = navController)
     }
 }

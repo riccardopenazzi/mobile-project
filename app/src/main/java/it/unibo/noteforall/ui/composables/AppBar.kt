@@ -1,8 +1,7 @@
 package it.unibo.noteforall.ui.composables
 
-import android.util.Log
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -16,27 +15,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.utils.navigation.Screens
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(title: String, navController: NavHostController? = null) {
+fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute) {
     CenterAlignedTopAppBar(
         title = {
-            Text(title, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onPrimary)
+            Text(
+                currentRoute.title,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         },
         navigationIcon = {
-            if ((title == "Note") || (title == "Profile") || (title == "Edit Profile")) {
-                IconButton(onClick = {
-                    //--------------------BAD SOLUTION----------
-                    if (title == "Edit Profile") {
-                        navController?.navigate(Screens.Profile.screen)
-                        Log.i("debBack", "Premuto go back")
-                    }
-                    //---------------------------------------------
-                }) {
+            if (
+                (currentRoute.title == "Note") ||
+                (currentRoute.title == "Profile") ||
+                (currentRoute.title == "Edit Profile") ||
+                (currentRoute.title == "New Note")
+            ) {
+                IconButton(onClick = { navController?.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Outlined.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         tint = Color.White,
                         contentDescription = "Back button"
                     )
@@ -44,7 +45,7 @@ fun AppBar(title: String, navController: NavHostController? = null) {
             }
         },
         actions = {
-            if ((title == "Home") || (title == "Saved")) {
+            if ((currentRoute.title == "Home") || (currentRoute.title == "Saved")) {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(
                         imageVector = Icons.Outlined.FilterAlt,
@@ -52,11 +53,9 @@ fun AppBar(title: String, navController: NavHostController? = null) {
                         contentDescription = "Filter button"
                     )
                 }
-            } else if (title == "My Profile") {
+            } else if (currentRoute.title == "My Profile") {
                 IconButton(onClick = {
-                    navController?.navigate(Screens.EditProfile.screen) {
-                        popUpTo(0)
-                    }
+                    navController?.navigate(NoteForAllRoute.EditProfile.route)
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Edit,

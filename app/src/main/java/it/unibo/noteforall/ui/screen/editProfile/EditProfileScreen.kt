@@ -29,7 +29,7 @@ import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.utils.CurrentUserSingleton
 
 @Composable
-fun EditProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
+fun EditProfileScreen(db: FirebaseFirestore) {
     var name by remember {
         mutableStateOf("")
     }
@@ -53,9 +53,7 @@ fun EditProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             password = user.getString("password").toString()
             repeatPassword = password
         }
-    Scaffold(
-        topBar = { AppBar(title = "Edit Profile", navController) }
-    ) { contentPadding ->
+    Scaffold() { contentPadding ->
         LazyColumn(
             modifier = Modifier
                 .padding(contentPadding)

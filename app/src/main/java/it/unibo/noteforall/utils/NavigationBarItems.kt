@@ -28,7 +28,7 @@ val bottomNavigationItems = listOf(
         unselectedIcon = Icons.Outlined.Search
     ),
     BottomNavigationItem(
-        title = "Profile",
+        title = "My Profile",
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
     )

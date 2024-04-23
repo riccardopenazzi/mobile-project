@@ -36,13 +36,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.theme.Teal800
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteCard(isExtended: Boolean = false) {
+fun NoteCard(isExtended: Boolean = false, navController: NavHostController) {
     Card (
-        onClick = { /*TODO()*/ },
+        onClick = { if (!isExtended) navController.navigate(NoteForAllRoute.ViewNote.route) },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier.padding(10.dp)
     ) {

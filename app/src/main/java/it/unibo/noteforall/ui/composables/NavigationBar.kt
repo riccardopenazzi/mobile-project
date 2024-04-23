@@ -7,11 +7,14 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.utils.BottomNavigationItem
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomBar(
+fun NavigationBar(
+    navController: NavHostController,
     items: List<BottomNavigationItem>,
     onItemSelected: (Int) -> Unit,
     selectedItemIndex: Int
@@ -22,6 +25,12 @@ fun BottomBar(
                 selected = selectedItemIndex == index,
                 onClick = {
                     onItemSelected(index)
+                    when (item.title) {
+                        NoteForAllRoute.Home.title -> navController.navigate(NoteForAllRoute.Home.route)
+                        NoteForAllRoute.Saved.title -> navController.navigate(NoteForAllRoute.Saved.route)
+                        NoteForAllRoute.Search.title -> navController.navigate(NoteForAllRoute.Search.route)
+                        NoteForAllRoute.Profile.title -> navController.navigate(NoteForAllRoute.Profile.route)
+                    }
                 },
                 label = {
                     Text(item.title)

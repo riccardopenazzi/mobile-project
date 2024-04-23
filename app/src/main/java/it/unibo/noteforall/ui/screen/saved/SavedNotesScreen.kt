@@ -10,14 +10,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NoteCard
 
 @Composable
-fun SavedNotesScreen() {
-    Scaffold (
-        topBar = { AppBar(title = "Saved") }
-    ) {paddingValues ->
+fun SavedNotesScreen(navController: NavHostController) {
+    Scaffold () { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
@@ -29,7 +28,7 @@ fun SavedNotesScreen() {
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    PrintUserNotes()
+                    PrintUserNotes(navController)
                 }
             }
         }
@@ -37,8 +36,8 @@ fun SavedNotesScreen() {
 }
 
 @Composable
-fun PrintUserNotes() {
+fun PrintUserNotes(navController: NavHostController) {
     for (i in 0..14) {
-        NoteCard()
+        NoteCard(navController = navController)
     }
 }

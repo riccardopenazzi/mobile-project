@@ -32,7 +32,7 @@ import it.unibo.noteforall.ui.theme.Teal800
 @Composable
 fun NewNoteScreen() {
     Scaffold(
-        topBar = { AppBar(title = "New Note") }
+        //topBar = { AppBar(title = "New Note") }
     ) {contentPadding ->
         LazyColumn(
             modifier = Modifier
