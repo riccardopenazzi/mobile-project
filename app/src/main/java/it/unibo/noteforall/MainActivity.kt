@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.ui.composables.AppBar
@@ -44,6 +45,8 @@ import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
 import it.unibo.noteforall.ui.theme.NoteForAllTheme
+import it.unibo.noteforall.utils.CurrentUser
+import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.bottomNavigationItems
 import it.unibo.noteforall.utils.navigation.Screens
 
@@ -51,6 +54,13 @@ class MainActivity : ComponentActivity() {
     val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Added just to simulate a logged user---------------------
+        val currentUser = CurrentUser (
+            id = "IzLnDGab6LfPTBPrKE9I",
+            key = ""
+        )
+        CurrentUserSingleton.currentUser = currentUser
+        //---------------------------------------------------------
         super.onCreate(savedInstanceState)
         setContent {
             NoteForAllTheme {
@@ -76,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     ) { contentPadding ->
                         HomeScreen(modifier = Modifier.padding(contentPadding))
                     }*/
-                    CustomNavigationBar()
+                    CustomNavigationBar(db)
                 }
             }
         }
@@ -84,7 +94,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CustomNavigationBar() {
+fun CustomNavigationBar(db: FirebaseFirestore) {
     val navigationController = rememberNavController()
     val selected = remember {
         mutableStateOf(Icons.Filled.Home)
@@ -173,7 +183,7 @@ fun CustomNavigationBar() {
             composable(Screens.Saved.screen) { SavedNotesScreen() }
             composable(Screens.Search.screen) { SearchScreen() }
             composable(Screens.Profile.screen) { MyProfileScreen(navigationController) }
-            composable(Screens.EditProfile.screen) { EditProfileScreen(navigationController) }
+            composable(Screens.EditProfile.screen) { EditProfileScreen(navigationController, db) }
         }
 
     }

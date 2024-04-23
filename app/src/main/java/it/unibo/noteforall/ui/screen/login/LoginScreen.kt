@@ -95,11 +95,11 @@ fun execLogin(key: String, password: String, db: FirebaseFirestore) {
                     user.getString("password") == password
                 ) {
                     Log.i("debLogin", "Login success test id = ${user.id}")
-                    val currentUser = CurrentUser (
+                    /*val currentUser = CurrentUser (
                         id = user.id,
                         key = key
                     )
-                    CurrentUserSingleton.currentUser = currentUser
+                    CurrentUserSingleton.currentUser = currentUser*/
                     Log.i("debLogin", "current user info: ${CurrentUserSingleton.currentUser!!.id} ${CurrentUserSingleton.currentUser!!.key}")
                     return@addOnSuccessListener
                 }
