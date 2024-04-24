@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 //---------------------------------------------------------------------------------------------
-                    if (isLogged) {
+                    if (!isLogged) {
                         Scaffold(
                             topBar = { AppBar(navigationController, currentRoute) },
                             bottomBar = {
