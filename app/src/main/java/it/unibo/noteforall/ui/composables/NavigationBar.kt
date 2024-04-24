@@ -8,7 +8,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.utils.BottomNavigationItem
+import it.unibo.noteforall.utils.navigation.BottomNavigationItem
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)

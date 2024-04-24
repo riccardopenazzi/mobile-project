@@ -46,72 +46,68 @@ fun EditProfileScreen(db: FirebaseFirestore) {
         mutableStateOf("")
     }
     db.collection("users").document(CurrentUserSingleton.currentUser?.id.toString()).get()
-        .addOnSuccessListener {user->
+        .addOnSuccessListener { user ->
             name = user.getString("name").toString()
             surname = user.getString("surname").toString()
             username = user.getString("username").toString()
             password = user.getString("password").toString()
             repeatPassword = password
         }
-    Scaffold() { contentPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxWidth()
-        ) {//min padding 56
-            item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp, end = 10.dp)
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp)
+    ) {//min padding 56
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = {
+                Text(text = "Name")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = surname, onValueChange = { surname = it }, label = {
+                Text(text = "Surname")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = username, onValueChange = { username = it }, label = {
+                Text(text = "Username")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = {
+                Text(text = "Password")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = repeatPassword,
+                onValueChange = { repeatPassword = it },
+                label = {
+                    Text(text = "Repeat password")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 60.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    ),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = name, onValueChange = {name = it}, label = {
-                        Text(text = "Name")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = surname, onValueChange = {surname = it}, label = {
-                        Text(text = "Surname")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = username, onValueChange = {username = it}, label = {
-                        Text(text = "Username")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = password, onValueChange = {password = it}, label = {
-                        Text(text = "Password")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = repeatPassword, onValueChange = {repeatPassword = it}, label = {
-                        Text(text = "Repeat password")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 60.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Button(
-                            onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Red
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(text = "Cancel", color = Color.White)
-                        }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Button(
-                            onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Green
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(text = "Save", color = Color.White)
-                        }
-                    }
-
+                    Text(text = "Cancel", color = Color.White)
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Button(
+                    onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Green
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Save", color = Color.White)
                 }
             }
         }

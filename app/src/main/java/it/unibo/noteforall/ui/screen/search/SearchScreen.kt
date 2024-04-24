@@ -48,31 +48,29 @@ fun SearchScreen() {
         }
     ) { contentPadding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(contentPadding)
+                .padding(2.dp)
+                .fillMaxSize()
         ) {
             item {
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Spacer(Modifier.height(16.dp))
+                /* Consider to use SearchBar */
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Search") },
+                    trailingIcon = {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Outlined.Search, "Search")
+                        }
+                    },
                     modifier = Modifier
-                        .padding(contentPadding)
-                        .padding(2.dp)
                         .fillMaxWidth()
-                ) {
-                    Spacer(Modifier.height(16.dp))
-                    /* Consider to use SearchBar */
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        label = { Text("Search") },
-                        trailingIcon = {
-                            IconButton(onClick = { /*TODO*/ }) {
-                                Icon(Icons.Outlined.Search, "Search")
-                            }
-                       },
-                        modifier = Modifier.fillMaxWidth().padding(6.dp)
-                    )
-                }
+                        .padding(6.dp)
+                )
             }
         }
     }

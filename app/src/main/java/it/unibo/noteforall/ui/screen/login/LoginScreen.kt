@@ -46,42 +46,36 @@ fun LoginScreen(db: FirebaseFirestore) {
         mutableStateOf("")
     }
     LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
         item {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fillMaxHeight()
+            Text(
+                text = "Note For All",
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp,
+                modifier = Modifier.padding(vertical = 50.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = key, onValueChange = { key = it }, label = {
+                Text(text = "Email or username")
+            })
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = {
+                Text(text = "Password")
+            })
+            Spacer(modifier = Modifier.height(14.dp))
+            Button(onClick = { execLogin(key, password, db) }) {
+                Text(text = "Login")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(50),
+                border = BorderStroke(1.dp, Color.Black)
             ) {
-                Text(
-                    text = "Note For All",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(vertical = 50.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = key, onValueChange = { key = it }, label = {
-                    Text(text = "Email or username")
-                })
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = password, onValueChange = { password = it }, label = {
-                    Text(text = "Password")
-                })
-                Spacer(modifier = Modifier.height(14.dp))
-                Button(onClick = { execLogin(key, password, db) }) {
-                    Text(text = "Login")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = { /*TODO*/ },
-                    shape = RoundedCornerShape(50),
-                    border = BorderStroke(1.dp, Color.Black)
-                ) {
-                    Text(text = "Don't have an account?")
-                }
+                Text(text = "Don't have an account?")
             }
         }
     }
@@ -100,13 +94,16 @@ fun execLogin(key: String, password: String, db: FirebaseFirestore) {
                         key = key
                     )
                     CurrentUserSingleton.currentUser = currentUser*/
-                    Log.i("debLogin", "current user info: ${CurrentUserSingleton.currentUser!!.id} ${CurrentUserSingleton.currentUser!!.key}")
+                    Log.i(
+                        "debLogin",
+                        "current user info: ${CurrentUserSingleton.currentUser!!.id} ${CurrentUserSingleton.currentUser!!.key}"
+                    )
                     return@addOnSuccessListener
                 }
             }
             Log.i("debLogin", "Login failed, provided ${key} and ${password}")
-        }.addOnFailureListener{
-            exception -> Log.w("debLogin", "Error getting documents.", exception)
+        }.addOnFailureListener { exception ->
+            Log.w("debLogin", "Error getting documents.", exception)
         }
     }
 }

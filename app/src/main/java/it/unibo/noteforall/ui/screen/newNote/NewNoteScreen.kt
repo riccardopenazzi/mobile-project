@@ -31,81 +31,71 @@ import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
 fun NewNoteScreen() {
-    Scaffold(
-        //topBar = { AppBar(title = "New Note") }
-    ) {contentPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxWidth()
-        ) {//min padding 56
-            item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp)
+    ) {//min padding 56
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = "", onValueChange = {}, label = {
+                Text(text = "Title")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = "", onValueChange = {}, label = {
+                Text(text = "Category")
+            }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = "", onValueChange = {}, label = {
+                Text(text = "Description")
+            }, modifier = Modifier.fillMaxWidth(), minLines = 10)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Outlined.AttachFile, contentDescription = "Choose note")
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Upload note",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp, end = 10.dp)
+                        .border(1.dp, Teal800, RoundedCornerShape(30))
+                        .padding(6.dp)
+                        .width(180.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Outlined.Image, contentDescription = "Choose note preview")
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Choose note preview",
+                    modifier = Modifier
+                        .border(1.dp, Teal800, RoundedCornerShape(30))
+                        .padding(6.dp)
+                        .width(180.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Green
+                    )
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = "", onValueChange = {}, label = {
-                        Text(text = "Title")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = "", onValueChange = {}, label = {
-                        Text(text = "Category")
-                    }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = "", onValueChange = {}, label = {
-                        Text(text = "Description")
-                    }, modifier = Modifier.fillMaxWidth(), minLines = 10)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row (
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(imageVector = Icons.Outlined.AttachFile, contentDescription = "Choose note")
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Upload note",
-                            modifier = Modifier
-                                .border(1.dp, Teal800, RoundedCornerShape(30))
-                                .padding(6.dp)
-                                .width(180.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row (
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(imageVector = Icons.Outlined.Image, contentDescription = "Choose note preview")
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Choose note preview",
-                            modifier = Modifier
-                                .border(1.dp, Teal800, RoundedCornerShape(30))
-                                .padding(6.dp)
-                                .width(180.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Button(
-                            onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Green
-                            )
-                        ) {
-                            Text(text = "Save", color = Color.White)
-                        }
-                    }
+                    Text(text = "Save", color = Color.White)
                 }
             }
         }

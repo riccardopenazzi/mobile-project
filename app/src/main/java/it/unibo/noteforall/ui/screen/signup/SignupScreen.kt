@@ -55,81 +55,75 @@ fun SignupScreen(db: FirebaseFirestore) {
         mutableStateOf("")
     }
     LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
         item {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Text(
+                text = "Note For All",
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp,
+                modifier = Modifier.padding(vertical = 30.dp)
+            )
+            Icon(
+                imageVector = Icons.Outlined.AccountCircle,
+                contentDescription = "Select profile image",
                 modifier = Modifier
-                    .fillMaxSize()
-                    .fillMaxHeight()
+                    .size(50.dp)
+                    .clickable { /* TODO */ }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(text = "Name") })
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = surname,
+                onValueChange = { surname = it },
+                label = { Text(text = "Surname") })
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(text = "Email") })
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text(text = "Username") })
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(text = "Password") })
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = repeatPassword,
+                onValueChange = { repeatPassword = it },
+                label = { Text(text = "Repeat password") })
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = {
+                execSignup(
+                    name,
+                    surname,
+                    email,
+                    username,
+                    password,
+                    repeatPassword,
+                    db
+                )
+            }) {
+                Text(text = "Signup")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(50),
+                border = BorderStroke(1.dp, Color.Black)
             ) {
-                Text(
-                    text = "Note For All",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(vertical = 30.dp)
-                )
-                Icon(
-                    imageVector = Icons.Outlined.AccountCircle,
-                    contentDescription = "Select profile image",
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clickable { /* TODO */ }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(text = "Name") })
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = surname,
-                    onValueChange = { surname = it },
-                    label = { Text(text = "Surname") })
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text(text = "Email") })
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text(text = "Username") })
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(text = "Password") })
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = repeatPassword,
-                    onValueChange = { repeatPassword = it },
-                    label = { Text(text = "Repeat password") })
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = {
-                    execSignup(
-                        name,
-                        surname,
-                        email,
-                        username,
-                        password,
-                        repeatPassword,
-                        db
-                    )
-                }) {
-                    Text(text = "Signup")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = { /*TODO*/ },
-                    shape = RoundedCornerShape(50),
-                    border = BorderStroke(1.dp, Color.Black)
-                ) {
-                    Text(text = "Already have an account?")
-                }
+                Text(text = "Already have an account?")
             }
         }
     }
@@ -161,7 +155,7 @@ fun execSignup(
         )
         db.collection("users").add(user).addOnSuccessListener { documentReference ->
             Log.d("debSignup", "DocumentSnapshot added with ID: ${documentReference.id}")
-            val currentUser = CurrentUser (
+            val currentUser = CurrentUser(
                 id = documentReference.id,
                 key = username
             )

@@ -31,68 +31,60 @@ import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
 fun MyProfileScreen(navController: NavHostController) {
-    Scaffold() { contentPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxSize()
-        ) {
-            item {
+    LazyColumn(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(top = 4.dp, start = 8.dp, end = 8.dp)
+            .fillMaxSize()
+    ) {
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.AccountCircle,
+                    contentDescription = "Profile pic",
+                    modifier = Modifier.size(80.dp),
+                    tint = Color.Black
+                )
+                Spacer(Modifier.width(10.dp))
                 Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .padding(top = 4.dp, start = 8.dp, end = 8.dp)
-                        .fillMaxSize()
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.AccountCircle,
-                            contentDescription = "Profile pic",
-                            modifier = Modifier.size(80.dp),
-                            tint = Color.Black
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Name",
-                                modifier = Modifier
-                                    .border(1.dp, Teal800, RoundedCornerShape(30))
-                                    .padding(6.dp)
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = "Surname",
-                                modifier = Modifier
-                                    .border(1.dp, Teal800, RoundedCornerShape(30))
-                                    .padding(6.dp)
-                                    .fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "Badges here",
+                        text = "Name",
                         modifier = Modifier
                             .border(1.dp, Teal800, RoundedCornerShape(30))
-                            .padding(30.dp)
+                            .padding(6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    PrintUserNotes(navController)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "Surname",
+                        modifier = Modifier
+                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .padding(6.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Badges here",
+                modifier = Modifier
+                    .border(1.dp, Teal800, RoundedCornerShape(30))
+                    .padding(30.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            PrintUserNotes(navController)
         }
     }
 }
