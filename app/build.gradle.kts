@@ -68,6 +68,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.room:room-common:2.6.1")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
     implementation("com.google.android.gms:play-services-location:21.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

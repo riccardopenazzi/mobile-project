@@ -1,6 +1,7 @@
 package it.unibo.noteforall.ui.screen.signup
 
 import android.Manifest
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
 import it.unibo.noteforall.utils.rememberPermission
+import org.koin.compose.koinInject
 
 @Composable
 fun SignupScreen(db: FirebaseFirestore) {
@@ -61,16 +63,18 @@ fun SignupScreen(db: FirebaseFirestore) {
         mutableStateOf("")
     }
 
-    val ctx = LocalContext.current
-
-    val locationService = LocationService(ctx)
+    val locationService = koinInject<LocationService>()
 
     val locationPermission = rememberPermission(
         Manifest.permission.ACCESS_COARSE_LOCATION
     ) { status ->
+        Log.i("test", "When: " + locationService.coordinates.toString())
         when (status) {
             PermissionStatus.Granted ->
+            {
                 locationService.requestCurrentLocation()
+                Log.i("test", "Granted: " + locationService.coordinates.toString())
+            }
 
             PermissionStatus.Denied -> {}
                 // Gestire il caso di negazione dei permessi
@@ -80,9 +84,12 @@ fun SignupScreen(db: FirebaseFirestore) {
                 // Gestire il caso di negazione dei permessi
                 // actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
 
-            PermissionStatus.Unknown -> {}
+            PermissionStatus.Unknown -> {
+                Log.i("test", "Unknown: " + locationService.coordinates.toString())
+            }
         }
     }
+    //Log.d("test", locationPermission.status.isGranted.toString())
 
     fun requestLocation() {
         if (locationPermission.status.isGranted) {
@@ -90,6 +97,7 @@ fun SignupScreen(db: FirebaseFirestore) {
         } else {
             locationPermission.launchPermissionRequest()
         }
+        Log.d("test", locationService.coordinates.toString())
     }
 
     LaunchedEffect(locationService.isLocationEnabled) {
@@ -149,6 +157,9 @@ fun SignupScreen(db: FirebaseFirestore) {
             IconButton(onClick = ::requestLocation) {
                 Icon(Icons.Outlined.AddLocationAlt, "Add location icon")
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Latitude: ${locationService.coordinates?.latitude ?: "-"}")
+            Text("Longitude: ${locationService.coordinates?.longitude ?: "-"}")
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = {
                 execSignup(
