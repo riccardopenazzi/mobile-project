@@ -1,8 +1,11 @@
 package it.unibo.noteforall.ui.screen.newNote
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,20 +20,37 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
 fun NewNoteScreen() {
+
+    /* Photo picker */
+    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { selectedImageUri = it }
+    )
+
+    fun photoPicker() {
+        photoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -56,7 +76,9 @@ fun NewNoteScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(imageVector = Icons.Outlined.AttachFile, contentDescription = "Choose note")
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Outlined.AttachFile, contentDescription = "Choose note")
+                }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Upload note",
@@ -73,7 +95,9 @@ fun NewNoteScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(imageVector = Icons.Outlined.Image, contentDescription = "Choose note preview")
+                IconButton(onClick = ::photoPicker) {
+                    Icon(imageVector = Icons.Outlined.Image, contentDescription = "Choose note preview")
+                }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Choose note preview",
