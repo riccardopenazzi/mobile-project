@@ -2,11 +2,18 @@ package it.unibo.noteforall.ui.screen.signup
 
 import android.Manifest
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,16 +23,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,9 +51,11 @@ import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
+import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 import org.koin.compose.koinInject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(db: FirebaseFirestore) {
     var name by remember {
@@ -104,6 +118,45 @@ fun SignupScreen(db: FirebaseFirestore) {
         //actions.setShowLocationDisabledAlert(locationService.isLocationEnabled == false)
     }
 
+    /* Bottom sheet */
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    // Photo picker
+    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { selectedImageUri = it }
+    )
+
+    fun photoPicker() {
+        photoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
+
+    /* Camera */
+    val ctx = LocalContext.current
+
+    val cameraLauncher = rememberCameraLauncher()
+
+    val cameraPermission = rememberPermission(Manifest.permission.CAMERA) { status ->
+        if (status.isGranted) {
+            cameraLauncher.captureImage()
+        } else {
+            Toast.makeText(ctx, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun takePicture() {
+        if (cameraPermission.status.isGranted) {
+            cameraLauncher.captureImage()
+        } else {
+            cameraPermission.launchPermissionRequest()
+        }
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -116,13 +169,33 @@ fun SignupScreen(db: FirebaseFirestore) {
                 fontSize = 30.sp,
                 modifier = Modifier.padding(vertical = 30.dp)
             )
-            Icon(
-                imageVector = Icons.Outlined.AccountCircle,
-                contentDescription = "Select profile image",
-                modifier = Modifier
-                    .size(50.dp)
-                    .clickable { /* TODO */ }
-            )
+            IconButton(onClick = { showBottomSheet = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.AccountCircle,
+                    contentDescription = "Select profile image",
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+
+            /* Bottom sheet */
+            if (showBottomSheet) {
+                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = ::photoPicker) {
+                            Text("Pick a photo")
+                        }
+                        Divider(Modifier.fillParentMaxWidth(0.8f))
+                        TextButton(onClick = ::takePicture) {
+                            Text("Take a picture")
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = name,

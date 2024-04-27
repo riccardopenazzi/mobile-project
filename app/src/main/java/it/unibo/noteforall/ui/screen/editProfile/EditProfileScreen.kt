@@ -1,8 +1,12 @@
 package it.unibo.noteforall.ui.screen.editProfile
 
 import android.Manifest
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,8 +77,20 @@ fun EditProfileScreen(db: FirebaseFirestore) {
 
     // Bottom sheet
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    // Photo picker
+    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { selectedImageUri = it }
+    )
+
+    fun photoPicker() {
+        photoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
 
     val ctx = LocalContext.current
 
@@ -103,27 +120,28 @@ fun EditProfileScreen(db: FirebaseFirestore) {
     ) {//min padding 56
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            IconButton(onClick = {
-                //::takePicture
-                showBottomSheet = true
-            }) {
+            IconButton(onClick = { showBottomSheet = true }) {
                 Icon(
                     Icons.Outlined.AccountCircle,
                     "Profile icon",
                     Modifier.size(80.dp))
             }
 
+            /* Bottom sheet */
             if (showBottomSheet) {
                 ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
-                    Column {
-                        TextButton(onClick = {
-
-                        }) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = ::photoPicker) {
                             Text("Pick a photo")
                         }
+                        Divider(Modifier.fillParentMaxWidth(0.8f))
                         TextButton(onClick = ::takePicture) {
                             Text("Take a picture")
                         }
+                        Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
             }
@@ -180,19 +198,6 @@ fun EditProfileScreen(db: FirebaseFirestore) {
             }
         }
     }
-}
-@Composable
-fun photoPicker() {
-    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        // Callback is invoked after the user selects a media item or closes the
-        // photo picker.
-        if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-        } else {
-            Log.d("PhotoPicker", "No media selected")
-        }
-    }
-    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 }
 
 fun getUserInfo(db: FirebaseFirestore) {
