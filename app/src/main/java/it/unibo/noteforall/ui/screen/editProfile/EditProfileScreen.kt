@@ -1,7 +1,10 @@
 package it.unibo.noteforall.ui.screen.editProfile
 
 import android.Manifest
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,28 +19,31 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(db: FirebaseFirestore) {
     var name by remember {
@@ -63,6 +69,11 @@ fun EditProfileScreen(db: FirebaseFirestore) {
             password = user.getString("password").toString()
             repeatPassword = password
         }
+
+    // Bottom sheet
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     val ctx = LocalContext.current
 
@@ -92,12 +103,31 @@ fun EditProfileScreen(db: FirebaseFirestore) {
     ) {//min padding 56
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            IconButton(onClick = ::takePicture) {
+            IconButton(onClick = {
+                //::takePicture
+                showBottomSheet = true
+            }) {
                 Icon(
                     Icons.Outlined.AccountCircle,
                     "Profile icon",
                     Modifier.size(80.dp))
             }
+
+            if (showBottomSheet) {
+                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
+                    Column {
+                        TextButton(onClick = {
+
+                        }) {
+                            Text("Pick a photo")
+                        }
+                        TextButton(onClick = ::takePicture) {
+                            Text("Take a picture")
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(value = name, onValueChange = { name = it }, label = {
                 Text(text = "Name")
@@ -150,6 +180,19 @@ fun EditProfileScreen(db: FirebaseFirestore) {
             }
         }
     }
+}
+@Composable
+fun photoPicker() {
+    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        // Callback is invoked after the user selects a media item or closes the
+        // photo picker.
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
+    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 }
 
 fun getUserInfo(db: FirebaseFirestore) {
