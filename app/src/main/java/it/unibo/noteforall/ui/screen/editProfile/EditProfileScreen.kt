@@ -43,8 +43,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.firebase.StorageUtil
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 
@@ -80,16 +82,19 @@ fun EditProfileScreen(db: FirebaseFirestore) {
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // Photo picker
-    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var isPhotoSelected by remember { mutableStateOf(false) }
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { selectedImageUri = it }
     )
 
     fun photoPicker() {
+        isPhotoSelected = true
         photoPickerLauncher.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         )
+        Log.i("debImg", selectedImageUri.toString())
     }
 
     val ctx = LocalContext.current
@@ -102,9 +107,11 @@ fun EditProfileScreen(db: FirebaseFirestore) {
         } else {
             Toast.makeText(ctx, "Permission denied", Toast.LENGTH_SHORT).show()
         }
+        Log.i("debImg", selectedImageUri.toString())
     }
 
     fun takePicture() {
+        isPhotoSelected = true
         if (cameraPermission.status.isGranted) {
             cameraLauncher.captureImage()
         } else {
@@ -121,15 +128,23 @@ fun EditProfileScreen(db: FirebaseFirestore) {
         item {
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = { showBottomSheet = true }) {
-                Icon(
-                    Icons.Outlined.AccountCircle,
-                    "Profile icon",
-                    Modifier.size(80.dp))
+                if (isPhotoSelected) {
+                    AsyncImage(model = selectedImageUri, contentDescription = null, modifier = Modifier.size(80.dp))
+                } else {
+                    Icon(
+                        Icons.Outlined.AccountCircle,
+                        "Profile icon",
+                        Modifier.size(80.dp)
+                    )
+                }
             }
 
             /* Bottom sheet */
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
+                ModalBottomSheet(
+                    onDismissRequest = { showBottomSheet = false },
+                    sheetState = sheetState
+                ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -188,7 +203,11 @@ fun EditProfileScreen(db: FirebaseFirestore) {
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 Button(
-                    onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                    onClick = {
+                        selectedImageUri?.let{
+                            StorageUtil.uploadToStorage(uri=it, context=ctx, type="image")
+                        }
+                    }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green
                     ),
                     modifier = Modifier.weight(1f)
