@@ -9,10 +9,12 @@ import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 import it.unibo.noteforall.ui.screen.home.HomeScreen
+import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
+import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.ui.screen.viewNote.ViewNoteScreen
 
 sealed class NoteForAllRoute (
@@ -25,13 +27,12 @@ sealed class NoteForAllRoute (
     data object Saved: NoteForAllRoute("saved", "Saved")
     data object Search: NoteForAllRoute("search", "Search")
     data object EditProfile: NoteForAllRoute("edit_profile", "Edit Profile")
-
     data object NewNote: NoteForAllRoute("new_note", "New Note")
-
     data object ViewNote: NoteForAllRoute("view_note", "Note")
-
+    data object Login: NoteForAllRoute("login", "Login")
+    data object Signup: NoteForAllRoute("signup", "Signup")
     companion object {
-        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote)
+        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login)
     }
 }
 
@@ -48,7 +49,6 @@ fun NoteForAllNavGraph(
     ) {
         with(NoteForAllRoute.Home) {
             composable(route) {
-
                 HomeScreen(navController)
             }
         }
@@ -80,6 +80,16 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.ViewNote) {
             composable(route) {
                 ViewNoteScreen(navController)
+            }
+        }
+        with(NoteForAllRoute.Login) {
+            composable(route) {
+                LoginScreen(db)
+            }
+        }
+        with(NoteForAllRoute.Signup) {
+            composable(route) {
+                SignupScreen(db)
             }
         }
     }
