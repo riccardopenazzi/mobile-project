@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.myProfile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,12 +26,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
 fun MyProfileScreen(navController: NavHostController) {
+    val profileImageUrl = "gs://noteforall-2f581.appspot.com/users_pic/67903fe5-40ed-4887-ac86-4eeab32ba193.jpg"
     LazyColumn(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,12 +48,20 @@ fun MyProfileScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
+                profileImageUrl.let { url ->
+                    val painter = rememberAsyncImagePainter(url)
+                    Image(
+                        painter = painter,
+                        contentDescription = "Profile pic",
+                        modifier = Modifier.size(80.dp),
+                    )
+                }
+                /*Icon(
                     imageVector = Icons.Outlined.AccountCircle,
                     contentDescription = "Profile pic",
                     modifier = Modifier.size(80.dp),
                     tint = Color.Black
-                )
+                )*/
                 Spacer(Modifier.width(10.dp))
                 Column(
                     verticalArrangement = Arrangement.Center,

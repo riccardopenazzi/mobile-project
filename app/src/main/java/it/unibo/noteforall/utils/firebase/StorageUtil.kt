@@ -2,10 +2,13 @@ package it.unibo.noteforall.utils.firebase
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import it.unibo.noteforall.utils.CurrentUserSingleton
 import java.util.UUID
 
 class StorageUtil {
@@ -43,11 +46,26 @@ class StorageUtil {
                 }.addOnSuccessListener { taskSnapshot ->
                     // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(
-                        context,
-                        "upload successed",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val userRef = Firebase.firestore.collection("users").document(
+                        CurrentUserSingleton.currentUser!!.id)
+                    val picPosition =
+                        "gs://noteforall-2f581.appspot.com/users_pic/$unique_image_name.jpg"
+                    userRef.update("user_pic", picPosition)
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                context,
+                                "User profile picture updated successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                context,
+                                "Error updating user profile picture: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            e.message?.let { it1 -> Log.i("debImg", it1) }
+                        }
                 }
             }
 
