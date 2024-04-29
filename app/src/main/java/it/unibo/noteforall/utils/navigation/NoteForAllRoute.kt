@@ -9,8 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.ui.screen.editProfile.EditProfileActions
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
-import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
+//import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
@@ -44,11 +45,12 @@ sealed class NoteForAllRoute (
 fun NoteForAllNavGraph(
     navController: NavHostController,
     modifier: Modifier,
-    db: FirebaseFirestore
+    db: FirebaseFirestore,
+    isLogged: Boolean
 ) {
     NavHost(
         navController = navController,
-        startDestination = NoteForAllRoute.Home.route,
+        startDestination = if (isLogged) NoteForAllRoute.Home.route else NoteForAllRoute.Login.route,
         modifier = modifier
     ) {
         with(NoteForAllRoute.Home) {
@@ -73,7 +75,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.EditProfile) {
             composable(route) {
-                val editProfileVm = koinViewModel<EditProfileViewModel>()
+                val editProfileVm = koinViewModel<EditProfileActions.EditProfileViewModel>()
                 val state by editProfileVm.state.collectAsStateWithLifecycle()
                 EditProfileScreen()
             }
@@ -90,12 +92,12 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Login) {
             composable(route) {
-                LoginScreen(db)
+                LoginScreen(db, navController)
             }
         }
         with(NoteForAllRoute.Signup) {
             composable(route) {
-                SignupScreen(db)
+                SignupScreen(db, navController)
             }
         }
     }

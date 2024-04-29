@@ -38,8 +38,19 @@ import it.unibo.noteforall.ui.theme.Teal800
 @Composable
 fun NewNoteScreen() {
 
+    var title by remember {
+        mutableStateOf("")
+    }
+    var category by remember {
+        mutableStateOf("")
+    }
+    var description by remember {
+        mutableStateOf("")
+    }
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     /* Photo picker */
-    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { selectedImageUri = it }
@@ -59,15 +70,15 @@ fun NewNoteScreen() {
     ) {//min padding 56
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = "", onValueChange = {}, label = {
+            OutlinedTextField(value = title, onValueChange = { title = it }, label = {
                 Text(text = "Title")
             }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = "", onValueChange = {}, label = {
+            OutlinedTextField(value = category, onValueChange = { category = it }, label = {
                 Text(text = "Category")
             }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = "", onValueChange = {}, label = {
+            OutlinedTextField(value = description, onValueChange = { description = it }, label = {
                 Text(text = "Description")
             }, modifier = Modifier.fillMaxWidth(), minLines = 10)
             Spacer(modifier = Modifier.height(8.dp))

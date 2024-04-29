@@ -31,14 +31,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.TitleCard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @Composable
-fun LoginScreen(db: FirebaseFirestore) {
+fun LoginScreen(db: FirebaseFirestore, navController: NavHostController) {
     var key by remember {
         mutableStateOf("")
     }
@@ -66,12 +68,21 @@ fun LoginScreen(db: FirebaseFirestore) {
                 Text(text = "Password")
             })
             Spacer(modifier = Modifier.height(14.dp))
-            Button(onClick = { execLogin(key, password, db) }) {
+            Button(onClick = {
+                execLogin(key, password, db) { success ->
+                    if (success) {
+                        Log.i("debLogin", "login ok")
+                        navController.navigate(NoteForAllRoute.Home.route)
+                    } else {
+                        Log.i("debLogin", "login NON ok")
+                    }
+                }
+            }) {
                 Text(text = "Login")
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { navController.navigate(NoteForAllRoute.Signup.route) },
                 shape = RoundedCornerShape(50),
                 border = BorderStroke(1.dp, Color.Black)
             ) {
@@ -81,7 +92,7 @@ fun LoginScreen(db: FirebaseFirestore) {
     }
 }
 
-fun execLogin(key: String, password: String, db: FirebaseFirestore) {
+fun execLogin(key: String, password: String, db: FirebaseFirestore, onResult: (Boolean) -> Unit) {
     if (key.isNotEmpty() && password.isNotEmpty()) {
         db.collection("users").get().addOnSuccessListener { res ->
             for (user in res) {
@@ -89,21 +100,19 @@ fun execLogin(key: String, password: String, db: FirebaseFirestore) {
                     user.getString("password") == password
                 ) {
                     Log.i("debLogin", "Login success test id = ${user.id}")
-                    /*val currentUser = CurrentUser (
-                        id = user.id,
-                        key = key
-                    )
-                    CurrentUserSingleton.currentUser = currentUser*/
-                    Log.i(
-                        "debLogin",
-                        "current user info: ${CurrentUserSingleton.currentUser!!.id} ${CurrentUserSingleton.currentUser!!.key}"
-                    )
+                    onResult(true) // Chiamare la funzione di callback con true se il login ha successo
                     return@addOnSuccessListener
                 }
             }
-            Log.i("debLogin", "Login failed, provided ${key} and ${password}")
+            // Se il ciclo termina senza trovare corrispondenze, chiamare la funzione di callback con false
+            onResult(false)
         }.addOnFailureListener { exception ->
             Log.w("debLogin", "Error getting documents.", exception)
+            // Se si verifica un errore durante la richiesta al database, chiamare la funzione di callback con false
+            onResult(false)
         }
+    } else {
+        // Se uno dei campi è vuoto, chiamare la funzione di callback con false
+        onResult(false)
     }
 }

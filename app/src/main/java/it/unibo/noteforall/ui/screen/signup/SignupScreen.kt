@@ -46,18 +46,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupScreen(db: FirebaseFirestore) {
+fun SignupScreen(db: FirebaseFirestore, navController: NavHostController) {
     var name by remember {
         mutableStateOf("")
     }
@@ -242,14 +244,15 @@ fun SignupScreen(db: FirebaseFirestore) {
                     username,
                     password,
                     repeatPassword,
-                    db
+                    db,
+                    navController
                 )
             }) {
                 Text(text = "Signup")
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { navController.navigate(NoteForAllRoute.Login.route) },
                 shape = RoundedCornerShape(50),
                 border = BorderStroke(1.dp, Color.Black)
             ) {
@@ -266,7 +269,8 @@ fun execSignup(
     username: String,
     password: String,
     repeatPassword: String,
-    db: FirebaseFirestore
+    db: FirebaseFirestore,
+    navController: NavHostController
 ) {
     if (name.isNotEmpty() &&
         surname.isNotEmpty() &&
@@ -290,6 +294,7 @@ fun execSignup(
                 key = username
             )
             CurrentUserSingleton.currentUser = currentUser
+            navController.navigate(NoteForAllRoute.Home.route)
         }
             .addOnFailureListener { e ->
                 Log.w("debSignup", "Error adding document", e)
