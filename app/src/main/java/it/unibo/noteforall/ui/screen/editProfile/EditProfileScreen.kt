@@ -4,8 +4,6 @@ import android.Manifest
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,13 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -37,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,8 +48,13 @@ import it.unibo.noteforall.utils.rememberPermission
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(db: FirebaseFirestore) {
-    var name by remember {
+fun EditProfileScreen(
+     ,
+    state: EditProfileState,
+    actions: EditProfileActions,
+    onSubmit: () -> Unit
+) {
+    /*var name by remember {
         mutableStateOf("")
     }
     var surname by remember {
@@ -70,21 +69,8 @@ fun EditProfileScreen(db: FirebaseFirestore) {
     var repeatPassword by remember {
         mutableStateOf("")
     }
-    val userPicUrl = remember { mutableStateOf("") }
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { document ->
-        val tmp = document.getString("user_pic").toString()
-        userPicUrl.value = tmp
-    }.addOnFailureListener {exception ->
-        Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
-    }
-    db.collection("users").document(CurrentUserSingleton.currentUser?.id.toString()).get()
-        .addOnSuccessListener { user ->
-            name = user.getString("name").toString()
-            surname = user.getString("surname").toString()
-            username = user.getString("username").toString()
-            password = user.getString("password").toString()
-            repeatPassword = password
-        }
+    val userPicUrl = remember { mutableStateOf("") }*/
+
 
     // Bottom sheet
     val sheetState = rememberModalBottomSheetState()

@@ -1,13 +1,16 @@
 package it.unibo.noteforall.utils.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
+import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
@@ -16,6 +19,7 @@ import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.ui.screen.viewNote.ViewNoteScreen
+import org.koin.androidx.compose.koinViewModel
 
 sealed class NoteForAllRoute (
     val route: String,
@@ -54,7 +58,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Profile) {
             composable(route) {
-                MyProfileScreen(navController = navController)
+                MyProfileScreen(navController = navController, db)
             }
         }
         with(NoteForAllRoute.Saved) {
@@ -69,7 +73,9 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.EditProfile) {
             composable(route) {
-                EditProfileScreen(db)
+                val editProfileVm = koinViewModel<EditProfileViewModel>()
+                val state by editProfileVm.state.collectAsStateWithLifecycle()
+                EditProfileScreen()
             }
         }
         with(NoteForAllRoute.NewNote) {
