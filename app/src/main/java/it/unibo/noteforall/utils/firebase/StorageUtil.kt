@@ -48,8 +48,7 @@ class StorageUtil {
                     // ...
                     val userRef = Firebase.firestore.collection("users").document(
                         CurrentUserSingleton.currentUser!!.id)
-                    val picPosition =
-                        "gs://noteforall-2f581.appspot.com/users_pic/$unique_image_name.jpg"
+                    val picPosition = "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$unique_image_name.jpg?alt=media"
                     userRef.update("user_pic", picPosition)
                         .addOnSuccessListener {
                             Toast.makeText(

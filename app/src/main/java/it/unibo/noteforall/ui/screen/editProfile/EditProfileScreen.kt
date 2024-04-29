@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -67,6 +69,13 @@ fun EditProfileScreen(db: FirebaseFirestore) {
     }
     var repeatPassword by remember {
         mutableStateOf("")
+    }
+    val userPicUrl = remember { mutableStateOf("") }
+    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { document ->
+        val tmp = document.getString("user_pic").toString()
+        userPicUrl.value = tmp
+    }.addOnFailureListener {exception ->
+        Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }
     db.collection("users").document(CurrentUserSingleton.currentUser?.id.toString()).get()
         .addOnSuccessListener { user ->
@@ -128,7 +137,12 @@ fun EditProfileScreen(db: FirebaseFirestore) {
         item {
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = { showBottomSheet = true }) {
-                if (isPhotoSelected) {
+                AsyncImage(
+                    model = if(isPhotoSelected) selectedImageUri else userPicUrl.value,
+                    contentDescription = "img",
+                    modifier = Modifier.clip(CircleShape).size(80.dp)
+                )
+                /*if (isPhotoSelected) {
                     AsyncImage(model = selectedImageUri, contentDescription = null, modifier = Modifier.size(80.dp))
                 } else {
                     Icon(
@@ -136,7 +150,7 @@ fun EditProfileScreen(db: FirebaseFirestore) {
                         "Profile icon",
                         Modifier.size(80.dp)
                     )
-                }
+                }*/
             }
 
             /* Bottom sheet */
