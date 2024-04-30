@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileActions
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 //import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
@@ -46,7 +47,8 @@ fun NoteForAllNavGraph(
     navController: NavHostController,
     modifier: Modifier,
     db: FirebaseFirestore,
-    isLogged: Boolean
+    isLogged: Boolean,
+    internalDb: NoteForAllDatabase
 ) {
     NavHost(
         navController = navController,
@@ -92,12 +94,12 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Login) {
             composable(route) {
-                LoginScreen(db, navController)
+                LoginScreen(db, navController, internalDb)
             }
         }
         with(NoteForAllRoute.Signup) {
             composable(route) {
-                SignupScreen(db, navController)
+                SignupScreen(db, navController, internalDb)
             }
         }
     }
