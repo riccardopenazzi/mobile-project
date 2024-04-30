@@ -42,8 +42,6 @@ class EditProfileViewModel(db: FirebaseFirestore) : ViewModel() {
             }
     }
 
-
-
     val actions = object : EditProfileActions {
         override fun setName(name: String) =
             _state.update { it.copy(name = name) }

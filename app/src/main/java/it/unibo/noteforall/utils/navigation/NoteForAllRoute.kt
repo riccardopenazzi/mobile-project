@@ -1,6 +1,5 @@
 package it.unibo.noteforall.utils.navigation
 
-//import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,6 +18,9 @@ import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
+import it.unibo.noteforall.ui.screen.settings.SettingsScreen
+import it.unibo.noteforall.ui.screen.settings.ThemeState
+import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.ui.screen.viewNote.ViewNoteScreen
 import org.koin.androidx.compose.koinViewModel
@@ -37,8 +39,9 @@ sealed class NoteForAllRoute (
     data object ViewNote: NoteForAllRoute("view_note", "Note")
     data object Login: NoteForAllRoute("login", "Login")
     data object Signup: NoteForAllRoute("signup", "Signup")
+    data object Settings: NoteForAllRoute("settings", "Settings")
     companion object {
-        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup)
+        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup, Settings)
     }
 }
 
@@ -48,7 +51,10 @@ fun NoteForAllNavGraph(
     modifier: Modifier,
     db: FirebaseFirestore,
     isLogged: Boolean,
-    internalDb: NoteForAllDatabase
+    internalDb: NoteForAllDatabase,
+    state: ThemeState,
+    themeVm: ThemeViewModel
+
 ) {
     NavHost(
         navController = navController,
@@ -100,6 +106,11 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.Signup) {
             composable(route) {
                 SignupScreen(db, navController, internalDb)
+            }
+        }
+        with(NoteForAllRoute.Settings) {
+            composable(route) {
+                SettingsScreen(navController, internalDb, state, themeVm)
             }
         }
     }

@@ -1,9 +1,9 @@
 package it.unibo.noteforall
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
@@ -27,18 +26,19 @@ import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.NoteForAllDatabase
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NavigationBar
-import it.unibo.noteforall.ui.screen.home.HomeScreen
-import it.unibo.noteforall.ui.screen.login.LoginScreen
+import it.unibo.noteforall.ui.screen.settings.Theme
+import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.ui.theme.NoteForAllTheme
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
-import it.unibo.noteforall.utils.navigation.bottomNavigationItems
 import it.unibo.noteforall.utils.navigation.NoteForAllNavGraph
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import it.unibo.noteforall.utils.navigation.bottomNavigationItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     val db = Firebase.firestore
@@ -54,7 +54,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NoteForAllTheme {
+            val themeVm = koinViewModel<ThemeViewModel>()
+            val state by themeVm.state.collectAsStateWithLifecycle()
+
+            NoteForAllTheme(
+                darkTheme = when(state.theme) {
+                    Theme.Light -> false
+                    Theme.Dark -> true
+                    Theme.System -> isSystemInDarkTheme()
+                }
+            ) {
                 val items = bottomNavigationItems
                 var selectedItemIndex by rememberSaveable {
                     mutableStateOf(0)
@@ -112,7 +121,9 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(contentPadding),
                             db,
                             isLogged,
-                            internalDb
+                            internalDb,
+                            state,
+                            themeVm
                         )
                     }
                 }
