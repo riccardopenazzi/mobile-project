@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileActions
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
+import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 //import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
@@ -77,7 +78,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.EditProfile) {
             composable(route) {
-                val editProfileVm = koinViewModel<EditProfileActions.EditProfileViewModel>()
+                val editProfileVm = koinViewModel<EditProfileViewModel>()
                 val state by editProfileVm.state.collectAsStateWithLifecycle()
                 EditProfileScreen()
             }
