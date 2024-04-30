@@ -1,5 +1,6 @@
 package it.unibo.noteforall.utils.navigation
 
+//import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -10,10 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.NoteForAllDatabase
-import it.unibo.noteforall.ui.screen.editProfile.EditProfileActions
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
-//import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
@@ -80,7 +79,7 @@ fun NoteForAllNavGraph(
             composable(route) {
                 val editProfileVm = koinViewModel<EditProfileViewModel>()
                 val state by editProfileVm.state.collectAsStateWithLifecycle()
-                EditProfileScreen()
+                EditProfileScreen(db, state, editProfileVm.actions, {})
             }
         }
         with(NoteForAllRoute.NewNote) {

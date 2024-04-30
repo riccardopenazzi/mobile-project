@@ -37,11 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.firebase.StorageUtil
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
@@ -49,7 +49,7 @@ import it.unibo.noteforall.utils.rememberPermission
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-     ,
+     db: FirebaseFirestore,
     state: EditProfileState,
     actions: EditProfileActions,
     onSubmit: () -> Unit
@@ -122,11 +122,12 @@ fun EditProfileScreen(
     ) {//min padding 56
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            IconButton(onClick = { showBottomSheet = true }) {
+            IconButton(onClick = { showBottomSheet = true }, Modifier.size(80.dp)) {
                 AsyncImage(
-                    model = if(isPhotoSelected) selectedImageUri else userPicUrl.value,
+                    model = if(isPhotoSelected) selectedImageUri else state.imageURL,
                     contentDescription = "img",
-                    modifier = Modifier.clip(CircleShape).size(80.dp)
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.clip(CircleShape)
                 )
                 /*if (isPhotoSelected) {
                     AsyncImage(model = selectedImageUri, contentDescription = null, modifier = Modifier.size(80.dp))
@@ -162,25 +163,54 @@ fun EditProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = name, onValueChange = { name = it }, label = {
-                Text(text = "Name")
-            }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = surname, onValueChange = { surname = it }, label = {
-                Text(text = "Surname")
-            }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = username, onValueChange = { username = it }, label = {
-                Text(text = "Username")
-            }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = {
-                Text(text = "Password")
-            }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = state.name,
+                onValueChange = actions::setName,
+                label = {
+                    Text(text = "Name")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = repeatPassword,
-                onValueChange = { repeatPassword = it },
+                value = state.surname,
+                onValueChange = actions::setSurname,
+                label = {
+                    Text(text = "Surname")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.username,
+                onValueChange = actions::setUsername,
+                label = {
+                    Text(text = "Username")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.oldPassword,
+                onValueChange = actions::setOldPassword,
+                label = {
+                    Text(text = "Old Password")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.newPassword,
+                onValueChange = actions::setNewPassword,
+                label = {
+                    Text(text = "New Password")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.repeatPassword,
+                onValueChange = actions::setRepeatPassword,
                 label = {
                     Text(text = "Repeat password")
                 },
