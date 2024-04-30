@@ -64,7 +64,16 @@ fun NewNoteScreen() {
         )
     }
 
+    /* File picker */
+    var noteUri by remember { mutableStateOf<Uri?>(null) }
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = {
+            noteUri = it
+        })
+
     val ctx = LocalContext.current
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -90,7 +99,7 @@ fun NewNoteScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { documentPickerLauncher.launch(arrayOf("application/pdf")) }) {
                     Icon(
                         imageVector = Icons.Outlined.AttachFile,
                         contentDescription = "Choose note"
@@ -136,7 +145,7 @@ fun NewNoteScreen() {
             ) {
                 Button(
                     onClick = {
-                        uploadPost(selectedImageUri, ctx, title, description, category)
+                        uploadPost(selectedImageUri, ctx, title, description, category, noteUri)
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green
                     )
@@ -148,13 +157,23 @@ fun NewNoteScreen() {
     }
 }
 
-fun uploadPost(uri: Uri?, ctx: Context, title: String, description: String, category: String) {
+fun uploadPost(
+    imageUri: Uri?,
+    ctx: Context,
+    title: String,
+    description: String,
+    category: String,
+    noteUri: Uri?
+) {
     val post = hashMapOf(
         "title" to title,
         "category" to category,
         "description" to description
     )
-    uri?.let {
-        StorageUtil.uploadToStorage(uri = it, context = ctx, type = "image", "post_pic", post)
+    imageUri?.let {
+        val tmp = it
+        noteUri?.let {
+            StorageUtil.uploadToStorage(imageUri = tmp, context = ctx, type = "image", "post_pic", post, it)
+        }
     }
 }
