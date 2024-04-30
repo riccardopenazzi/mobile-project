@@ -1,4 +1,4 @@
-package it.unibo.noteforall.data
+package it.unibo.noteforall.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

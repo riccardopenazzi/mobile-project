@@ -3,7 +3,7 @@ package it.unibo.noteforall
 import androidx.room.Room
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import it.unibo.noteforall.data.NoteForAllDatabase
+import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.utils.LocationService

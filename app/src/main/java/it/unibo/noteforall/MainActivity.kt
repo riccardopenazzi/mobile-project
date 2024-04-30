@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import it.unibo.noteforall.data.NoteForAllDatabase
+import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NavigationBar
 import it.unibo.noteforall.ui.screen.settings.Theme

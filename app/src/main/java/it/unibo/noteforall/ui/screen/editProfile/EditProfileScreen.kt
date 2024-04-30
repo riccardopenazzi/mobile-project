@@ -42,7 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.utils.firebase.StorageUtil
+import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 

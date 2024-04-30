@@ -1,4 +1,4 @@
-package it.unibo.noteforall.utils.firebase
+package it.unibo.noteforall.data.firebase
 
 import android.content.Context
 import android.net.Uri

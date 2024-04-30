@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import it.unibo.noteforall.ui.theme.Teal800
-import it.unibo.noteforall.utils.firebase.StorageUtil
+import it.unibo.noteforall.data.firebase.StorageUtil
 
 @Composable
 fun NewNoteScreen() {

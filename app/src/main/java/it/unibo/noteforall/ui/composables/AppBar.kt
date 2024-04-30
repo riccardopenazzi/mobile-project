@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.data.NoteForAllDatabase
+import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)

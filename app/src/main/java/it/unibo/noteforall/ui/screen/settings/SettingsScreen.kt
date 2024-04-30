@@ -30,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.data.NoteForAllDatabase
-import it.unibo.noteforall.data.User
+import it.unibo.noteforall.data.database.NoteForAllDatabase
+import it.unibo.noteforall.data.database.User
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope

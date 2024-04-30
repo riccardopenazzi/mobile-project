@@ -1,4 +1,4 @@
-package it.unibo.noteforall.data
+package it.unibo.noteforall.data.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.data.NoteForAllDatabase
+import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
