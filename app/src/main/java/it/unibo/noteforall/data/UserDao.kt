@@ -1,6 +1,7 @@
 package it.unibo.noteforall.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 
@@ -11,4 +12,7 @@ interface UserDao {
 
     @Upsert
     suspend fun insertUserId(user: User)
+
+    @Delete
+    suspend fun deleteUserId(user: User)
 }

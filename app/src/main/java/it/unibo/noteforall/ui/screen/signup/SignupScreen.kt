@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.NoteForAllDatabase
+import it.unibo.noteforall.data.User
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
@@ -53,6 +54,9 @@ import it.unibo.noteforall.utils.PermissionStatus
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -247,7 +251,8 @@ fun SignupScreen(
                     password,
                     repeatPassword,
                     db,
-                    navController
+                    navController,
+                    internalDb
                 )
             }) {
                 Text(text = "Signup")
@@ -272,7 +277,8 @@ fun execSignup(
     password: String,
     repeatPassword: String,
     db: FirebaseFirestore,
-    navController: NavHostController
+    navController: NavHostController,
+    internalDb: NoteForAllDatabase
 ) {
     if (name.isNotEmpty() &&
         surname.isNotEmpty() &&
@@ -289,13 +295,16 @@ fun execSignup(
             "username" to username,
             "password" to password
         )
-        db.collection("users").add(user).addOnSuccessListener { documentReference ->
-            Log.d("debSignup", "DocumentSnapshot added with ID: ${documentReference.id}")
+        db.collection("users").add(user).addOnSuccessListener { user ->
+            Log.d("debSignup", "DocumentSnapshot added with ID: ${user.id}")
             val currentUser = CurrentUser(
-                id = documentReference.id,
-                key = username
+                id = user.id
             )
             CurrentUserSingleton.currentUser = currentUser
+            CoroutineScope(Dispatchers.IO).launch {
+                val userTmp = User(userId = user.id)
+                internalDb.dao.insertUserId(userTmp)
+            }
             navController.navigate(NoteForAllRoute.Home.route)
         }
             .addOnFailureListener { e ->

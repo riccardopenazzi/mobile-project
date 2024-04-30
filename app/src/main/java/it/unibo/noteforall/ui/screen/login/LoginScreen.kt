@@ -27,6 +27,8 @@ import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.NoteForAllDatabase
 import it.unibo.noteforall.data.User
+import it.unibo.noteforall.utils.CurrentUser
+import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +72,10 @@ fun LoginScreen(
                     if (success) {
                         Log.i("debLogin", "login ok")
                         if (id != null) {
+                            val currentUser = CurrentUser(
+                                id = id
+                            )
+                            CurrentUserSingleton.currentUser = currentUser
                             CoroutineScope(Dispatchers.IO).launch {
                                 val user = User(userId = id)
                                 internalDb.dao.insertUserId(user)

@@ -38,7 +38,7 @@ sealed class NoteForAllRoute (
     data object Login: NoteForAllRoute("login", "Login")
     data object Signup: NoteForAllRoute("signup", "Signup")
     companion object {
-        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login)
+        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup)
     }
 }
 
