@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.newNote
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -31,9 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import it.unibo.noteforall.ui.theme.Teal800
+import it.unibo.noteforall.utils.firebase.StorageUtil
 
 @Composable
 fun NewNoteScreen() {
@@ -47,7 +50,6 @@ fun NewNoteScreen() {
     var description by remember {
         mutableStateOf("")
     }
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     /* Photo picker */
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -62,6 +64,7 @@ fun NewNoteScreen() {
         )
     }
 
+    val ctx = LocalContext.current
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -88,7 +91,10 @@ fun NewNoteScreen() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Outlined.AttachFile, contentDescription = "Choose note")
+                    Icon(
+                        imageVector = Icons.Outlined.AttachFile,
+                        contentDescription = "Choose note"
+                    )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
@@ -107,7 +113,10 @@ fun NewNoteScreen() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = ::photoPicker) {
-                    Icon(imageVector = Icons.Outlined.Image, contentDescription = "Choose note preview")
+                    Icon(
+                        imageVector = Icons.Outlined.Image,
+                        contentDescription = "Choose note preview"
+                    )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
@@ -126,7 +135,9 @@ fun NewNoteScreen() {
                 horizontalArrangement = Arrangement.End
             ) {
                 Button(
-                    onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                    onClick = {
+                        uploadPost(selectedImageUri, ctx, title, description, category)
+                    }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green
                     )
                 ) {
@@ -134,5 +145,16 @@ fun NewNoteScreen() {
                 }
             }
         }
+    }
+}
+
+fun uploadPost(uri: Uri?, ctx: Context, title: String, description: String, category: String) {
+    val post = hashMapOf(
+        "title" to title,
+        "category" to category,
+        "description" to description
+    )
+    uri?.let {
+        StorageUtil.uploadToStorage(uri = it, context = ctx, type = "image", "post_pic", post)
     }
 }

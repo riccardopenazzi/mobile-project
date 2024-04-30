@@ -235,7 +235,7 @@ fun EditProfileScreen(
                 Button(
                     onClick = {
                         selectedImageUri?.let{
-                            StorageUtil.uploadToStorage(uri=it, context=ctx, type="image")
+                            StorageUtil.uploadToStorage(uri=it, context=ctx, type="image", "user_pic")
                         }
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green

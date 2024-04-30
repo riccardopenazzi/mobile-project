@@ -16,55 +16,58 @@ class StorageUtil {
 
     companion object {
 
-        fun uploadToStorage(uri: Uri, context: Context, type: String) {
+        fun uploadToStorage(uri: Uri, context: Context, type: String, location: String, post: HashMap<String, String>? = null) {
             val storage = Firebase.storage
-
-            // Create a storage reference from our app
-            var storageRef = storage.reference
-
-            val unique_image_name = UUID.randomUUID()
-            var spaceRef: StorageReference
-
-
-            spaceRef = storageRef.child("users_pic/$unique_image_name.jpg")
-
-
+            val storageRef = storage.reference
+            val uniqueImageName = UUID.randomUUID()
+            val spaceRef = when (location) {
+                "post_pic" -> storageRef.child("posts_pic/$uniqueImageName.jpg")
+                else -> {
+                    storageRef.child("users_pic/$uniqueImageName.jpg")
+                }
+            }
             val byteArray: ByteArray? = context.contentResolver
                 .openInputStream(uri)
                 ?.use { it.readBytes() }
-
             byteArray?.let {
-
-                var uploadTask = spaceRef.putBytes(byteArray)
+                val uploadTask = spaceRef.putBytes(byteArray)
                 uploadTask.addOnFailureListener {
                     Toast.makeText(
                         context,
                         "upload failed",
                         Toast.LENGTH_SHORT
                     ).show()
-                    // Handle unsuccessful uploads
-                }.addOnSuccessListener { taskSnapshot ->
-                    // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-                    // ...
+                }.addOnSuccessListener {
                     val userRef = Firebase.firestore.collection("users").document(
-                        CurrentUserSingleton.currentUser!!.id)
-                    val picPosition = "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$unique_image_name.jpg?alt=media"
-                    userRef.update("user_pic", picPosition)
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                context,
-                                "User profile picture updated successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        CurrentUserSingleton.currentUser!!.id
+                    )
+                    if (location == "user_pic") {
+                        val picPosition =
+                            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$uniqueImageName.jpg?alt=media"
+                        userRef.update("user_pic", picPosition)
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    context,
+                                    "User profile picture updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    context,
+                                    "Error updating user profile picture: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                e.message?.let { it1 -> Log.i("debImg", it1) }
+                            }
+                    } else {
+                        val picPosition =
+                            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_pic%2F$uniqueImageName.jpg?alt=media"
+                        post?.put("picRef", picPosition)
+                        if (post != null) {
+                            userRef.collection("posts").add(post)
                         }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(
-                                context,
-                                "Error updating user profile picture: ${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            e.message?.let { it1 -> Log.i("debImg", it1) }
-                        }
+                    }
                 }
             }
 
