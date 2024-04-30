@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.compose.koinInject
+import it.unibo.noteforall.utils.CurrentUserSingleton
+
 
 data class EditProfileState(
     val name: String = "",
@@ -31,45 +33,48 @@ interface EditProfileActions {
     fun setNewPassword(password: String)
     fun setRepeatPassword(password: String)
     fun setImageURL(imageURL: String)
+    class EditProfileViewModel(db: FirebaseFirestore) : ViewModel() {
+        private val _state = MutableStateFlow(EditProfileState())
+        val state = _state.asStateFlow()
+
+
+        init {
+            db.collection("users").document(CurrentUserSingleton.currentUser?.id.toString()).get()
+                .addOnSuccessListener { user ->
+                    actions.setName(user.getString("name").toString())
+                    actions.setSurame(user.getString("surname").toString())
+                    actions.setUsername(user.getString("username").toString())
+                    actions.setImageURL(user.getString("user_pic").toString())
+                }
+        }
+
+
+
+        val actions = object : EditProfileActions {
+            override fun setName(name: String) =
+                _state.update { it.copy(name = name) }
+
+            override fun setSurame(surname: String) =
+                _state.update { it.copy(surname = surname) }
+
+            override fun setUsername(username: String) =
+                _state.update { it.copy(username = username) }
+
+            override fun setOldPassword(password: String) =
+                _state.update { it.copy(oldPassword = password) }
+
+            override fun setNewPassword(password: String) =
+                _state.update { it.copy(newPassword = password) }
+
+            override fun setRepeatPassword(password: String) =
+                _state.update { it.copy(repeatPassword = password) }
+
+            override fun setImageURL(imageURL: String) =
+                _state.update { it.copy(imageURL = imageURL) }
+        }
+        fun fecthData(db: FirebaseFirestore) {
+
+        }
+    }
 }
 
-class EditProfileViewModel(db: FirebaseFirestore) : ViewModel() {
-    private val _state = MutableStateFlow(EditProfileState())
-    val state = _state.asStateFlow()
-
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { document ->
-        val tmp = document.getString("user_pic").toString()
-        userPicUrl.value = tmp
-    }.addOnFailureListener {exception ->
-        Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
-    }
-    db.collection("users").document(CurrentUserSingleton.currentUser?.id.toString()).get()
-    .addOnSuccessListener { user ->
-        actions.setName(user.getString("name").toString())
-        actions.setSurame(user.getString("surname").toString())
-        actions.setUsername(user.getString("username").toString())
-    }
-
-    val actions = object : EditProfileActions {
-        override fun setName(name: String) =
-            _state.update { it.copy(name = name) }
-
-        override fun setSurame(surname: String) =
-            _state.update { it.copy(surname = surname) }
-
-        override fun setUsername(username: String) =
-            _state.update { it.copy(username = username) }
-
-        override fun setOldPassword(password: String) =
-            _state.update { it.copy(oldPassword = password) }
-
-        override fun setNewPassword(password: String) =
-            _state.update { it.copy(newPassword = password) }
-
-        override fun setRepeatPassword(password: String) =
-            _state.update { it.copy(repeatPassword = password) }
-
-        override fun setImageURL(imageURL: String) =
-            _state.update { it.copy(imageURL = imageURL) }
-    }
-}

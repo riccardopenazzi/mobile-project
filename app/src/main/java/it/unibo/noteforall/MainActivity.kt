@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
@@ -25,6 +27,7 @@ import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.NoteForAllDatabase
 import it.unibo.noteforall.ui.composables.AppBar
 import it.unibo.noteforall.ui.composables.NavigationBar
+import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.theme.NoteForAllTheme
 import it.unibo.noteforall.utils.CurrentUser
@@ -49,13 +52,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //Added just to simulate a logged user---------------------
-        val currentUser = CurrentUser(
-            id = "IzLnDGab6LfPTBPrKE9I",
-            key = ""
-        )
-        CurrentUserSingleton.currentUser = currentUser
-        //---------------------------------------------------------
         super.onCreate(savedInstanceState)
         setContent {
             NoteForAllTheme {
@@ -83,39 +79,41 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(Unit) {
                         val userDao = internalDb.dao
                         CoroutineScope(Dispatchers.IO).launch {
-                            val userId = userDao.getUserId()
+                            val user = userDao.getUserId()
                             withContext(Dispatchers.Main) {
-                                if (userId != null) {
+                                if (user != null) {
                                     isLogged = true;
+                                    val currentUser = CurrentUser(
+                                        id = user.userId
+                                    )
+                                    CurrentUserSingleton.currentUser = currentUser
                                 }
                             }
                         }
                     }
 //---------------------------------------------------------------------------------------------
-                    if (!isLogged) {
-                        Scaffold(
-                            topBar = { AppBar(navigationController, currentRoute) },
-                            bottomBar = {
-                                if (items.any { it.title == currentRoute.title }) {
-                                    NavigationBar(
-                                        navController = navigationController,
-                                        items = items,
-                                        onItemSelected = { index ->
-                                            selectedItemIndex = index
-                                        },
-                                        selectedItemIndex = selectedItemIndex
-                                    )
-                                }
+                    Scaffold(
+                        topBar = { AppBar(navigationController, currentRoute, internalDb) },
+                        bottomBar = {
+                            if (items.any { it.title == currentRoute.title }) {
+                                NavigationBar(
+                                    navController = navigationController,
+                                    items = items,
+                                    onItemSelected = { index ->
+                                        selectedItemIndex = index
+                                    },
+                                    selectedItemIndex = selectedItemIndex
+                                )
                             }
-                        ) { contentPadding ->
-                            NoteForAllNavGraph(
-                                navController = navigationController,
-                                modifier = Modifier.padding(contentPadding),
-                                db
-                            )
                         }
-                    } else {
-                        LoginScreen(db = db)
+                    ) { contentPadding ->
+                        NoteForAllNavGraph(
+                            navController = navigationController,
+                            modifier = Modifier.padding(contentPadding),
+                            db,
+                            isLogged,
+                            internalDb
+                        )
                     }
                 }
             }
