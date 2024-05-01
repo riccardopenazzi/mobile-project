@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -33,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -70,18 +73,18 @@ fun NoteCard(
                 AsyncImage(
                     model = note.authorPicRef,
                     contentDescription = "Author pic",
-                    modifier = Modifier.size(40.dp)
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.size(40.dp).clip(CircleShape)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                note.author?.let { Text(text = it, modifier = Modifier.weight(1f)) }
+                note.author?.let { Text(text = it, modifier = Modifier.weight(1.5f)) }
                 IconButton(onClick = {
                     if (!isSaved) {
                         note.postId?.let { savePost(it, db) }
-                        isSaved = true
                     } else {
                         note.postId?.let { unsavePost(it, db) }
-                        isSaved = false
                     }
+                    isSaved = !isSaved
                 }) {
                     Icon(
                         imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
@@ -91,7 +94,12 @@ fun NoteCard(
             }
             Spacer(modifier = Modifier.size(10.dp))
             //(imageVector = Icons.Rounded.Image, contentDescription = "Note preview", modifier = Modifier.size(100.dp))
-            AsyncImage(model = note.picRef, contentDescription = "Note preview")
+            AsyncImage(
+                model = note.picRef,
+                contentDescription = "Note preview",
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.size(400.dp).clip(RoundedCornerShape(10))
+            )
             Spacer(modifier = Modifier.size(10.dp))
             note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
             Spacer(modifier = Modifier.size(10.dp))
