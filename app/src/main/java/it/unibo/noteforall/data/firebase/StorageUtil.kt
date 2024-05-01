@@ -86,9 +86,10 @@ class StorageUtil {
                                             "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_pic%2F$uniqueImageName.jpg?alt=media"
                                         post?.put("picRef", picPosition)
                                         if (post != null) {
-                                            userRef.collection("posts").add(post).addOnSuccessListener {
-                                                Log.i("debPdf", "Post caricato in teoria")
-                                            }
+                                            userRef.collection("posts").add(post)
+                                                .addOnSuccessListener {
+                                                    Log.i("debPdf", "Post caricato in teoria")
+                                                }
                                         }
                                     }
                             }
@@ -106,12 +107,14 @@ class StorageUtil {
             val savedPost = hashMapOf(
                 "post_id" to postId
             )
-            db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
+                .collection("saved_posts")
                 .add(savedPost)
         }
 
         fun unsavePost(postId: String, db: FirebaseFirestore) {
-            db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
+                .collection("saved_posts")
                 .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
                     if (!post.isEmpty) {
                         Log.i("deb", "Post non è empty")
@@ -126,44 +129,121 @@ class StorageUtil {
             db: FirebaseFirestore
         ) {
             var requestCounter = 0
-            db.collection("users").get().addOnSuccessListener { users ->
-                requestCounter = users.size()
-                for (user in users) {
-                    val username = user.getString("username")
-                    val userPicRef = user.getString("user_pic")
-                    db.collection("users").document(user.id).collection("posts").get()
-                        .addOnSuccessListener { userPosts ->
-                            requestCounter--
-                            for (post in userPosts) {
-                                var saved = false
-                                val savedPostsRef = db.collection("users")
-                                    .document(CurrentUserSingleton.currentUser!!.id)
-                                    .collection("saved_posts")
-                                savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                    .addOnSuccessListener { res ->
-                                        noteList.add(
-                                            Note(
-                                                postId = post.id,
-                                                isSaved = !res.isEmpty,
-                                                title = post.getString("title"),
-                                                description = post.getString("description"),
-                                                category = post.getString("category"),
-                                                picRef = post.getString("picRef"),
-                                                noteRef = post.getString("description"),
-                                                author = username,
-                                                authorPicRef = userPicRef
-                                            )
+            db.collection("posts").get().addOnSuccessListener { allPosts ->
+                requestCounter = allPosts.size()
+                Log.i("debHome", requestCounter.toString())
+                for (post in allPosts) {
+                    val userId = post.getString("user_id")
+                    if (userId != null) {
+                        Log.i("debHome", "User id non è null")
+                        db.collection("users").document(userId).get().addOnSuccessListener { user ->
+                            val savedPostsRef = db.collection("users")
+                                .document(userId)
+                                .collection("saved_posts")
+                            savedPostsRef.whereEqualTo("post_id", post.id).get()
+                                .addOnSuccessListener { res ->
+                                    Log.i("debHome", "Aggiungo in lista")
+
+                                    requestCounter--
+                                    noteList.add(
+                                        Note(
+                                            postId = post.id,
+                                            isSaved = !res.isEmpty,
+                                            title = post.getString("title"),
+                                            description = post.getString("description"),
+                                            category = post.getString("category"),
+                                            picRef = post.getString("pic_ref"),
+                                            noteRef = post.getString("note_ref"),
+                                            author = user.getString("username"),
+                                            authorPicRef = user.getString("user_pic")
                                         )
-                                        if (requestCounter == 0) {
-                                            Log.i("debHome", "fine caricamento")
-                                            flag.set(true)
-                                        }
+                                    )
+                                    if (requestCounter == 0) {
+                                        Log.i("debHome", "fine caricamento")
+                                        flag.set(true)
                                     }
-                            }
+                                }
                         }
+                    }
                 }
             }
         }
 
+        fun loadNote(
+            noteId: String,
+            db: FirebaseFirestore,
+            isNoteReady: AtomicBoolean,
+            posts: MutableList<Note>
+        ) {
+            db.collection("posts").document(noteId).get().addOnSuccessListener { post ->
+                val savedPostsRef = db.collection("users")
+                    .document(CurrentUserSingleton.currentUser!!.id)
+                    .collection("saved_posts")
+                savedPostsRef.whereEqualTo("post_id", post.id).get()
+                    .addOnSuccessListener { res ->
+                        post.getString("user_id")?.let {
+                            db.collection("users").document(it).get()
+                                .addOnSuccessListener { userInfo ->
+                                    posts.add(
+                                        Note(
+                                            postId = post.id,
+                                            isSaved = !res.isEmpty,
+                                            title = post.getString("title"),
+                                            description = post.getString("description"),
+                                            category = post.getString("category"),
+                                            picRef = post.getString("pic_ref"),
+                                            noteRef = post.getString("note_ref"),
+                                            author = userInfo.getString("username"),
+                                            authorPicRef = userInfo.getString("user_pic")
+                                        )
+                                    )
+                                }
+                        }
+                        isNoteReady.set(true)
+                    }
+            }
+        }
+
+        fun loadSavedPosts(
+            noteList: MutableList<Note>,
+            flag: AtomicBoolean,
+            db: FirebaseFirestore
+        ) {
+            var requestCounter = 0
+            Log.i("debSave", "Inizio")
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
+                .collection("saved_posts").get().addOnSuccessListener { savedPosts ->
+                    requestCounter = savedPosts.size()
+                    for (postId in savedPosts) {
+                        postId.getString("post_id")?.let {
+                            db.collection("posts").document(it).get().addOnSuccessListener { post ->
+                                post.getString("user_id")
+                                    ?.let { it1 ->
+                                        db.collection("users").document(it1).get()
+                                            .addOnSuccessListener { userInfo ->
+                                                requestCounter--
+                                                noteList.add(
+                                                    Note(
+                                                        postId = post.id,
+                                                        isSaved = true,
+                                                        title = post.getString("title"),
+                                                        description = post.getString("description"),
+                                                        category = post.getString("category"),
+                                                        picRef = post.getString("pic_ref"),
+                                                        noteRef = post.getString("note_ref"),
+                                                        author = userInfo.getString("username"),
+                                                        authorPicRef = userInfo.getString("profile_pic")
+                                                    )
+                                                )
+                                                if (requestCounter == 0) {
+                                                    flag.set(true)
+                                                }
+                                            }
+                                    }
+                            }
+                        }
+                    }
+                }
+        }
     }
 }

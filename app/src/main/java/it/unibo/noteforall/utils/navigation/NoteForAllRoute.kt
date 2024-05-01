@@ -84,7 +84,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Saved) {
             composable(route) {
-                SavedNotesScreen(navController = navController)
+                SavedNotesScreen(navController = navController, db)
             }
         }
         with(NoteForAllRoute.Search) {

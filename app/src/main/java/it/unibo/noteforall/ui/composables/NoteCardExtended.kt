@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.ui.theme.Teal800
@@ -152,98 +153,3 @@ fun NoteCardExtended(
 
 }
 
-/*fun savePost(postId: String, db: FirebaseFirestore) {
-    val savedPost = hashMapOf(
-        "post_id" to postId
-    )
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
-        .add(savedPost)
-}
-
-fun unsavePost(postId: String, db: FirebaseFirestore) {
-    val savedPost = hashMapOf(
-        "post_id" to postId
-    )
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
-        .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
-            if (!post.isEmpty) {
-                Log.i("deb", "Post non è empty")
-                post.documents.first().reference.delete()
-            }
-        }
-}*/
-
-/*
-fun loadNote(noteId: String, db: FirebaseFirestore, isNoteReady: AtomicBoolean): Note {
-    var returnNote = Note()
-    db.collection("users").get().addOnSuccessListener { users ->
-        for (user in users) {
-            val username = user.getString("username")
-            val userPicRef = user.getString("user_pic")
-            db.collection("users").document(user.id).collection("posts").get()
-                .addOnSuccessListener { userPosts ->
-                    for (post in userPosts) {
-                        if (post.id == noteId) {
-                            Log.i("debExpand", "Nota trovata")
-                            val savedPostsRef = db.collection("users")
-                                .document(CurrentUserSingleton.currentUser!!.id)
-                                .collection("saved_posts")
-                            savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                .addOnCompleteListener { res ->
-                                    returnNote = Note(
-                                        postId = post.id,
-                                        isSaved = true,
-                                        title = post.getString("title"),
-                                        description = post.getString("description"),
-                                        category = post.getString("category"),
-                                        picRef = post.getString("picRef"),
-                                        noteRef = post.getString("description"),
-                                        author = username,
-                                        authorPicRef = userPicRef
-                                    )
-                                }
-                        }
-                    }
-                }
-        }
-    }
-    Log.i("debExpand", "Ritorno")
-    isNoteReady.set(true)
-    return returnNote
-}*/
-
-fun loadNote(noteId: String, db: FirebaseFirestore, isNoteReady: AtomicBoolean, posts: MutableList<Note>) {
-    db.collection("users").get().addOnSuccessListener { users ->
-        for (user in users) {
-            val username = user.getString("username")
-            val userPicRef = user.getString("user_pic")
-            db.collection("users").document(user.id).collection("posts").get()
-                .addOnSuccessListener { userPosts ->
-                    for (post in userPosts) {
-                        if (post.id == noteId) {
-                            Log.i("debExpand", "Nota trovata")
-                            val savedPostsRef = db.collection("users")
-                                .document(CurrentUserSingleton.currentUser!!.id)
-                                .collection("saved_posts")
-                            savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                .addOnSuccessListener { res ->
-                                    posts.add(Note(
-                                        postId = post.id,
-                                        isSaved = !res.isEmpty,
-                                        title = post.getString("title"),
-                                        description = post.getString("description"),
-                                        category = post.getString("category"),
-                                        picRef = post.getString("picRef"),
-                                        noteRef = post.getString("description"),
-                                        author = username,
-                                        authorPicRef = userPicRef
-                                    ))
-                                    isNoteReady.set(true)
-                                }
-                        }
-                    }
-                }
-        }
-    }
-
-}
