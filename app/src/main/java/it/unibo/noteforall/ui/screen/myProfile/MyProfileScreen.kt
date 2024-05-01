@@ -111,6 +111,6 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
 @Composable
 fun PrintUserNotes(navController: NavHostController) {
     for (i in 0..9) {
-        NoteCard(navController = navController)
+        //NoteCard(navController = navController)
     }
 }

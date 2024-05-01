@@ -64,7 +64,7 @@ fun NoteForAllNavGraph(
     ) {
         with(NoteForAllRoute.Home) {
             composable(route) {
-                HomeScreen(navController)
+                HomeScreen(navController, db)
             }
         }
         with(NoteForAllRoute.Profile) {
@@ -98,7 +98,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.ViewNote) {
             composable(route) {
-                ViewNoteScreen(navController)
+                ViewNoteScreen(navController, db = db)
             }
         }
         with(NoteForAllRoute.Login) {
