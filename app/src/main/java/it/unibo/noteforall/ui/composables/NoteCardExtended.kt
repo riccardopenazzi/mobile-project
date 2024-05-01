@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Star
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -41,6 +43,7 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
@@ -85,7 +88,12 @@ fun NoteCardExtended(
                                 .clip(CircleShape)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        note.author?.let { Text(text = it, modifier = Modifier.weight(1.5f)) }
+                        note.author?.let { ClickableText(
+                            text = AnnotatedString(it),
+                            modifier = Modifier.weight(1.5f),
+                            onClick = { navController.navigate(NoteForAllRoute.Profile.buildRoute(note.userId)) }
+                        )
+                        }
                         IconButton(onClick = {
                             if (!isSaved) {
                                 note.postId?.let { savePost(it, db) }
