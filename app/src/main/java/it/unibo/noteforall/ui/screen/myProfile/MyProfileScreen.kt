@@ -57,6 +57,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             .fillMaxSize()
     ) {
         item {
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
