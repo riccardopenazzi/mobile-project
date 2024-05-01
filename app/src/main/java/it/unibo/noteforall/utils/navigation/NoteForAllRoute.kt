@@ -67,7 +67,7 @@ fun NoteForAllNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (isLogged) NoteForAllRoute.Home.route else NoteForAllRoute.Login.route,
+        startDestination = if (isLogged) NoteForAllRoute.Profile.route else NoteForAllRoute.Login.route,
         modifier = modifier
     ) {
 

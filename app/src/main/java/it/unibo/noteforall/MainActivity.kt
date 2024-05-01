@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
                         derivedStateOf {
                             NoteForAllRoute.routes.find {
                                 it.route == backStackEntry?.destination?.route
-                            } ?: NoteForAllRoute.Home
+                            } ?: NoteForAllRoute.Profile
                         }
                     }
 //---------------------------------------------------------------------------------------------

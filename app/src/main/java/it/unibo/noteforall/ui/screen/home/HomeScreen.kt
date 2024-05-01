@@ -22,8 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
 import it.unibo.noteforall.ui.composables.NoteCard
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.concurrent.atomic.AtomicBoolean
@@ -34,54 +34,10 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
     var isDownloadFinished = remember { AtomicBoolean(false) }
     var posts by remember { mutableStateOf(mutableListOf<Note>()) }
 
-    fun loadPosts(
-        noteList: MutableList<Note>,
-        flag: AtomicBoolean,
-        db: FirebaseFirestore
-    ) {
-        var requestCounter = 0
-        db.collection("users").get().addOnSuccessListener { users ->
-            requestCounter = users.size()
-            for (user in users) {
-                val username = user.getString("username")
-                val userPicRef = user.getString("user_pic")
-                db.collection("users").document(user.id).collection("posts").get()
-                    .addOnSuccessListener { userPosts ->
-                        requestCounter--
-                        for (post in userPosts) {
-                            var saved = false
-                            val savedPostsRef = db.collection("users")
-                                .document(CurrentUserSingleton.currentUser!!.id)
-                                .collection("saved_posts")
-                            savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                .addOnSuccessListener { res ->
-                                    noteList.add(
-                                        Note(
-                                            postId = post.id,
-                                            isSaved = !res.isEmpty,
-                                            title = post.getString("title"),
-                                            description = post.getString("description"),
-                                            category = post.getString("category"),
-                                            picRef = post.getString("picRef"),
-                                            noteRef = post.getString("description"),
-                                            author = username,
-                                            authorPicRef = userPicRef
-                                        )
-                                    )
-                                    if (requestCounter == 0) {
-                                        Log.i("debHome", "fine caricamento")
-                                        isDownloadFinished.set(true)
-                                    }
-                                }
-                        }
-                    }
-            }
-        }
-    }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadPosts(posts, isDownloadFinished, db)
+            loadHomePosts(posts, isDownloadFinished, db)
             isLaunched = true
         }
     }

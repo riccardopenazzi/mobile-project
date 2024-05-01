@@ -4,14 +4,16 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.Note
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 
 class StorageUtil {
-
 
     companion object {
 
@@ -98,6 +100,69 @@ class StorageUtil {
             }
 
 
+        }
+
+        fun savePost(postId: String, db: FirebaseFirestore) {
+            val savedPost = hashMapOf(
+                "post_id" to postId
+            )
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
+                .add(savedPost)
+        }
+
+        fun unsavePost(postId: String, db: FirebaseFirestore) {
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
+                .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
+                    if (!post.isEmpty) {
+                        Log.i("deb", "Post non è empty")
+                        post.documents.first().reference.delete()
+                    }
+                }
+        }
+
+        fun loadHomePosts(
+            noteList: MutableList<Note>,
+            flag: AtomicBoolean,
+            db: FirebaseFirestore
+        ) {
+            var requestCounter = 0
+            db.collection("users").get().addOnSuccessListener { users ->
+                requestCounter = users.size()
+                for (user in users) {
+                    val username = user.getString("username")
+                    val userPicRef = user.getString("user_pic")
+                    db.collection("users").document(user.id).collection("posts").get()
+                        .addOnSuccessListener { userPosts ->
+                            requestCounter--
+                            for (post in userPosts) {
+                                var saved = false
+                                val savedPostsRef = db.collection("users")
+                                    .document(CurrentUserSingleton.currentUser!!.id)
+                                    .collection("saved_posts")
+                                savedPostsRef.whereEqualTo("post_id", post.id).get()
+                                    .addOnSuccessListener { res ->
+                                        noteList.add(
+                                            Note(
+                                                postId = post.id,
+                                                isSaved = !res.isEmpty,
+                                                title = post.getString("title"),
+                                                description = post.getString("description"),
+                                                category = post.getString("category"),
+                                                picRef = post.getString("picRef"),
+                                                noteRef = post.getString("description"),
+                                                author = username,
+                                                authorPicRef = userPicRef
+                                            )
+                                        )
+                                        if (requestCounter == 0) {
+                                            Log.i("debHome", "fine caricamento")
+                                            flag.set(true)
+                                        }
+                                    }
+                            }
+                        }
+                }
+            }
         }
 
     }

@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
@@ -113,22 +115,4 @@ fun NoteCard(
             }
         }
     }
-}
-
-fun savePost(postId: String, db: FirebaseFirestore) {
-    val savedPost = hashMapOf(
-        "post_id" to postId
-    )
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
-        .add(savedPost)
-}
-
-fun unsavePost(postId: String, db: FirebaseFirestore) {
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
-        .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
-            if (!post.isEmpty) {
-                Log.i("deb", "Post non è empty")
-                post.documents.first().reference.delete()
-            }
-        }
 }
