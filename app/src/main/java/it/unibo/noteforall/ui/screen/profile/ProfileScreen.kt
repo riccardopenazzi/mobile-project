@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
+//import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
@@ -46,7 +46,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
         name.value = user.getString("name").toString()
         surname.value = user.getString("surname").toString()
         username.value = user.getString("username").toString()
-        userPicUrl.value = user.getString("profile_pic").toString()
+        userPicUrl.value = user.getString("user_pic").toString()
     }.addOnFailureListener {exception ->
         Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }
@@ -109,7 +109,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            PrintUserNotes(navController)
+            //PrintUserNotes(navController)
         }
     }
 

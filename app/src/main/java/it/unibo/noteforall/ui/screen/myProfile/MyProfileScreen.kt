@@ -19,8 +19,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,9 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserPosts
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.Note
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
@@ -40,16 +47,26 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     val surname = remember { mutableStateOf("") }
     val username = remember { mutableStateOf("") }
     val userPicUrl = remember { mutableStateOf("") }
+    var isLaunched by remember { mutableStateOf(false) }
+    var isDownloadFinished = remember { AtomicBoolean(false) }
+    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
 
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { user ->
-        name.value = user.getString("name").toString()
-        surname.value = user.getString("surname").toString()
-        username.value = user.getString("username").toString()
-        userPicUrl.value = user.getString("profile_pic").toString()
-    }.addOnFailureListener {exception ->
-        Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
+    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get()
+        .addOnSuccessListener { user ->
+            name.value = user.getString("name").toString()
+            surname.value = user.getString("surname").toString()
+            username.value = user.getString("username").toString()
+            userPicUrl.value = user.getString("user_pic").toString()
+        }.addOnFailureListener { exception ->
+            Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
+        }
+
+    LaunchedEffect(isLaunched) {
+        if (!isLaunched) {
+            loadUserPosts(posts, isDownloadFinished, db, CurrentUserSingleton.currentUser!!.id)
+            isLaunched = true
+        }
     }
-    Log.i("debImg", userPicUrl.value)
 
     LazyColumn(
         verticalArrangement = Arrangement.Top,
@@ -69,7 +86,9 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     model = userPicUrl.value,
                     contentDescription = "img",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.size(80.dp).clip(CircleShape)
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
                 )
                 Spacer(Modifier.width(10.dp))
                 Column(
@@ -105,14 +124,11 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            PrintUserNotes(navController)
+            if (isDownloadFinished.get()) {
+                for (post in posts) {
+                    NoteCard(navController = navController, note = post, db = db)
+                }
+            }
         }
-    }
-}
-
-@Composable
-fun PrintUserNotes(navController: NavHostController) {
-    for (i in 0..9) {
-        //NoteCard(navController = navController)
     }
 }

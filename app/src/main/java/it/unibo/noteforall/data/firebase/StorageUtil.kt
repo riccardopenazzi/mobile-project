@@ -143,7 +143,6 @@ class StorageUtil {
                             savedPostsRef.whereEqualTo("post_id", post.id).get()
                                 .addOnSuccessListener { res ->
                                     Log.i("debHome", "Aggiungo in lista")
-
                                     requestCounter--
                                     noteList.add(
                                         Note(
@@ -155,7 +154,8 @@ class StorageUtil {
                                             picRef = post.getString("pic_ref"),
                                             noteRef = post.getString("note_ref"),
                                             author = user.getString("username"),
-                                            authorPicRef = user.getString("user_pic")
+                                            authorPicRef = user.getString("user_pic"),
+                                            userId = post.getString("user_id")!!
                                         )
                                     )
                                     if (requestCounter == 0) {
@@ -194,7 +194,8 @@ class StorageUtil {
                                             picRef = post.getString("pic_ref"),
                                             noteRef = post.getString("note_ref"),
                                             author = userInfo.getString("username"),
-                                            authorPicRef = userInfo.getString("user_pic")
+                                            authorPicRef = userInfo.getString("user_pic"),
+                                            userId = post.getString("user_id")!!
                                         )
                                     )
                                 }
@@ -232,7 +233,8 @@ class StorageUtil {
                                                         picRef = post.getString("pic_ref"),
                                                         noteRef = post.getString("note_ref"),
                                                         author = userInfo.getString("username"),
-                                                        authorPicRef = userInfo.getString("profile_pic")
+                                                        authorPicRef = userInfo.getString("user_pic"),
+                                                        userId = post.getString("user_id")!!
                                                     )
                                                 )
                                                 if (requestCounter == 0) {
@@ -244,6 +246,52 @@ class StorageUtil {
                         }
                     }
                 }
+        }
+
+        fun loadUserPosts(
+            noteList: MutableList<Note>,
+            flag: AtomicBoolean,
+            db: FirebaseFirestore,
+            userId: String
+        ) {
+            var requestCounter = 0
+            db.collection("posts").whereEqualTo("user_id", userId).get().addOnSuccessListener {allUserPosts ->
+                requestCounter = allUserPosts.size()
+                for (post in allUserPosts) {
+                    val userId = post.getString("user_id")
+                    if (userId != null) {
+                        Log.i("debHome", "User id non è null")
+                        db.collection("users").document(userId).get().addOnSuccessListener { user ->
+                            val savedPostsRef = db.collection("users")
+                                .document(userId)
+                                .collection("saved_posts")
+                            savedPostsRef.whereEqualTo("post_id", post.id).get()
+                                .addOnSuccessListener { res ->
+                                    Log.i("debHome", "Aggiungo in lista")
+                                    requestCounter--
+                                    noteList.add(
+                                        Note(
+                                            postId = post.id,
+                                            isSaved = !res.isEmpty,
+                                            title = post.getString("title"),
+                                            description = post.getString("description"),
+                                            category = post.getString("category"),
+                                            picRef = post.getString("pic_ref"),
+                                            noteRef = post.getString("note_ref"),
+                                            author = user.getString("username"),
+                                            authorPicRef = user.getString("user_pic"),
+                                            userId = post.getString("user_id")!!
+                                        )
+                                    )
+                                    if (requestCounter == 0) {
+                                        Log.i("debHome", "fine caricamento")
+                                        flag.set(true)
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
         }
     }
 }

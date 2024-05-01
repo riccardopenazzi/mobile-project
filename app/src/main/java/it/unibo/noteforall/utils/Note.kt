@@ -9,5 +9,6 @@ data class Note(
     val picRef: String? = null,
     val noteRef: String? = null,
     val author: String? = null,
-    val authorPicRef: String? = null
+    val authorPicRef: String? = null,
+    val userId: String
 )
