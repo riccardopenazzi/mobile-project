@@ -38,6 +38,6 @@ fun SavedNotesScreen(navController: NavHostController) {
 @Composable
 fun PrintUserNotes(navController: NavHostController) {
     for (i in 0..14) {
-        NoteCard(navController = navController)
+        //NoteCard(navController = navController)
     }
 }
