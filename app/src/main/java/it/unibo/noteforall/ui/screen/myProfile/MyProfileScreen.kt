@@ -34,14 +34,21 @@ import it.unibo.noteforall.utils.CurrentUserSingleton
 
 @Composable
 fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
+    val name = remember { mutableStateOf("") }
+    val surname = remember { mutableStateOf("") }
+    val username = remember { mutableStateOf("") }
     val userPicUrl = remember { mutableStateOf("") }
-    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { document ->
-        val tmp = document.getString("user_pic").toString()
-        userPicUrl.value = tmp
+
+    db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get().addOnSuccessListener { user ->
+        name.value = user.getString("name").toString()
+        surname.value = user.getString("surname").toString()
+        username.value = user.getString("username").toString()
+        userPicUrl.value = user.getString("user_pic").toString()
     }.addOnFailureListener {exception ->
         Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }
     Log.i("debImg", userPicUrl.value)
+
     LazyColumn(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,6 +57,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             .fillMaxSize()
     ) {
         item {
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -68,7 +76,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Name",
+                        text = name.value + " " + surname.value,
                         modifier = Modifier
                             .border(1.dp, Teal800, RoundedCornerShape(30))
                             .padding(6.dp)
@@ -77,7 +85,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "Surname",
+                        text = username.value,
                         modifier = Modifier
                             .border(1.dp, Teal800, RoundedCornerShape(30))
                             .padding(6.dp)

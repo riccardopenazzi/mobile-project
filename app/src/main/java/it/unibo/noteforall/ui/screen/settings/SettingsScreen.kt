@@ -48,9 +48,7 @@ fun SettingsScreen(
     state: ThemeState,
     viewModel: ThemeViewModel
 ) {
-    var selectedTheme by remember { mutableStateOf(Theme.System) }
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(Theme.System.toString()) }
 
     val ctx = LocalContext.current
 
@@ -70,7 +68,7 @@ fun SettingsScreen(
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     OutlinedTextField(
-                        value = selectedText,
+                        value = state.theme.toString(),
                         onValueChange = {},
                         label = { Text("Choose the theme: ") },
                         readOnly = true,
@@ -86,7 +84,6 @@ fun SettingsScreen(
                             DropdownMenuItem(
                                 text = { Text(text = theme.toString()) },
                                 onClick = {
-                                    selectedText = theme.toString()
                                     expanded = false
                                     viewModel.changeTheme(theme)
                                     Log.d("test", viewModel.state.value.toString())
