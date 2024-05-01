@@ -25,23 +25,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.data.firebase.StorageUtil
+import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
-fun NewNoteScreen() {
+fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions) {
 
-    var title by remember {
+    /*var title by remember {
         mutableStateOf("")
     }
     var category by remember {
@@ -56,6 +52,10 @@ fun NewNoteScreen() {
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { selectedImageUri = it }
+    )*/
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { actions.setImageURI(it) }
     )
 
     fun photoPicker() {
@@ -65,11 +65,12 @@ fun NewNoteScreen() {
     }
 
     /* File picker */
-    var noteUri by remember { mutableStateOf<Uri?>(null) }
+    //var noteUri by remember { mutableStateOf<Uri?>(null) }
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = {
-            noteUri = it
+            //noteUri = it
+            actions.setFileURI(it)
         })
 
     val ctx = LocalContext.current
@@ -82,17 +83,27 @@ fun NewNoteScreen() {
     ) {//min padding 56
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = title, onValueChange = { title = it }, label = {
-                Text(text = "Title")
-            }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = state.title,
+                onValueChange = actions::setTitle,
+                label = { Text(text = "Title") },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = category, onValueChange = { category = it }, label = {
-                Text(text = "Category")
-            }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = state.category,
+                onValueChange = actions::setCategory,
+                label = { Text(text = "Category") },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = description, onValueChange = { description = it }, label = {
-                Text(text = "Description")
-            }, modifier = Modifier.fillMaxWidth(), minLines = 10)
+            OutlinedTextField(
+                value = state.description,
+                onValueChange = actions::setDescription,
+                label = { Text(text = "Description") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 10
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
@@ -145,7 +156,15 @@ fun NewNoteScreen() {
             ) {
                 Button(
                     onClick = {
-                        uploadPost(selectedImageUri, ctx, title, description, category, noteUri)
+                        //uploadPost(selectedImageUri, ctx, title, description, category, noteUri)
+                        uploadPost(
+                            ctx,
+                            state.imageURI,
+                            state.title,
+                            state.description,
+                            state.category,
+                            state.fileURI
+                        )
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green
                     )
@@ -158,8 +177,8 @@ fun NewNoteScreen() {
 }
 
 fun uploadPost(
-    imageUri: Uri?,
     ctx: Context,
+    imageUri: Uri?,
     title: String,
     description: String,
     category: String,

@@ -16,6 +16,7 @@ import it.unibo.noteforall.ui.screen.home.HomeScreen
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
+import it.unibo.noteforall.ui.screen.newNote.NewNoteViewModel
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
 import it.unibo.noteforall.ui.screen.settings.SettingsScreen
@@ -84,13 +85,15 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.EditProfile) {
             composable(route) {
                 val editProfileVm = koinViewModel<EditProfileViewModel>()
-                val state by editProfileVm.state.collectAsStateWithLifecycle()
-                EditProfileScreen(db, state, editProfileVm.actions, {})
+                val editProfileState by editProfileVm.state.collectAsStateWithLifecycle()
+                EditProfileScreen(db, editProfileState, editProfileVm.actions, {})
             }
         }
         with(NoteForAllRoute.NewNote) {
             composable(route) {
-                NewNoteScreen()
+                val newNoteVm = koinViewModel<NewNoteViewModel>()
+                val newNoteState by newNoteVm.state.collectAsStateWithLifecycle()
+                NewNoteScreen(newNoteState, newNoteVm.actions)
             }
         }
         with(NoteForAllRoute.ViewNote) {
