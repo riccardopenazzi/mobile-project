@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +45,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
         name.value = user.getString("name").toString()
         surname.value = user.getString("surname").toString()
         username.value = user.getString("username").toString()
-        userPicUrl.value = user.getString("user_pic").toString()
+        userPicUrl.value = user.getString("profile_pic").toString()
     }.addOnFailureListener {exception ->
         Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }

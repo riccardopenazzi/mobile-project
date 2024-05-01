@@ -35,7 +35,8 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 (currentRoute.title == "Note") ||
                 (currentRoute.title == "Profile") ||
                 (currentRoute.title == "Edit Profile") ||
-                (currentRoute.title == "New Note")
+                (currentRoute.title == "New Note") ||
+                (currentRoute.title == "Settings")
             ) {
                 IconButton(onClick = { navController?.popBackStack() }) {
                     Icon(
