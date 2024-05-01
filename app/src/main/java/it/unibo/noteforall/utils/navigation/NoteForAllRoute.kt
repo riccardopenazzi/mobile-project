@@ -6,8 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
@@ -37,7 +39,13 @@ sealed class NoteForAllRoute (
     data object Search: NoteForAllRoute("search", "Search")
     data object EditProfile: NoteForAllRoute("edit_profile", "Edit Profile")
     data object NewNote: NoteForAllRoute("new_note", "New Note")
-    data object ViewNote: NoteForAllRoute("view_note", "Note")
+    data object ViewNote: NoteForAllRoute(
+        "view_note/{noteId}",
+        "Note",
+        listOf(navArgument("noteId") { type = NavType.StringType })
+    ) {
+        fun buildRoute(noteId: String) = "view_note/${noteId}"
+    }
     data object Login: NoteForAllRoute("login", "Login")
     data object Signup: NoteForAllRoute("signup", "Signup")
     data object Settings: NoteForAllRoute("settings", "Settings")
@@ -62,6 +70,8 @@ fun NoteForAllNavGraph(
         startDestination = if (isLogged) NoteForAllRoute.Home.route else NoteForAllRoute.Login.route,
         modifier = modifier
     ) {
+
+
         with(NoteForAllRoute.Home) {
             composable(route) {
                 HomeScreen(navController, db)
@@ -97,8 +107,9 @@ fun NoteForAllNavGraph(
             }
         }
         with(NoteForAllRoute.ViewNote) {
-            composable(route) {
-                ViewNoteScreen(navController, db = db)
+            composable(route, arguments) {backStackEntry ->
+                val id = backStackEntry.arguments?.getString("noteId")!!
+                ViewNoteScreen(navController, id, db)
             }
         }
         with(NoteForAllRoute.Login) {

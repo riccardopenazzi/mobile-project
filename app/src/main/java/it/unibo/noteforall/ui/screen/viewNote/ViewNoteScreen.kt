@@ -7,15 +7,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.composables.NoteCard
+import it.unibo.noteforall.ui.composables.NoteCardExtended
 import it.unibo.noteforall.utils.Note
 
 @Composable
-fun ViewNoteScreen(navController: NavHostController, note: Note? = null, db: FirebaseFirestore) {
+fun ViewNoteScreen(navController: NavHostController, noteId: String, db: FirebaseFirestore) {
     LazyColumn {
         item {
-            if (note != null) {
-                NoteCard(isExtended = true, navController, note,db)
-            }
+            NoteCardExtended(navController, noteId, db)
         }
     }
 }
