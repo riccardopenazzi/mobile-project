@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -76,8 +77,10 @@ fun NoteCard(
                 IconButton(onClick = {
                     if (!isSaved) {
                         note.postId?.let { savePost(it, db) }
+                        isSaved = true
                     } else {
                         note.postId?.let { unsavePost(it, db) }
+                        isSaved = false
                     }
                 }) {
                     Icon(
@@ -144,6 +147,7 @@ fun unsavePost(postId: String, db: FirebaseFirestore) {
     db.collection("users").document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
         .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
             if (!post.isEmpty) {
+                Log.i("deb", "Post non è empty")
                 post.documents.first().reference.delete()
             }
         }
