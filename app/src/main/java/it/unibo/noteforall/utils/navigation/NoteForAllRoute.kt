@@ -34,7 +34,7 @@ sealed class NoteForAllRoute (
     val arguments: List<NamedNavArgument> = emptyList()
 ) {
     data object Home: NoteForAllRoute("home", "Home")
-    data object Profile: NoteForAllRoute("my_profile", "My Profile")
+    data object MyProfile: NoteForAllRoute("my_profile", "My Profile")
     data object Saved: NoteForAllRoute("saved", "Saved")
     data object Search: NoteForAllRoute("search", "Search")
     data object EditProfile: NoteForAllRoute("edit_profile", "Edit Profile")
@@ -49,8 +49,15 @@ sealed class NoteForAllRoute (
     data object Login: NoteForAllRoute("login", "Login")
     data object Signup: NoteForAllRoute("signup", "Signup")
     data object Settings: NoteForAllRoute("settings", "Settings")
+    data object Profile: NoteForAllRoute(
+        "profile/{userId}",
+        "Profile",
+        listOf(navArgument("userId") { type = NavType.StringType })
+    ) {
+        fun buildRoute(userId: String) = "profile/${userId}"
+    }
     companion object {
-        val routes = setOf(Home, Profile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup, Settings)
+        val routes = setOf(Home, MyProfile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup, Settings)
     }
 }
 
@@ -67,7 +74,7 @@ fun NoteForAllNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (isLogged) NoteForAllRoute.Profile.route else NoteForAllRoute.Login.route,
+        startDestination = if (isLogged) NoteForAllRoute.MyProfile.route else NoteForAllRoute.Login.route,
         modifier = modifier
     ) {
 
@@ -77,7 +84,7 @@ fun NoteForAllNavGraph(
                 HomeScreen(navController, db)
             }
         }
-        with(NoteForAllRoute.Profile) {
+        with(NoteForAllRoute.MyProfile) {
             composable(route) {
                 MyProfileScreen(navController = navController, db)
             }
@@ -125,6 +132,12 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.Settings) {
             composable(route) {
                 SettingsScreen(navController, internalDb, state, themeVm)
+            }
+        }
+        with(NoteForAllRoute.Profile) {
+            composable(route, arguments) {backStackEntry ->
+                val id = backStackEntry.arguments?.getString("userId")!!
+                ViewNoteScreen(navController, id, db)
             }
         }
     }

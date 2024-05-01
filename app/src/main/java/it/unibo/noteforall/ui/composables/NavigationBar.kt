@@ -29,7 +29,7 @@ fun NavigationBar(
                         NoteForAllRoute.Home.title -> navController.navigate(NoteForAllRoute.Home.route)
                         NoteForAllRoute.Saved.title -> navController.navigate(NoteForAllRoute.Saved.route)
                         NoteForAllRoute.Search.title -> navController.navigate(NoteForAllRoute.Search.route)
-                        NoteForAllRoute.Profile.title -> navController.navigate(NoteForAllRoute.Profile.route)
+                        NoteForAllRoute.MyProfile.title -> navController.navigate(NoteForAllRoute.MyProfile.route)
                     }
                 },
                 label = {

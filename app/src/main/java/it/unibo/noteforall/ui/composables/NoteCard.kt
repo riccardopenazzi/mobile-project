@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Download
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -76,10 +78,16 @@ fun NoteCard(
                     model = note.authorPicRef,
                     contentDescription = "Author pic",
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.size(40.dp).clip(CircleShape)
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                note.author?.let { Text(text = it, modifier = Modifier.weight(1.5f)) }
+                note.author?.let { ClickableText(
+                    text = AnnotatedString(it),
+                    modifier = Modifier.weight(1.5f),
+                    onClick = { navController.navigate(NoteForAllRoute.Profile.buildRoute(note.userId)) }
+                )}
                 IconButton(onClick = {
                     if (!isSaved) {
                         note.postId?.let { savePost(it, db) }
@@ -100,7 +108,9 @@ fun NoteCard(
                 model = note.picRef,
                 contentDescription = "Note preview",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(400.dp).clip(RoundedCornerShape(10))
+                modifier = Modifier
+                    .size(400.dp)
+                    .clip(RoundedCornerShape(10))
             )
             Spacer(modifier = Modifier.size(10.dp))
             note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
