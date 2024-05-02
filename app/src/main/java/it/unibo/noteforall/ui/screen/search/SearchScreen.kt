@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,23 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Composable
 fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
     var text by remember { mutableStateOf("") }
-    var isDownloadFinished = remember { AtomicBoolean(false) }
-    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
-
-    LaunchedEffect(text) {
-        CoroutineScope(Dispatchers.Default).launch {
-            while (true) {
-                Log.i("debProf", isDownloadFinished.get().toString())
-                //Log.i("debDown", "Entro in delay")
-
-                //println("La tua funzione viene chiamata ogni secondo")
-                delay(1000)
-                //Log.i("debDown", "Esco da delay")
-
-                //isDownloadFinished.set(true)
-            }
-        }
-    }
+    val posts = remember { mutableStateListOf<Note>() }
 
     Scaffold(
         floatingActionButton = {
@@ -94,7 +79,10 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
                     onValueChange = { text = it },
                     label = { Text("Search") },
                     trailingIcon = {
-                        IconButton(onClick = { searchPost(posts, isDownloadFinished, db, text) }) {
+                        IconButton(onClick = {
+                            posts.clear()
+                            searchPost(posts, db, text)
+                        }) {
                             Icon(Icons.Outlined.Search, "Search")
                         }
                     },
@@ -103,10 +91,8 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
                         .padding(6.dp)
                 )
             }
-            if (isDownloadFinished.get()) {
-                items(posts) { post ->
-                    NoteCard(navController = navController, note = post, db = db)
-                }
+            items(posts) { post ->
+                NoteCard(navController = navController, note = post, db = db)
             }
         }
     }

@@ -1,7 +1,6 @@
 package it.unibo.noteforall.ui.screen.profile
 
 import android.util.Log
-import android.widget.ProgressBar
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,18 +15,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -39,7 +37,6 @@ import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.ui.composables.NoteCard
 //import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
 import it.unibo.noteforall.ui.theme.Teal800
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -50,15 +47,14 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     val username = remember { mutableStateOf("") }
     val userPicUrl = remember { mutableStateOf("") }
     var isLaunched by remember { mutableStateOf(false) }
-    var isDownloadFinished = remember { AtomicBoolean(false) }
-    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
+    val posts = remember { mutableStateListOf<Note>() }
 
     db.collection("users").document(userId).get().addOnSuccessListener { user ->
         name.value = user.getString("name").toString()
         surname.value = user.getString("surname").toString()
         username.value = user.getString("username").toString()
         userPicUrl.value = user.getString("user_pic").toString()
-    }.addOnFailureListener {exception ->
+    }.addOnFailureListener { exception ->
         Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }
 
@@ -66,7 +62,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            StorageUtil.loadUserPosts(posts, isDownloadFinished, db, userId)
+            StorageUtil.loadUserPosts(posts, db, userId)
             isLaunched = true
         }
     }
@@ -127,13 +123,9 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            if (isDownloadFinished.get()) {
-                for (post in posts) {
-                    NoteCard(navController = navController, note = post, db = db)
-                }
+            for (post in posts) {
+                NoteCard(navController = navController, note = post, db = db)
             }
-
         }
     }
-
 }

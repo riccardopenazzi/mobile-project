@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,108 +53,109 @@ fun NoteCardExtended(
     db: FirebaseFirestore
 ) {
     var isLaunched by remember { mutableStateOf(false) }
-    var isNoteReady = remember { AtomicBoolean(false) }
-    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
+    val posts = remember { mutableStateListOf<Note>() }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadNote(noteId, db, isNoteReady, posts)
+            loadNote(noteId, db, posts)
             isLaunched = true
         }
     }
 
-    if (isNoteReady.get()) {
-        for (note in posts) {
-            var isSaved by remember { mutableStateOf(note.isSaved) }
-            Card(
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                modifier = Modifier.padding(10.dp)
+    for (note in posts) {
+        var isSaved by remember { mutableStateOf(note.isSaved) }
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            modifier = Modifier.padding(10.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(10.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                Column(
-                    modifier = Modifier.padding(10.dp),
-                    horizontalAlignment = Alignment.Start
+                /*Author*/
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    /*Author*/
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AsyncImage(
-                            model = note.authorPicRef,
-                            contentDescription = "Author pic",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        note.author?.let { ClickableText(
-                            text = AnnotatedString(it),
-                            modifier = Modifier.weight(1.5f),
-                            onClick = { navController.navigate(NoteForAllRoute.Profile.buildRoute(note.userId)) }
-                        )
-                        }
-                        IconButton(onClick = {
-                            if (!isSaved) {
-                                note.postId?.let { savePost(it, db) }
-                            } else {
-                                note.postId?.let { unsavePost(it, db) }
-                            }
-                            isSaved = !isSaved
-                        }) {
-                            Icon(
-                                imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
-                                contentDescription = if (isSaved) "Unsave the post" else "Save the post"
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.size(10.dp))
                     AsyncImage(
-                        model = note.picRef,
-                        contentDescription = "Note preview",
+                        model = note.authorPicRef,
+                        contentDescription = "Author pic",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
-                            .size(400.dp)
-                            .clip(RoundedCornerShape(5))
+                            .size(40.dp)
+                            .clip(CircleShape)
                     )
-                    Spacer(modifier = Modifier.size(10.dp))
-                    note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
-                    Spacer(modifier = Modifier.size(10.dp))
-                    note.category?.let {
-                        Text(
-                            text = it,
-                            modifier = Modifier
-                                .border(1.dp, Teal800, RoundedCornerShape(30))
-                                .padding(6.dp)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    note.author?.let {
+                        ClickableText(
+                            text = AnnotatedString(it),
+                            modifier = Modifier.weight(1.5f),
+                            onClick = {
+                                navController.navigate(
+                                    NoteForAllRoute.Profile.buildRoute(
+                                        note.userId
+                                    )
+                                )
+                            }
                         )
                     }
-                    Spacer(modifier = Modifier.size(10.dp))
-                    note.description?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(10.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(Icons.Outlined.Download, "Download icon")
+                    IconButton(onClick = {
+                        if (!isSaved) {
+                            note.postId?.let { savePost(it, db) }
+                        } else {
+                            note.postId?.let { unsavePost(it, db) }
                         }
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "Download note",
-                            modifier = Modifier
-                                .border(1.dp, Color.DarkGray, RoundedCornerShape(30))
-                                .padding(6.dp)
+                        isSaved = !isSaved
+                    }) {
+                        Icon(
+                            imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
+                            contentDescription = if (isSaved) "Unsave the post" else "Save the post"
                         )
                     }
                 }
+                Spacer(modifier = Modifier.size(10.dp))
+                AsyncImage(
+                    model = note.picRef,
+                    contentDescription = "Note preview",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .size(400.dp)
+                        .clip(RoundedCornerShape(5))
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
+                Spacer(modifier = Modifier.size(10.dp))
+                note.category?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier
+                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .padding(6.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.size(10.dp))
+                note.description?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Spacer(modifier = Modifier.size(10.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Download, "Download icon")
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Download note",
+                        modifier = Modifier
+                            .border(1.dp, Color.DarkGray, RoundedCornerShape(30))
+                            .padding(6.dp)
+                    )
+                }
             }
         }
-
     }
-
 }
-

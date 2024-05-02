@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.runtime.MutableState
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -128,10 +127,7 @@ class StorageUtil {
             noteList: MutableList<Note>,
             db: FirebaseFirestore
         ) {
-            var requestCounter = 0
             db.collection("posts").get().addOnSuccessListener { allPosts ->
-                requestCounter = allPosts.size()
-                Log.i("debHome", requestCounter.toString())
                 for (post in allPosts) {
                     val userId = post.getString("user_id")
                     if (userId != null) {
@@ -143,7 +139,6 @@ class StorageUtil {
                             savedPostsRef.whereEqualTo("post_id", post.id).get()
                                 .addOnSuccessListener { res ->
                                     Log.i("debHome", "Aggiungo in lista")
-                                    requestCounter--
                                     noteList.add(
                                         Note(
                                             postId = post.id,
@@ -158,9 +153,6 @@ class StorageUtil {
                                             userId = post.getString("user_id")!!
                                         )
                                     )
-                                    if (requestCounter == 0) {
-                                        Log.i("debHome", "fine caricamento")
-                                    }
                                 }
                         }
                     }
@@ -171,7 +163,6 @@ class StorageUtil {
         fun loadNote(
             noteId: String,
             db: FirebaseFirestore,
-            isNoteReady: AtomicBoolean,
             posts: MutableList<Note>
         ) {
             db.collection("posts").document(noteId).get().addOnSuccessListener { post ->
@@ -199,21 +190,17 @@ class StorageUtil {
                                     )
                                 }
                         }
-                        isNoteReady.set(true)
                     }
             }
         }
 
         fun loadSavedPosts(
             noteList: MutableList<Note>,
-            flag: AtomicBoolean,
             db: FirebaseFirestore
         ) {
-            var requestCounter = 0
             Log.i("debSave", "Inizio")
             db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
                 .collection("saved_posts").get().addOnSuccessListener { savedPosts ->
-                    requestCounter = savedPosts.size()
                     for (postId in savedPosts) {
                         postId.getString("post_id")?.let {
                             db.collection("posts").document(it).get().addOnSuccessListener { post ->
@@ -221,7 +208,6 @@ class StorageUtil {
                                     ?.let { it1 ->
                                         db.collection("users").document(it1).get()
                                             .addOnSuccessListener { userInfo ->
-                                                requestCounter--
                                                 noteList.add(
                                                     Note(
                                                         postId = post.id,
@@ -236,9 +222,6 @@ class StorageUtil {
                                                         userId = post.getString("user_id")!!
                                                     )
                                                 )
-                                                if (requestCounter == 0) {
-                                                    flag.set(true)
-                                                }
                                             }
                                     }
                             }
@@ -249,14 +232,11 @@ class StorageUtil {
 
         fun loadUserPosts(
             noteList: MutableList<Note>,
-            flag: AtomicBoolean,
             db: FirebaseFirestore,
             userId: String
         ) {
-            var requestCounter = 0
             db.collection("posts").whereEqualTo("user_id", userId).get()
                 .addOnSuccessListener { allUserPosts ->
-                    requestCounter = allUserPosts.size()
                     for (post in allUserPosts) {
                         val userId = post.getString("user_id")
                         if (userId != null) {
@@ -269,7 +249,6 @@ class StorageUtil {
                                     savedPostsRef.whereEqualTo("post_id", post.id).get()
                                         .addOnSuccessListener { res ->
                                             Log.i("debHome", "Aggiungo in lista")
-                                            requestCounter--
                                             noteList.add(
                                                 Note(
                                                     postId = post.id,
@@ -284,10 +263,6 @@ class StorageUtil {
                                                     userId = post.getString("user_id")!!
                                                 )
                                             )
-                                            if (requestCounter == 0) {
-                                                Log.i("debProf", "fine caricamento")
-                                                flag.set(true)
-                                            }
                                         }
                                 }
                         }
@@ -297,13 +272,10 @@ class StorageUtil {
 
         fun searchPost(
             noteList: MutableList<Note>,
-            flag: AtomicBoolean,
             db: FirebaseFirestore,
             key: String
         ) {
-            var requestCounter = 0
             db.collection("posts").get().addOnSuccessListener { posts ->
-                requestCounter = posts.size()
                 for (post in posts) {
                     if (post.getString("title")?.contains(key)!! || post.getString("description")
                             ?.contains(key)!! || post.getString("category")?.contains(key)!!
@@ -318,7 +290,6 @@ class StorageUtil {
                                     savedPostsRef.whereEqualTo("post_id", post.id).get()
                                         .addOnSuccessListener { res ->
                                             Log.i("debHome", "Aggiungo in lista")
-                                            requestCounter--
                                             noteList.add(
                                                 Note(
                                                     postId = post.id,
@@ -333,15 +304,9 @@ class StorageUtil {
                                                     userId = post.getString("user_id")!!
                                                 )
                                             )
-                                            if (requestCounter == 0) {
-                                                Log.i("debProf", "fine caricamento ${noteList.size}")
-                                                flag.set(true)
-                                            }
                                         }
                                 }
                         }
-                    } else {
-                        requestCounter--
                     }
                 }
             }

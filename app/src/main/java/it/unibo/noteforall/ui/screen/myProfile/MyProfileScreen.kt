@@ -15,12 +15,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,13 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserPosts
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
@@ -48,8 +45,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     val username = remember { mutableStateOf("") }
     val userPicUrl = remember { mutableStateOf("") }
     var isLaunched by remember { mutableStateOf(false) }
-    var isDownloadFinished = remember { AtomicBoolean(false) }
-    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
+    val posts = remember { mutableStateListOf<Note>() }
 
     db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get()
         .addOnSuccessListener { user ->
@@ -63,7 +59,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadUserPosts(posts, isDownloadFinished, db, CurrentUserSingleton.currentUser!!.id)
+            loadUserPosts(posts, db, CurrentUserSingleton.currentUser!!.id)
             isLaunched = true
         }
     }
@@ -124,10 +120,8 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            if (isDownloadFinished.get()) {
-                for (post in posts) {
-                    NoteCard(navController = navController, note = post, db = db)
-                }
+            for (post in posts) {
+                NoteCard(navController = navController, note = post, db = db)
             }
         }
     }
