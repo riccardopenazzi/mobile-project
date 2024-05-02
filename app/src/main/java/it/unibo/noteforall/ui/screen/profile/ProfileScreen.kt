@@ -19,8 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,8 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil
+import it.unibo.noteforall.ui.composables.NoteCard
 //import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
 import it.unibo.noteforall.ui.theme.Teal800
+import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.Note
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun ProfileScreen(navController: NavHostController, userId: String, db: FirebaseFirestore) {
@@ -41,6 +49,9 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     val surname = remember { mutableStateOf("") }
     val username = remember { mutableStateOf("") }
     val userPicUrl = remember { mutableStateOf("") }
+    var isLaunched by remember { mutableStateOf(false) }
+    var isDownloadFinished = remember { AtomicBoolean(false) }
+    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
 
     db.collection("users").document(userId).get().addOnSuccessListener { user ->
         name.value = user.getString("name").toString()
@@ -52,6 +63,13 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     }
 
     val ctx = LocalContext.current
+
+    LaunchedEffect(isLaunched) {
+        if (!isLaunched) {
+            StorageUtil.loadUserPosts(posts, isDownloadFinished, db, userId)
+            isLaunched = true
+        }
+    }
 
     LazyColumn(
         verticalArrangement = Arrangement.Top,
@@ -109,7 +127,12 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            //PrintUserNotes(navController)
+            if (isDownloadFinished.get()) {
+                for (post in posts) {
+                    NoteCard(navController = navController, note = post, db = db)
+                }
+            }
+
         }
     }
 
