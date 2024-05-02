@@ -134,7 +134,7 @@ class StorageUtil {
                         Log.i("debHome", "User id non è null")
                         db.collection("users").document(userId).get().addOnSuccessListener { user ->
                             val savedPostsRef = db.collection("users")
-                                .document(userId)
+                                .document(CurrentUserSingleton.currentUser!!.id)
                                 .collection("saved_posts")
                             savedPostsRef.whereEqualTo("post_id", post.id).get()
                                 .addOnSuccessListener { res ->
@@ -244,7 +244,7 @@ class StorageUtil {
                             db.collection("users").document(userId).get()
                                 .addOnSuccessListener { user ->
                                     val savedPostsRef = db.collection("users")
-                                        .document(userId)
+                                        .document(CurrentUserSingleton.currentUser!!.id)
                                         .collection("saved_posts")
                                     savedPostsRef.whereEqualTo("post_id", post.id).get()
                                         .addOnSuccessListener { res ->
@@ -285,7 +285,7 @@ class StorageUtil {
                             db.collection("users").document(userId).get()
                                 .addOnSuccessListener { user ->
                                     val savedPostsRef = db.collection("users")
-                                        .document(userId)
+                                        .document(CurrentUserSingleton.currentUser!!.id)
                                         .collection("saved_posts")
                                     savedPostsRef.whereEqualTo("post_id", post.id).get()
                                         .addOnSuccessListener { res ->
