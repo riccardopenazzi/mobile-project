@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AddLocationAlt
@@ -42,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -96,19 +99,18 @@ fun SignupScreen(
     ) { status ->
         Log.i("test", "When: " + locationService.coordinates.toString())
         when (status) {
-            PermissionStatus.Granted ->
-            {
+            PermissionStatus.Granted -> {
                 locationService.requestCurrentLocation()
                 Log.i("test", "Granted: " + locationService.coordinates.toString())
             }
 
             PermissionStatus.Denied -> {}
-                // Gestire il caso di negazione dei permessi
-                // actions.setShowLocationPermissionDeniedAlert(true)
+            // Gestire il caso di negazione dei permessi
+            // actions.setShowLocationPermissionDeniedAlert(true)
 
             PermissionStatus.PermanentlyDenied -> {}
-                // Gestire il caso di negazione dei permessi
-                // actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
+            // Gestire il caso di negazione dei permessi
+            // actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
 
             PermissionStatus.Unknown -> {
                 Log.i("test", "Unknown: " + locationService.coordinates.toString())
@@ -129,7 +131,7 @@ fun SignupScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // Photo picker
-    var selectedImageUri by remember { mutableStateOf<Uri?> (null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { selectedImageUri = it }
@@ -185,7 +187,10 @@ fun SignupScreen(
 
             /* Bottom sheet */
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }, sheetState = sheetState) {
+                ModalBottomSheet(
+                    onDismissRequest = { showBottomSheet = false },
+                    sheetState = sheetState
+                ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -226,12 +231,18 @@ fun SignupScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text(text = "Password") })
+                label = { Text(text = "Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = repeatPassword,
                 onValueChange = { repeatPassword = it },
-                label = { Text(text = "Repeat password") })
+                label = { Text(text = "Repeat password") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = ::requestLocation) {
                 Icon(Icons.Outlined.AddLocationAlt, "Add location icon")

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -23,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -70,9 +74,15 @@ fun LoginScreen(
                 Text(text = "Email or username")
             })
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = {
-                Text(text = "Password")
-            })
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = {
+                    Text(text = "Password")
+                },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
             Spacer(modifier = Modifier.height(14.dp))
             Button(onClick = {
                 execLogin(key, password, db) { success, id ->
@@ -114,7 +124,12 @@ fun LoginScreen(
     }
 }
 
-fun execLogin(key: String, password: String, db: FirebaseFirestore, onResult: (Boolean, String?) -> Unit) {
+fun execLogin(
+    key: String,
+    password: String,
+    db: FirebaseFirestore,
+    onResult: (Boolean, String?) -> Unit
+) {
     if (key.isNotEmpty() && password.isNotEmpty()) {
         db.collection("users").get().addOnSuccessListener { res ->
             for (user in res) {
@@ -122,7 +137,10 @@ fun execLogin(key: String, password: String, db: FirebaseFirestore, onResult: (B
                     user.getString("password") == password
                 ) {
                     Log.i("debLogin", "Login success test id = ${user.id}")
-                    onResult(true, user.id) // Chiamare la funzione di callback con true se il login ha successo
+                    onResult(
+                        true,
+                        user.id
+                    ) // Chiamare la funzione di callback con true se il login ha successo
                     return@addOnSuccessListener
                 }
             }
