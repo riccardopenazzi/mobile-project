@@ -16,6 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,21 +29,22 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
     var isLaunched by remember { mutableStateOf(false) }
-    var isDownloadFinished = remember { AtomicBoolean(false) }
-    var posts by remember { mutableStateOf(mutableListOf<Note>()) }
-
+    //var posts by remember { mutableStateOf(mutableListOf<Note>()) }
+    val posts = remember { mutableStateListOf<Note>() }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadHomePosts(posts, isDownloadFinished, db)
+            loadHomePosts(posts, db)
             isLaunched = true
-            delay(3000)
         }
     }
 
@@ -61,11 +65,11 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
                 .padding(contentPadding)
                 .fillMaxSize(),
         ) {
-            Log.i("debHome", "Valuto condizione per if")
-            if (isDownloadFinished.get()) {
-                items(posts) { post ->
-                    NoteCard(navController = navController, note = post, db = db)
-                }
+            if (posts.size == 0) {
+                item { Text(text = "Loading posts...") }
+            }
+            items(posts) { post ->
+                NoteCard(navController = navController, note = post, db = db)
             }
         }
     }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -125,7 +126,6 @@ class StorageUtil {
 
         fun loadHomePosts(
             noteList: MutableList<Note>,
-            flag: AtomicBoolean,
             db: FirebaseFirestore
         ) {
             var requestCounter = 0
@@ -160,7 +160,6 @@ class StorageUtil {
                                     )
                                     if (requestCounter == 0) {
                                         Log.i("debHome", "fine caricamento")
-                                        flag.set(true)
                                     }
                                 }
                         }
@@ -255,40 +254,94 @@ class StorageUtil {
             userId: String
         ) {
             var requestCounter = 0
-            db.collection("posts").whereEqualTo("user_id", userId).get().addOnSuccessListener {allUserPosts ->
-                requestCounter = allUserPosts.size()
-                for (post in allUserPosts) {
-                    val userId = post.getString("user_id")
-                    if (userId != null) {
-                        Log.i("debHome", "User id non è null")
-                        db.collection("users").document(userId).get().addOnSuccessListener { user ->
-                            val savedPostsRef = db.collection("users")
-                                .document(userId)
-                                .collection("saved_posts")
-                            savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                .addOnSuccessListener { res ->
-                                    Log.i("debHome", "Aggiungo in lista")
-                                    requestCounter--
-                                    noteList.add(
-                                        Note(
-                                            postId = post.id,
-                                            isSaved = !res.isEmpty,
-                                            title = post.getString("title"),
-                                            description = post.getString("description"),
-                                            category = post.getString("category"),
-                                            picRef = post.getString("pic_ref"),
-                                            noteRef = post.getString("note_ref"),
-                                            author = user.getString("username"),
-                                            authorPicRef = user.getString("user_pic"),
-                                            userId = post.getString("user_id")!!
-                                        )
-                                    )
-                                    if (requestCounter == 0) {
-                                        Log.i("debHome", "fine caricamento")
-                                        flag.set(true)
-                                    }
+            db.collection("posts").whereEqualTo("user_id", userId).get()
+                .addOnSuccessListener { allUserPosts ->
+                    requestCounter = allUserPosts.size()
+                    for (post in allUserPosts) {
+                        val userId = post.getString("user_id")
+                        if (userId != null) {
+                            Log.i("debHome", "User id non è null")
+                            db.collection("users").document(userId).get()
+                                .addOnSuccessListener { user ->
+                                    val savedPostsRef = db.collection("users")
+                                        .document(userId)
+                                        .collection("saved_posts")
+                                    savedPostsRef.whereEqualTo("post_id", post.id).get()
+                                        .addOnSuccessListener { res ->
+                                            Log.i("debHome", "Aggiungo in lista")
+                                            requestCounter--
+                                            noteList.add(
+                                                Note(
+                                                    postId = post.id,
+                                                    isSaved = !res.isEmpty,
+                                                    title = post.getString("title"),
+                                                    description = post.getString("description"),
+                                                    category = post.getString("category"),
+                                                    picRef = post.getString("pic_ref"),
+                                                    noteRef = post.getString("note_ref"),
+                                                    author = user.getString("username"),
+                                                    authorPicRef = user.getString("user_pic"),
+                                                    userId = post.getString("user_id")!!
+                                                )
+                                            )
+                                            if (requestCounter == 0) {
+                                                Log.i("debProf", "fine caricamento")
+                                                flag.set(true)
+                                            }
+                                        }
                                 }
                         }
+                    }
+                }
+        }
+
+        fun searchPost(
+            noteList: MutableList<Note>,
+            flag: AtomicBoolean,
+            db: FirebaseFirestore,
+            key: String
+        ) {
+            var requestCounter = 0
+            db.collection("posts").get().addOnSuccessListener { posts ->
+                requestCounter = posts.size()
+                for (post in posts) {
+                    if (post.getString("title")?.contains(key)!! || post.getString("description")
+                            ?.contains(key)!! || post.getString("category")?.contains(key)!!
+                    ) {
+                        val userId = post.getString("user_id")
+                        if (userId != null) {
+                            db.collection("users").document(userId).get()
+                                .addOnSuccessListener { user ->
+                                    val savedPostsRef = db.collection("users")
+                                        .document(userId)
+                                        .collection("saved_posts")
+                                    savedPostsRef.whereEqualTo("post_id", post.id).get()
+                                        .addOnSuccessListener { res ->
+                                            Log.i("debHome", "Aggiungo in lista")
+                                            requestCounter--
+                                            noteList.add(
+                                                Note(
+                                                    postId = post.id,
+                                                    isSaved = !res.isEmpty,
+                                                    title = post.getString("title"),
+                                                    description = post.getString("description"),
+                                                    category = post.getString("category"),
+                                                    picRef = post.getString("pic_ref"),
+                                                    noteRef = post.getString("note_ref"),
+                                                    author = user.getString("username"),
+                                                    authorPicRef = user.getString("user_pic"),
+                                                    userId = post.getString("user_id")!!
+                                                )
+                                            )
+                                            if (requestCounter == 0) {
+                                                Log.i("debProf", "fine caricamento ${noteList.size}")
+                                                flag.set(true)
+                                            }
+                                        }
+                                }
+                        }
+                    } else {
+                        requestCounter--
                     }
                 }
             }

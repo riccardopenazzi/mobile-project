@@ -68,7 +68,6 @@ fun NoteForAllNavGraph(
     internalDb: NoteForAllDatabase,
     state: ThemeState,
     themeVm: ThemeViewModel
-
 ) {
     NavHost(
         navController = navController,
@@ -94,7 +93,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Search) {
             composable(route) {
-                SearchScreen()
+                SearchScreen(db, navController)
             }
         }
         with(NoteForAllRoute.EditProfile) {
