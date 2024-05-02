@@ -56,7 +56,7 @@ sealed class NoteForAllRoute (
         fun buildRoute(userId: String) = "profile/${userId}"
     }
     companion object {
-        val routes = setOf(Home, MyProfile, Saved, Search, EditProfile, NewNote, ViewNote, Settings)
+        val routes = setOf(Home, MyProfile, Saved, Search, EditProfile, NewNote, ViewNote, Profile, Settings)
     }
 }
 

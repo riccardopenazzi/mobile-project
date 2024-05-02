@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,11 +38,9 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
-//import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.ui.theme.Teal800
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.concurrent.atomic.AtomicBoolean
@@ -80,7 +77,6 @@ fun NoteCardExtended(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //Icon(imageVector = Icons.Rounded.AccountCircle, contentDescription = "", modifier = Modifier.size(40.dp))
                         AsyncImage(
                             model = note.authorPicRef,
                             contentDescription = "Author pic",
@@ -106,12 +102,11 @@ fun NoteCardExtended(
                         }) {
                             Icon(
                                 imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
-                                contentDescription = ""
+                                contentDescription = if (isSaved) "Unsave the post" else "Save the post"
                             )
                         }
                     }
                     Spacer(modifier = Modifier.size(10.dp))
-                    //(imageVector = Icons.Rounded.Image, contentDescription = "Note preview", modifier = Modifier.size(100.dp))
                     AsyncImage(
                         model = note.picRef,
                         contentDescription = "Note preview",

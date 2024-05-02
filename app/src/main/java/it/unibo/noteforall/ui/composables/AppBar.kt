@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
@@ -21,7 +22,7 @@ import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute, internalDb: NoteForAllDatabase) {
+fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute) {
     CenterAlignedTopAppBar(
         title = {
             Text(

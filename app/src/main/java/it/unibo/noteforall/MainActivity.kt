@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                     }
 //---------------------------------------------------------------------------------------------
                     Scaffold(
-                        topBar = { AppBar(navigationController, currentRoute, internalDb) },
+                        topBar = { AppBar(navigationController, currentRoute) },
                         bottomBar = {
                             if (items.any { it.title == currentRoute.title }) {
                                 NavigationBar(

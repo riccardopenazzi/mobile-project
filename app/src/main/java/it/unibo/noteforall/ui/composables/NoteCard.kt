@@ -96,7 +96,7 @@ fun NoteCard(
                 }) {
                     Icon(
                         imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
-                        contentDescription = ""
+                        contentDescription = if (isSaved) "Unsave the post" else "Save the post"
                     )
                 }
             }
