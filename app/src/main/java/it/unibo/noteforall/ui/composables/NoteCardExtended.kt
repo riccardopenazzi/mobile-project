@@ -33,11 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.downloadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
@@ -54,6 +56,7 @@ fun NoteCardExtended(
 ) {
     var isLaunched by remember { mutableStateOf(false) }
     val posts = remember { mutableStateListOf<Note>() }
+    val ctx = LocalContext.current
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
@@ -144,7 +147,9 @@ fun NoteCardExtended(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        note.noteRef?.let { downloadNote(it, ctx) }
+                    }) {
                         Icon(Icons.Outlined.Download, "Download icon")
                     }
                     Spacer(Modifier.width(8.dp))

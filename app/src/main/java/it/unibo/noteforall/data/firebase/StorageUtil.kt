@@ -1,15 +1,21 @@
 package it.unibo.noteforall.data.firebase
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -310,6 +316,11 @@ class StorageUtil {
                     }
                 }
             }
+        }
+
+        fun downloadNote(ref: String, ctx: Context) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(ref))
+            ctx.startActivity(intent)
         }
     }
 }
