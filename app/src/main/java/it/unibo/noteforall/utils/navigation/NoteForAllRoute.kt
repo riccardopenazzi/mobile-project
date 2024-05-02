@@ -19,6 +19,7 @@ import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteViewModel
+import it.unibo.noteforall.ui.screen.profile.ProfileScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
 import it.unibo.noteforall.ui.screen.settings.SettingsScreen
@@ -124,7 +125,7 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.Profile) {
             composable(route, arguments) {backStackEntry ->
                 val id = backStackEntry.arguments?.getString("userId")!!
-                ViewNoteScreen(navController, id, db)
+                ProfileScreen(navController = navController, userId = id, db = db)
             }
         }
     }
