@@ -26,6 +26,7 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
@@ -39,6 +40,7 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
         if (!isLaunched) {
             loadHomePosts(posts, isDownloadFinished, db)
             isLaunched = true
+            delay(3000)
         }
     }
 

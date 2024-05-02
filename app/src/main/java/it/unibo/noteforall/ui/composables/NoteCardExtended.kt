@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
+//import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.ui.theme.Teal800
@@ -59,7 +59,7 @@ fun NoteCardExtended(
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadNote(noteId, db, isNoteReady, posts)
+            //loadNote(noteId, db, isNoteReady, posts)
             isLaunched = true
         }
     }
@@ -117,7 +117,7 @@ fun NoteCardExtended(
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
                             .size(400.dp)
-                            .clip(RoundedCornerShape(10))
+                            .clip(RoundedCornerShape(5))
                     )
                     Spacer(modifier = Modifier.size(10.dp))
                     note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }

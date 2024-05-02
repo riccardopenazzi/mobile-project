@@ -1,6 +1,8 @@
 package it.unibo.noteforall.ui.screen.signup
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -44,12 +46,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
+import it.unibo.noteforall.utils.navigation.AuthenticationRoute
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
@@ -244,15 +249,17 @@ fun SignupScreen(
                     password,
                     repeatPassword,
                     db,
-                    navController,
-                    internalDb
+                    internalDb,
+                    ctx
                 )
             }) {
                 Text(text = "Signup")
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
-                onClick = { navController.navigate(NoteForAllRoute.Login.route) },
+                onClick = {
+                    navController.navigate(AuthenticationRoute.Login.route)
+                },
                 shape = RoundedCornerShape(50),
                 border = BorderStroke(1.dp, Color.Black)
             ) {
@@ -270,8 +277,8 @@ fun execSignup(
     password: String,
     repeatPassword: String,
     db: FirebaseFirestore,
-    navController: NavHostController,
-    internalDb: NoteForAllDatabase
+    internalDb: NoteForAllDatabase,
+    ctx: Context
 ) {
     if (name.isNotEmpty() &&
         surname.isNotEmpty() &&
@@ -298,7 +305,11 @@ fun execSignup(
                 val userTmp = User(userId = user.id)
                 internalDb.dao.insertUserId(userTmp)
             }
-            navController.navigate(NoteForAllRoute.Home.route)
+
+            val intent = Intent(ctx, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            ctx.startActivity(intent)
         }
             .addOnFailureListener { e ->
                 Log.w("debSignup", "Error adding document", e)

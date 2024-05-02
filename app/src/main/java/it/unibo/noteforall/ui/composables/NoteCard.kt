@@ -60,7 +60,6 @@ fun NoteCard(
     var isSaved by remember { mutableStateOf(note.isSaved) }
 
     Card(
-        //onClick = { if (!isExtended) navController.navigate(NoteForAllRoute.ViewNote.route) },
         onClick = { navController.navigate(NoteForAllRoute.ViewNote.buildRoute(note.postId!!)) },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier.padding(10.dp)
@@ -73,7 +72,6 @@ fun NoteCard(
             Row (
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                //Icon(imageVector = Icons.Rounded.AccountCircle, contentDescription = "", modifier = Modifier.size(40.dp))
                 AsyncImage(
                     model = note.authorPicRef,
                     contentDescription = "Author pic",
@@ -103,14 +101,13 @@ fun NoteCard(
                 }
             }
             Spacer(modifier = Modifier.size(10.dp))
-            //(imageVector = Icons.Rounded.Image, contentDescription = "Note preview", modifier = Modifier.size(100.dp))
             AsyncImage(
                 model = note.picRef,
                 contentDescription = "Note preview",
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .size(400.dp)
-                    .clip(RoundedCornerShape(10))
+                    .clip(RoundedCornerShape(5))
             )
             Spacer(modifier = Modifier.size(10.dp))
             note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }

@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.settings
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import it.unibo.noteforall.AuthenticationActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -43,7 +45,6 @@ enum class Theme { Light, Dark, System }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    navController: NavHostController? = null,
     internalDb: NoteForAllDatabase,
     state: ThemeState,
     viewModel: ThemeViewModel
@@ -86,7 +87,6 @@ fun SettingsScreen(
                                 onClick = {
                                     expanded = false
                                     viewModel.changeTheme(theme)
-                                    Log.d("test", viewModel.state.value.toString())
                                 }
                             )
                         }
@@ -98,12 +98,17 @@ fun SettingsScreen(
             Spacer(Modifier.height(40.dp))
             Button(
                 onClick = {
-                val user = User(userId = CurrentUserSingleton.currentUser!!.id)
-                CoroutineScope(Dispatchers.IO).launch {
-                    internalDb.dao.deleteUserId(user)
+                    val user = User(userId = CurrentUserSingleton.currentUser!!.id)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        internalDb.dao.deleteUserId(user)
+                    }
+
+                    val intent = Intent(ctx, AuthenticationActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    ctx.startActivity(intent)
                 }
-                navController?.navigate(NoteForAllRoute.Login.route)
-            }) {
+            ) {
                 Text("Logout")
                 Spacer(Modifier.width(10.dp))
                 Icon(

@@ -46,8 +46,6 @@ sealed class NoteForAllRoute (
     ) {
         fun buildRoute(noteId: String) = "view_note/${noteId}"
     }
-    data object Login: NoteForAllRoute("login", "Login")
-    data object Signup: NoteForAllRoute("signup", "Signup")
     data object Settings: NoteForAllRoute("settings", "Settings")
     data object Profile: NoteForAllRoute(
         "profile/{userId}",
@@ -57,7 +55,7 @@ sealed class NoteForAllRoute (
         fun buildRoute(userId: String) = "profile/${userId}"
     }
     companion object {
-        val routes = setOf(Home, MyProfile, Saved, Search, EditProfile, NewNote, ViewNote, Login, Signup, Settings)
+        val routes = setOf(Home, MyProfile, Saved, Search, EditProfile, NewNote, ViewNote, Settings)
     }
 }
 
@@ -66,7 +64,6 @@ fun NoteForAllNavGraph(
     navController: NavHostController,
     modifier: Modifier,
     db: FirebaseFirestore,
-    isLogged: Boolean,
     internalDb: NoteForAllDatabase,
     state: ThemeState,
     themeVm: ThemeViewModel
@@ -74,7 +71,7 @@ fun NoteForAllNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (isLogged) NoteForAllRoute.MyProfile.route else NoteForAllRoute.Login.route,
+        startDestination = NoteForAllRoute.Home.route,
         modifier = modifier
     ) {
 
@@ -119,19 +116,9 @@ fun NoteForAllNavGraph(
                 ViewNoteScreen(navController, id, db)
             }
         }
-        with(NoteForAllRoute.Login) {
-            composable(route) {
-                LoginScreen(db, navController, internalDb)
-            }
-        }
-        with(NoteForAllRoute.Signup) {
-            composable(route) {
-                SignupScreen(db, navController, internalDb)
-            }
-        }
         with(NoteForAllRoute.Settings) {
             composable(route) {
-                SettingsScreen(navController, internalDb, state, themeVm)
+                SettingsScreen(internalDb, state, themeVm)
             }
         }
         with(NoteForAllRoute.Profile) {
