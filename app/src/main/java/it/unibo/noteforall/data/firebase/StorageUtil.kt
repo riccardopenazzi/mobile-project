@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -110,10 +111,10 @@ class StorageUtil {
             }
             FirebaseFirestore.getInstance().collection("users")
                 .document(CurrentUserSingleton.currentUser!!.id).update(
-                userUpdate as Map<String, Any>
-            ).addOnSuccessListener {
-                navController.navigate(NoteForAllRoute.MyProfile.route)
-            }
+                    userUpdate as Map<String, Any>
+                ).addOnSuccessListener {
+                    navController.navigate(NoteForAllRoute.MyProfile.route)
+                }
         }
 
         private suspend fun checkPassword(oldPassword: String): Boolean {
@@ -128,6 +129,19 @@ class StorageUtil {
                     }.addOnFailureListener {
                         continuation.resume(false)
                     }
+            }
+        }
+
+        private suspend fun isPostSaved(postId: String): Boolean {
+            return suspendCoroutine { continuation ->
+                val savedPostsRef = FirebaseFirestore.getInstance().collection("users")
+                    .document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
+                savedPostsRef.whereEqualTo("post_id", postId).get().addOnSuccessListener { res ->
+                    Log.i("debSave", "Analizzo $postId e ritorno ${!res.isEmpty}")
+                    continuation.resume(!res.isEmpty)
+                }.addOnFailureListener { exception ->
+                    Log.i("debSave", "Errore $exception")
+                }
             }
         }
 
@@ -154,156 +168,165 @@ class StorageUtil {
                 }
         }
 
-        fun loadHomePosts(
-            noteList: MutableList<Note>,
-            db: FirebaseFirestore
-        ) {
-            db.collection("posts").get().addOnSuccessListener { allPosts ->
-                for (post in allPosts) {
-                    val userId = post.getString("user_id")
-                    if (userId != null) {
-                        Log.i("debHome", "User id non è null")
-                        db.collection("users").document(userId).get().addOnSuccessListener { user ->
-                            val savedPostsRef = db.collection("users")
-                                .document(CurrentUserSingleton.currentUser!!.id)
-                                .collection("saved_posts")
-                            savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                .addOnSuccessListener { res ->
-                                    Log.i("debHome", "Aggiungo in lista")
-                                    noteList.add(
-                                        Note(
-                                            postId = post.id,
-                                            isSaved = !res.isEmpty,
-                                            title = post.getString("title"),
-                                            description = post.getString("description"),
-                                            category = post.getString("category"),
-                                            picRef = post.getString("pic_ref"),
-                                            noteRef = post.getString("note_ref"),
-                                            author = user.getString("username"),
-                                            authorPicRef = user.getString("user_pic"),
-                                            userId = post.getString("user_id")!!,
-                                            date = post.getTimestamp("date")!!
-                                        )
-                                    )
-                                }
-                        }
+        suspend fun getAllPosts(): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("posts").get()
+                    .addOnSuccessListener { posts ->
+                        continuation.resume(posts)
                     }
-                }
             }
         }
 
-        fun loadNote(
+        suspend fun loadHomePosts(
+            noteList: MutableList<Note>,
+            db: FirebaseFirestore
+        ) {
+            val allPosts = getAllPosts()
+            for (post in allPosts) {
+                val isSaved = isPostSaved(post.id)
+                noteList.add(
+                    Note(
+                        postId = post.id,
+                        isSaved = isSaved,
+                        title = post.getString("title"),
+                        description = post.getString("description"),
+                        category = post.getString("category"),
+                        picRef = post.getString("pic_ref"),
+                        noteRef = post.getString("note_ref"),
+                        author = post.getString("user_id")
+                            ?.let { getUserSingleInfo(it, "username") },
+                        authorPicRef = post.getString("user_id")
+                            ?.let { getUserSingleInfo(it, "user_pic") },
+                        userId = post.getString("user_id")!!,
+                        date = post.getTimestamp("date")!!
+                    )
+                )
+            }
+
+        }
+
+        suspend fun getPostFromId(noteId: String): DocumentSnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("posts").document(noteId).get()
+                    .addOnSuccessListener { post ->
+                        continuation.resume(post)
+                    }
+            }
+        }
+
+        suspend fun getUserPosts(userId: String): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("posts").whereEqualTo("user_id", userId)
+                    .get()
+                    .addOnSuccessListener { allUserPosts ->
+                        continuation.resume(allUserPosts)
+                    }
+            }
+        }
+
+        private suspend fun getUserSingleInfo(userId: String, infoName: String): String {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users").document(userId).get()
+                    .addOnSuccessListener { user ->
+                        user.getString(infoName)?.let {
+                            continuation.resume(it)
+                        }
+                    }
+            }
+        }
+
+        suspend fun loadNote(
             noteId: String,
             db: FirebaseFirestore,
             posts: MutableList<Note>
         ) {
-            db.collection("posts").document(noteId).get().addOnSuccessListener { post ->
-                val savedPostsRef = db.collection("users")
+            val post = getPostFromId(noteId)
+            val isSaved = isPostSaved(noteId)
+            posts.add(
+                Note(
+                    postId = post.id,
+                    isSaved = isSaved,
+                    title = post.getString("title"),
+                    description = post.getString("description"),
+                    category = post.getString("category"),
+                    picRef = post.getString("pic_ref"),
+                    noteRef = post.getString("note_ref"),
+                    author = post.getString("user_id")?.let { getUserSingleInfo(it, "username") },
+                    authorPicRef = post.getString("user_id")
+                        ?.let { getUserSingleInfo(it, "user_pic") },
+                    userId = post.getString("user_id")!!,
+                    date = post.getTimestamp("note")
+                )
+            )
+        }
+
+        suspend fun getUserSavedPosts(): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id)
-                    .collection("saved_posts")
-                savedPostsRef.whereEqualTo("post_id", post.id).get()
-                    .addOnSuccessListener { res ->
-                        post.getString("user_id")?.let {
-                            db.collection("users").document(it).get()
-                                .addOnSuccessListener { userInfo ->
-                                    posts.add(
-                                        Note(
-                                            postId = post.id,
-                                            isSaved = !res.isEmpty,
-                                            title = post.getString("title"),
-                                            description = post.getString("description"),
-                                            category = post.getString("category"),
-                                            picRef = post.getString("pic_ref"),
-                                            noteRef = post.getString("note_ref"),
-                                            author = userInfo.getString("username"),
-                                            authorPicRef = userInfo.getString("user_pic"),
-                                            userId = post.getString("user_id")!!,
-                                            date = post.getTimestamp("note")
-                                        )
-                                    )
-                                }
-                        }
+                    .collection("saved_posts").get().addOnSuccessListener { savedPosts ->
+                        continuation.resume(savedPosts)
                     }
             }
         }
 
-        fun loadSavedPosts(
+        suspend fun loadSavedPosts(
             noteList: MutableList<Note>,
             db: FirebaseFirestore
         ) {
-            Log.i("debSave", "Inizio")
-            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
-                .collection("saved_posts").get().addOnSuccessListener { savedPosts ->
-                    for (postId in savedPosts) {
-                        postId.getString("post_id")?.let {
-                            db.collection("posts").document(it).get().addOnSuccessListener { post ->
-                                post.getString("user_id")
-                                    ?.let { it1 ->
-                                        db.collection("users").document(it1).get()
-                                            .addOnSuccessListener { userInfo ->
-                                                noteList.add(
-                                                    Note(
-                                                        postId = post.id,
-                                                        isSaved = true,
-                                                        title = post.getString("title"),
-                                                        description = post.getString("description"),
-                                                        category = post.getString("category"),
-                                                        picRef = post.getString("pic_ref"),
-                                                        noteRef = post.getString("note_ref"),
-                                                        author = userInfo.getString("username"),
-                                                        authorPicRef = userInfo.getString("user_pic"),
-                                                        userId = post.getString("user_id")!!,
-                                                        date = post.getTimestamp("date"),
-                                                        savedDate = postId.getTimestamp("saved_date")
-                                                    )
-                                                )
-                                            }
-                                    }
-                            }
-                        }
-                    }
+            val savedPosts = getUserSavedPosts()
+            for (postId in savedPosts) {
+                val post = postId.getString("post_id")?.let { getPostFromId(it) }
+                if (post != null) {
+                    noteList.add(
+                        Note(
+                            postId = post.id,
+                            isSaved = true,
+                            title = post.getString("title"),
+                            description = post.getString("description"),
+                            category = post.getString("category"),
+                            picRef = post.getString("pic_ref"),
+                            noteRef = post.getString("note_ref"),
+                            author = post.getString("user_id")?.let { getUserSingleInfo(it, "username") },
+                            authorPicRef = post.getString("user_id")
+                                ?.let { getUserSingleInfo(it, "user_pic") },
+                            userId = post.getString("user_id")!!,
+                            date = post.getTimestamp("date"),
+                            savedDate = postId.getTimestamp("saved_date")
+                        )
+                    )
                 }
+            }
         }
 
-        fun loadUserPosts(
+        suspend fun loadUserPosts(
             noteList: MutableList<Note>,
             db: FirebaseFirestore,
             userId: String
         ) {
-            db.collection("posts").whereEqualTo("user_id", userId).get()
-                .addOnSuccessListener { allUserPosts ->
-                    for (post in allUserPosts) {
-                        val userId = post.getString("user_id")
-                        if (userId != null) {
-                            Log.i("debHome", "User id non è null")
-                            db.collection("users").document(userId).get()
-                                .addOnSuccessListener { user ->
-                                    val savedPostsRef = db.collection("users")
-                                        .document(CurrentUserSingleton.currentUser!!.id)
-                                        .collection("saved_posts")
-                                    savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                        .addOnSuccessListener { res ->
-                                            Log.i("debHome", "Aggiungo in lista")
-                                            noteList.add(
-                                                Note(
-                                                    postId = post.id,
-                                                    isSaved = !res.isEmpty,
-                                                    title = post.getString("title"),
-                                                    description = post.getString("description"),
-                                                    category = post.getString("category"),
-                                                    picRef = post.getString("pic_ref"),
-                                                    noteRef = post.getString("note_ref"),
-                                                    author = user.getString("username"),
-                                                    authorPicRef = user.getString("user_pic"),
-                                                    userId = post.getString("user_id")!!,
-                                                    date = post.getTimestamp("date")
-                                                )
-                                            )
-                                        }
-                                }
-                        }
-                    }
+            val allUserPosts = getUserPosts(userId)
+            for (post in allUserPosts) {
+                val isSaved = isPostSaved(post.id)
+                Log.i("debSave", isSaved.toString())
+                val postOwnerUserId = post.getString("user_id")
+                if (postOwnerUserId != null) {
+                    noteList.add(
+                        Note(
+                            postId = post.id,
+                            isSaved = isSaved,
+                            title = post.getString("title"),
+                            description = post.getString("description"),
+                            category = post.getString("category"),
+                            picRef = post.getString("pic_ref"),
+                            noteRef = post.getString("note_ref"),
+                            author = getUserSingleInfo(postOwnerUserId, "username"),
+                            authorPicRef = getUserSingleInfo(postOwnerUserId, "user_pic"),
+                            userId = post.getString("user_id")!!,
+                            date = post.getTimestamp("date")
+                        )
+                    )
                 }
+            }
         }
 
         fun searchPost(
@@ -371,7 +394,8 @@ class StorageUtil {
             postsToFilter: MutableList<Note>,
             selectedCategory: String,
             ascending: Boolean,
-            descending: Boolean, ) {
+            descending: Boolean,
+        ) {
             if (selectedCategory.isNotEmpty()) {
                 for (post in postsToFilter) {
                     if (post.category != selectedCategory) {
