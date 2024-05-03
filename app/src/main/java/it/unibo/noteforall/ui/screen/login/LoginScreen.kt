@@ -10,7 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,11 +39,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
-import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.AuthenticationRoute
-import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,6 +60,9 @@ fun LoginScreen(
     var password by remember {
         mutableStateOf("")
     }
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -80,8 +86,18 @@ fun LoginScreen(
                 label = {
                     Text(text = "Password")
                 },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                                if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(14.dp))
             Button(onClick = {

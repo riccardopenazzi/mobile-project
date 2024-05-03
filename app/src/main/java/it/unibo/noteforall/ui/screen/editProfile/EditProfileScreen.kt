@@ -19,10 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -42,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -73,6 +78,9 @@ fun EditProfileScreen(
         mutableStateOf("")
     }
     val userPicUrl = remember { mutableStateOf("") }*/
+    var isOldPasswordVisible by remember { mutableStateOf(false) }
+    var isNewPasswordVisible by remember { mutableStateOf(false) }
+    var isRepeatPasswordVisible by remember { mutableStateOf(false) }
 
 
     // Bottom sheet
@@ -200,8 +208,18 @@ fun EditProfileScreen(
                     Text(text = "Old Password")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isOldPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isOldPasswordVisible = !isOldPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                            if (isOldPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isOldPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
@@ -211,8 +229,18 @@ fun EditProfileScreen(
                     Text(text = "New Password")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isNewPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isNewPasswordVisible = !isNewPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                            if (isNewPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isNewPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
@@ -222,8 +250,18 @@ fun EditProfileScreen(
                     Text(text = "Repeat password")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isRepeatPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isRepeatPasswordVisible = !isRepeatPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                            if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row(

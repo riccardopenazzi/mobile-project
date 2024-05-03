@@ -23,6 +23,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AddLocationAlt
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -52,13 +55,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
-import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
 import it.unibo.noteforall.utils.navigation.AuthenticationRoute
-import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 import kotlinx.coroutines.CoroutineScope
@@ -91,6 +92,9 @@ fun SignupScreen(
     var repeatPassword by remember {
         mutableStateOf("")
     }
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isRepeatPasswordVisible by remember { mutableStateOf(false) }
 
     val locationService = koinInject<LocationService>()
 
@@ -232,16 +236,36 @@ fun SignupScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text(text = "Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                            if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = repeatPassword,
                 onValueChange = { repeatPassword = it },
                 label = { Text(text = "Repeat password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                singleLine = true,
+                visualTransformation = if (isRepeatPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { isRepeatPasswordVisible = !isRepeatPasswordVisible }) {
+                        Icon(
+                            imageVector =
+                            if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = ::requestLocation) {
