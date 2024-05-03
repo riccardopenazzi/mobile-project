@@ -1,7 +1,11 @@
 package it.unibo.noteforall.ui.screen.newNote
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
+import it.unibo.noteforall.data.firebase.StorageUtil
+import it.unibo.noteforall.utils.CurrentUserSingleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,6 +24,15 @@ interface NewNoteActions {
     fun setDescription(description: String)
     fun setFileURI(fileURI: Uri?)
     fun setImageURI(imageURI: Uri?)
+    fun uploadPost(
+        ctx: Context,
+        imageUri: Uri?,
+        title: String,
+        description: String,
+        category: String,
+        noteUri: Uri?,
+        navController: NavHostController
+    )
 }
 
 class NewNoteViewModel : ViewModel() {
@@ -41,5 +54,29 @@ class NewNoteViewModel : ViewModel() {
 
         override fun setImageURI(imageURI: Uri?) =
             _state.update { it.copy(imageURI = imageURI ?: Uri.EMPTY) }
+
+        override fun uploadPost(
+            ctx: Context,
+            imageUri: Uri?,
+            title: String,
+            description: String,
+            category: String,
+            noteUri: Uri?,
+            navController: NavHostController
+        ) {
+            val post = hashMapOf(
+                "title" to title,
+                "category" to category,
+                "description" to description,
+                "user_id" to CurrentUserSingleton.currentUser!!.id
+            )
+            imageUri?.let {
+                noteUri?.let {
+                    StorageUtil.createPost(
+                        imageUri = imageUri, context = ctx, post = post, noteUri = noteUri, navController = navController
+                    )
+                }
+            }
+        }
     }
 }

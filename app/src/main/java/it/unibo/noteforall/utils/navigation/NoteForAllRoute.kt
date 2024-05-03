@@ -107,7 +107,7 @@ fun NoteForAllNavGraph(
             composable(route) {
                 val newNoteVm = koinViewModel<NewNoteViewModel>()
                 val newNoteState by newNoteVm.state.collectAsStateWithLifecycle()
-                NewNoteScreen(newNoteState, newNoteVm.actions)
+                NewNoteScreen(newNoteState, newNoteVm.actions, navController)
             }
         }
         with(NoteForAllRoute.ViewNote) {

@@ -1,7 +1,5 @@
 package it.unibo.noteforall.ui.screen.newNote
 
-import android.content.Context
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,47 +23,29 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import it.unibo.noteforall.data.firebase.StorageUtil
+import androidx.navigation.NavHostController
+import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
 import it.unibo.noteforall.ui.theme.Teal800
 
 @Composable
-fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions) {
+fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: NavHostController) {
 
-    /*var title by remember {
-        mutableStateOf("")
-    }
-    var category by remember {
-        mutableStateOf("")
-    }
-    var description by remember {
-        mutableStateOf("")
-    }
-
-    /* Photo picker */
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { selectedImageUri = it }
-    )*/
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { actions.setImageURI(it) }
     )
 
-    fun photoPicker() {
-        photoPickerLauncher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
-    }
-
     /* File picker */
-    //var noteUri by remember { mutableStateOf<Uri?>(null) }
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = {
@@ -75,124 +55,117 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions) {
 
     val ctx = LocalContext.current
 
+    var isUploading by rememberSaveable { mutableStateOf(false) }
+
+    fun photoPicker() {
+        photoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp)
-    ) {//min padding 56
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.title,
-                onValueChange = actions::setTitle,
-                label = { Text(text = "Title") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.category,
-                onValueChange = actions::setCategory,
-                label = { Text(text = "Category") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.description,
-                onValueChange = actions::setDescription,
-                label = { Text(text = "Description") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 10
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(onClick = { documentPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                    Icon(
-                        imageVector = Icons.Outlined.AttachFile,
-                        contentDescription = "Choose note"
-                    )
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "Upload note",
-                    modifier = Modifier
-                        .border(1.dp, Teal800, RoundedCornerShape(30))
-                        .padding(6.dp)
-                        .width(180.dp),
-                    textAlign = TextAlign.Center
+    ) {
+        if (!isUploading) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.title,
+                    onValueChange = actions::setTitle,
+                    label = { Text(text = "Title") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(onClick = ::photoPicker) {
-                    Icon(
-                        imageVector = Icons.Outlined.Image,
-                        contentDescription = "Choose note preview"
-                    )
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "Choose note preview",
-                    modifier = Modifier
-                        .border(1.dp, Teal800, RoundedCornerShape(30))
-                        .padding(6.dp)
-                        .width(180.dp),
-                    textAlign = TextAlign.Center
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.category,
+                    onValueChange = actions::setCategory,
+                    label = { Text(text = "Category") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    onClick = {
-                        //uploadPost(selectedImageUri, ctx, title, description, category, noteUri)
-                        uploadPost(
-                            ctx,
-                            state.imageURI,
-                            state.title,
-                            state.description,
-                            state.category,
-                            state.fileURI
-                        )
-                    }, colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Green
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.description,
+                    onValueChange = actions::setDescription,
+                    label = { Text(text = "Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 10
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Save", color = Color.White)
+                    IconButton(onClick = { documentPickerLauncher.launch(arrayOf("application/pdf")) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.AttachFile,
+                            contentDescription = "Choose note"
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Upload note",
+                        modifier = Modifier
+                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .padding(6.dp)
+                            .width(180.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(onClick = ::photoPicker) {
+                        Icon(
+                            imageVector = Icons.Outlined.Image,
+                            contentDescription = "Choose note preview"
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Choose note preview",
+                        modifier = Modifier
+                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .padding(6.dp)
+                            .width(180.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = {
+                            isUploading = true
+                            actions.uploadPost(
+                                ctx,
+                                state.imageURI,
+                                state.title,
+                                state.description,
+                                state.category,
+                                state.fileURI,
+                                navController
+                            )
+                        }, colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Green
+                        )
+                    ) {
+                        Text(text = "Save", color = Color.White)
+                    }
                 }
             }
         }
-    }
-}
-
-fun uploadPost(
-    ctx: Context,
-    imageUri: Uri?,
-    title: String,
-    description: String,
-    category: String,
-    noteUri: Uri?
-) {
-    val post = hashMapOf(
-        "title" to title,
-        "category" to category,
-        "description" to description
-    )
-    imageUri?.let {
-        val tmp = it
-        noteUri?.let {
-            StorageUtil.uploadToStorage(imageUri = tmp, context = ctx, type = "image", "post_pic", post, it)
+        if (isUploading) {
+            item { LoadingPostsAnimation() }
         }
     }
 }

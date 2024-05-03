@@ -3,32 +3,78 @@ package it.unibo.noteforall.data.firebase
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
+import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
-import java.io.File
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicBoolean
 
 class StorageUtil {
 
     companion object {
 
+        fun createPost(
+            imageUri: Uri,
+            noteUri: Uri,
+            context: Context,
+            post: HashMap<String, String>,
+            navController: NavHostController
+        ) {
+            val storageRef = Firebase.storage.reference
+            val uniqueImageName = UUID.randomUUID()
+            val uniqueNoteName = UUID.randomUUID()
+            var spaceRef = storageRef.child("posts_pic/$uniqueImageName.jpg")
+
+            val imageByteArray: ByteArray? = context.contentResolver
+                .openInputStream(imageUri)
+                ?.use { it.readBytes() }
+            imageByteArray?.let {
+                spaceRef.putBytes(imageByteArray).addOnSuccessListener {
+                    //if note preview upload success
+                    val picPosition =
+                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_pic%2F$uniqueImageName.jpg?alt=media"
+                    spaceRef = storageRef.child("posts_note/$uniqueNoteName.pdf")
+                    val noteByteArray: ByteArray? = context.contentResolver
+                        .openInputStream(noteUri)
+                        ?.use { it.readBytes() }
+                    noteByteArray?.let {
+                        spaceRef.putBytes(noteByteArray).addOnSuccessListener {
+                            //if note pdf upload success
+                            val notePosition =
+                                "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_note%2F$uniqueNoteName.pdf?alt=media"
+                            post["pic_ref"] = picPosition
+                            post["note_ref"] = notePosition
+                            val postRef = FirebaseFirestore.getInstance().collection("posts")
+                            postRef.add(post).addOnSuccessListener {newPost ->
+                                val addDate = hashMapOf(
+                                    "date" to Timestamp.now()
+                                )
+                                postRef.document(newPost.id).update(addDate as Map<String, Any>).addOnSuccessListener {
+                                    navController.navigate(NoteForAllRoute.Home.route)
+                                }
+                            }.addOnFailureListener {
+                                //TO DO MANAGE POST CREATION
+                            }
+                        }.addOnFailureListener {
+                            //TO DO MANAGE FAIL UPLOAD NOTE
+                        }
+                    }
+                }.addOnFailureListener {
+                    //TO DO MANAGE FAIL UPLOAD IMAGE
+                }
+            }
+        }
+
         fun uploadToStorage(
             imageUri: Uri,
             context: Context,
-            type: String,
             location: String,
             post: HashMap<String, String>? = null,
             noteUri: Uri? = null
