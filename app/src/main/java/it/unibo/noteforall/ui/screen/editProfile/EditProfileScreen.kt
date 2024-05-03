@@ -57,31 +57,13 @@ import it.unibo.noteforall.utils.rememberPermission
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-     db: FirebaseFirestore,
+    db: FirebaseFirestore,
     state: EditProfileState,
-    actions: EditProfileActions,
-    onSubmit: () -> Unit
+    actions: EditProfileActions
 ) {
-    /*var name by remember {
-        mutableStateOf("")
-    }
-    var surname by remember {
-        mutableStateOf("")
-    }
-    var username by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    var repeatPassword by remember {
-        mutableStateOf("")
-    }
-    val userPicUrl = remember { mutableStateOf("") }*/
     var isOldPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
     var isRepeatPasswordVisible by remember { mutableStateOf(false) }
-
 
     // Bottom sheet
     val sheetState = rememberModalBottomSheetState()
@@ -140,15 +122,6 @@ fun EditProfileScreen(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.clip(CircleShape)
                 )
-                /*if (isPhotoSelected) {
-                    AsyncImage(model = selectedImageUri, contentDescription = null, modifier = Modifier.size(80.dp))
-                } else {
-                    Icon(
-                        Icons.Outlined.AccountCircle,
-                        "Profile icon",
-                        Modifier.size(80.dp)
-                    )
-                }*/
             }
 
             /* Bottom sheet */

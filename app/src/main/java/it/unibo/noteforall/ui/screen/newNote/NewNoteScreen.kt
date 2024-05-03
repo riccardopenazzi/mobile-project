@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
 import it.unibo.noteforall.ui.theme.Teal800
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: NavHostController) {
@@ -155,15 +158,17 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     Button(
                         onClick = {
                             isUploading = true
-                            actions.uploadPost(
-                                ctx,
-                                state.imageURI,
-                                state.title,
-                                state.description,
-                                state.category,
-                                state.fileURI,
-                                navController
-                            )
+                            CoroutineScope(Dispatchers.Main).launch {
+                                actions.uploadPost(
+                                    ctx,
+                                    state.imageURI,
+                                    state.title,
+                                    state.description,
+                                    state.category,
+                                    state.fileURI,
+                                    navController
+                                )
+                            }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Green
                         )

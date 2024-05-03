@@ -15,62 +15,114 @@ import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class StorageUtil {
 
     companion object {
 
-        fun createPost(
+        suspend fun createPost(
             imageUri: Uri,
             noteUri: Uri,
             context: Context,
             post: HashMap<String, String>,
             navController: NavHostController
         ) {
+            post["pic_ref"] = uploadToStorage(imageUri, context, "posts_pic", "jpg")
+            post["note_ref"] = uploadToStorage(noteUri, context, "posts_note", "pdf")
+            val postRef = FirebaseFirestore.getInstance().collection("posts")
+            postRef.add(post).addOnSuccessListener { newPost ->
+                val addDate = hashMapOf(
+                    "date" to Timestamp.now()
+                )
+                postRef.document(newPost.id).update(addDate as Map<String, Any>)
+                    .addOnSuccessListener {
+                        navController.navigate(NoteForAllRoute.Home.route)
+                    }
+            }.addOnFailureListener {
+                //TO DO MANAGE POST CREATION
+            }
+        }
+
+        private suspend fun uploadToStorage(
+            uri: Uri,
+            context: Context,
+            destinationBucket: String,
+            extension: String
+        ): String {
+            return suspendCoroutine { continuation ->
+                val storageRef = Firebase.storage.reference
+                val uniqueDocumentName = UUID.randomUUID()
+                val spaceRef = storageRef.child("$destinationBucket/$uniqueDocumentName.$extension")
+                val documentByteArray: ByteArray? = context.contentResolver
+                    .openInputStream(uri)
+                    ?.use { it.readBytes() }
+                documentByteArray?.let {
+                    spaceRef.putBytes(documentByteArray)
+                        .addOnSuccessListener {
+                            val documentPosition =
+                                "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/$destinationBucket%2F$uniqueDocumentName.$extension?alt=media"
+                            continuation.resume(documentPosition)
+                        }
+                        .addOnFailureListener { exception ->
+                            continuation.resumeWithException(exception)
+                        }
+                } ?: run {
+                    // Handle case where imageByteArray is null
+                    continuation.resumeWithException(NullPointerException("Document byte array is null"))
+                }
+            }
+        }
+
+        /*fun updateUserInfo(
+            imageUri: Uri? = null,
+            context: Context,
+            name: String,
+            surname: String,
+            username: String,
+            oldPassword: String? = null,
+            newPassword: String? = null,
+            repeatNewPassword: String? = null
+        ) {
+            if (imageUri != null) {
+
+            }
             val storageRef = Firebase.storage.reference
             val uniqueImageName = UUID.randomUUID()
-            val uniqueNoteName = UUID.randomUUID()
-            var spaceRef = storageRef.child("posts_pic/$uniqueImageName.jpg")
-
+            var spaceRef = storageRef.child("users_pic/$uniqueImageName.jpg")
             val imageByteArray: ByteArray? = context.contentResolver
                 .openInputStream(imageUri)
                 ?.use { it.readBytes() }
             imageByteArray?.let {
                 spaceRef.putBytes(imageByteArray).addOnSuccessListener {
-                    //if note preview upload success
                     val picPosition =
-                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_pic%2F$uniqueImageName.jpg?alt=media"
-                    spaceRef = storageRef.child("posts_note/$uniqueNoteName.pdf")
-                    val noteByteArray: ByteArray? = context.contentResolver
-                        .openInputStream(noteUri)
-                        ?.use { it.readBytes() }
-                    noteByteArray?.let {
-                        spaceRef.putBytes(noteByteArray).addOnSuccessListener {
-                            //if note pdf upload success
-                            val notePosition =
-                                "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_note%2F$uniqueNoteName.pdf?alt=media"
-                            post["pic_ref"] = picPosition
-                            post["note_ref"] = notePosition
-                            val postRef = FirebaseFirestore.getInstance().collection("posts")
-                            postRef.add(post).addOnSuccessListener {newPost ->
-                                val addDate = hashMapOf(
-                                    "date" to Timestamp.now()
-                                )
-                                postRef.document(newPost.id).update(addDate as Map<String, Any>).addOnSuccessListener {
-                                    navController.navigate(NoteForAllRoute.Home.route)
+                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$uniqueImageName.jpg?alt=media"
+                    val userUpdate = hashMapOf(
+                        "name" to name,
+                        "surname" to surname,
+                        "username" to username
+                    )
+                    if (oldPassword != null && newPassword != null && repeatNewPassword != null) {
+                        if (newPassword == repeatNewPassword) {
+                            FirebaseFirestore.getInstance().collection("users")
+                                .document(CurrentUserSingleton.currentUser!!.id).get()
+                                .addOnSuccessListener { user ->
+                                    val oldPasswordDb = user.getString("password")
+                                    if (oldPasswordDb == oldPassword) {
+                                        userUpdate["password"] = newPassword
+                                    } else {
+                                        //old password not correct
+                                    }
                                 }
-                            }.addOnFailureListener {
-                                //TO DO MANAGE POST CREATION
-                            }
-                        }.addOnFailureListener {
-                            //TO DO MANAGE FAIL UPLOAD NOTE
+                        } else {
+                            //error new passwords don't match
                         }
                     }
-                }.addOnFailureListener {
-                    //TO DO MANAGE FAIL UPLOAD IMAGE
                 }
             }
-        }
+        }*/
 
         fun uploadToStorage(
             imageUri: Uri,
@@ -381,15 +433,16 @@ class StorageUtil {
         }
 
         fun getCategoriesList(categoriesList: MutableList<String>) {
-            FirebaseFirestore.getInstance().collection("posts").get().addOnSuccessListener { allPosts ->
-                for (post in allPosts) {
-                    Log.i("debCat", categoriesList.toString())
-                    val currentCategory = post.getString("category")
-                    if (currentCategory != null && !categoriesList.contains(currentCategory)) {
-                        categoriesList.add(currentCategory)
+            FirebaseFirestore.getInstance().collection("posts").get()
+                .addOnSuccessListener { allPosts ->
+                    for (post in allPosts) {
+                        Log.i("debCat", categoriesList.toString())
+                        val currentCategory = post.getString("category")
+                        if (currentCategory != null && !categoriesList.contains(currentCategory)) {
+                            categoriesList.add(currentCategory)
+                        }
                     }
                 }
-            }
         }
     }
 }

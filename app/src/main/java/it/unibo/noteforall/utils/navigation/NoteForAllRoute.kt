@@ -100,7 +100,7 @@ fun NoteForAllNavGraph(
             composable(route) {
                 val editProfileVm = koinViewModel<EditProfileViewModel>()
                 val editProfileState by editProfileVm.state.collectAsStateWithLifecycle()
-                EditProfileScreen(db, editProfileState, editProfileVm.actions, {})
+                EditProfileScreen(db, editProfileState, editProfileVm.actions)
             }
         }
         with(NoteForAllRoute.NewNote) {
