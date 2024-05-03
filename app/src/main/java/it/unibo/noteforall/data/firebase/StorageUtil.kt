@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -366,6 +365,21 @@ class StorageUtil {
                         }
                     }
                 }
+        }
+
+        fun applyFilters(
+            postsToFilter: MutableList<Note>,
+            selectedCategory: String,
+            ascending: Boolean,
+            descending: Boolean, ) {
+            if (selectedCategory.isNotEmpty()) {
+                for (post in postsToFilter) {
+                    if (post.category != selectedCategory) {
+                        postsToFilter.remove(post)
+                    }
+                }
+            }
+
         }
     }
 }

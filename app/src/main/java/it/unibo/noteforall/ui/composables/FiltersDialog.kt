@@ -5,13 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,22 +26,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import java.util.concurrent.atomic.AtomicBoolean
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.applyFilters
+import it.unibo.noteforall.utils.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersDialog(
     categories: List<String>,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    posts: SnapshotStateList<Note>? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
@@ -62,7 +61,7 @@ fun FiltersDialog(
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(2 / 5f)
+                .fillMaxHeight(3 / 5f)
                 .background(MaterialTheme.colorScheme.background, RoundedCornerShape(5))
         ) {
             Text(
@@ -153,7 +152,12 @@ fun FiltersDialog(
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = onConfirm
+                        onClick = {
+                            onConfirm
+                            if (posts != null) {
+                                applyFilters(posts, selectedCategory, ascending, descending)
+                            }
+                        }
                     ) {
                         Text("Confirm")
                     }
