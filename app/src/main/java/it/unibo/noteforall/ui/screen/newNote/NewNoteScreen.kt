@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.newNote
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AttachFile
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,7 +51,6 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = {
-            //noteUri = it
             actions.setFileURI(it)
         })
 
@@ -114,6 +115,10 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                             .width(180.dp),
                         textAlign = TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    if (state.fileURI != Uri.EMPTY) {
+                        Icon(imageVector = Icons.Outlined.Check, contentDescription = "File uploaded correctly")
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -136,6 +141,10 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                             .width(180.dp),
                         textAlign = TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    if (state.imageURI != Uri.EMPTY) {
+                        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Image uploaded correctly")
+                    }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Row(
@@ -159,7 +168,7 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                             containerColor = Color.Green
                         )
                     ) {
-                        Text(text = "Save", color = Color.White)
+                        Text(text = "Post", color = Color.White)
                     }
                 }
             }
