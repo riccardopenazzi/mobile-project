@@ -76,137 +76,62 @@ class StorageUtil {
             }
         }
 
-        /*fun updateUserInfo(
+        suspend fun updateUserInfo(
             imageUri: Uri? = null,
             context: Context,
             name: String,
             surname: String,
             username: String,
-            oldPassword: String? = null,
-            newPassword: String? = null,
-            repeatNewPassword: String? = null
+            oldPassword: String,
+            newPassword: String,
+            repeatNewPassword: String,
+            navController: NavHostController
         ) {
+            val userUpdate = hashMapOf(
+                "name" to name,
+                "surname" to surname,
+                "username" to username
+            )
+            //change pic if necessary
             if (imageUri != null) {
-
+                val picPosition = uploadToStorage(imageUri, context, "users_pic", "jpg")
+                userUpdate["user_pic"] = picPosition
             }
-            val storageRef = Firebase.storage.reference
-            val uniqueImageName = UUID.randomUUID()
-            var spaceRef = storageRef.child("users_pic/$uniqueImageName.jpg")
-            val imageByteArray: ByteArray? = context.contentResolver
-                .openInputStream(imageUri)
-                ?.use { it.readBytes() }
-            imageByteArray?.let {
-                spaceRef.putBytes(imageByteArray).addOnSuccessListener {
-                    val picPosition =
-                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$uniqueImageName.jpg?alt=media"
-                    val userUpdate = hashMapOf(
-                        "name" to name,
-                        "surname" to surname,
-                        "username" to username
-                    )
-                    if (oldPassword != null && newPassword != null && repeatNewPassword != null) {
-                        if (newPassword == repeatNewPassword) {
-                            FirebaseFirestore.getInstance().collection("users")
-                                .document(CurrentUserSingleton.currentUser!!.id).get()
-                                .addOnSuccessListener { user ->
-                                    val oldPasswordDb = user.getString("password")
-                                    if (oldPasswordDb == oldPassword) {
-                                        userUpdate["password"] = newPassword
-                                    } else {
-                                        //old password not correct
-                                    }
-                                }
-                        } else {
-                            //error new passwords don't match
-                        }
-                    }
-                }
-            }
-        }*/
-
-        fun uploadToStorage(
-            imageUri: Uri,
-            context: Context,
-            location: String,
-            post: HashMap<String, String>? = null,
-            noteUri: Uri? = null
-        ) {
-            val storage = Firebase.storage
-            val storageRef = storage.reference
-            val uniqueImageName = UUID.randomUUID()
-            val spaceRef = when (location) {
-                "post_pic" -> storageRef.child("posts_pic/$uniqueImageName.jpg")
-                else -> {
-                    storageRef.child("users_pic/$uniqueImageName.jpg")
-                }
-            }
-            val byteArray: ByteArray? = context.contentResolver
-                .openInputStream(imageUri)
-                ?.use { it.readBytes() }
-            byteArray?.let {
-                val uploadTask = spaceRef.putBytes(byteArray)
-                uploadTask.addOnFailureListener {
-                    Toast.makeText(
-                        context,
-                        "upload failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }.addOnSuccessListener {
-                    val userRef = Firebase.firestore.collection("users").document(
-                        CurrentUserSingleton.currentUser!!.id
-                    )
-                    if (location == "user_pic") {
-                        val picPosition =
-                            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2F$uniqueImageName.jpg?alt=media"
-                        userRef.update("user_pic", picPosition)
-                            .addOnSuccessListener {
-                                Toast.makeText(
-                                    context,
-                                    "User profile picture updated successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    context,
-                                    "Error updating user profile picture: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                e.message?.let { it1 -> Log.i("debImg", it1) }
-                            }
+            //change password if necessary
+            if (oldPassword.isNotEmpty() && newPassword.isNotEmpty() && repeatNewPassword.isNotEmpty()) {
+                if (newPassword == repeatNewPassword) {
+                    if (checkPassword(oldPassword)) {
+                        userUpdate["password"] = newPassword
                     } else {
-
-                        if (noteUri != null) {
-                            val uniqueNoteName = UUID.randomUUID()
-                            val noteSpaceRef = storageRef.child("posts_note/$uniqueNoteName.pdf")
-                            val noteByteArray: ByteArray? = context.contentResolver
-                                .openInputStream(noteUri)
-                                ?.use { it.readBytes() }
-                            noteByteArray?.let {
-                                val uploadNote =
-                                    noteSpaceRef.putBytes(noteByteArray).addOnSuccessListener {
-                                        val notePosition =
-                                            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_note%2F$uniqueNoteName.pdf?alt=media"
-                                        post?.put("noteRef", notePosition)
-                                        val picPosition =
-                                            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/posts_pic%2F$uniqueImageName.jpg?alt=media"
-                                        post?.put("picRef", picPosition)
-                                        if (post != null) {
-                                            userRef.collection("posts").add(post)
-                                                .addOnSuccessListener {
-                                                    Log.i("debPdf", "Post caricato in teoria")
-                                                }
-                                        }
-                                    }
-                            }
-                        } else {
-                            Log.i("debPdf", "Il note uri è null")
-                        }
+                        //error old password don't correspond
                     }
                 }
+            } else {
+                //error new passwords don't match
             }
+            FirebaseFirestore.getInstance().collection("users")
+                .document(CurrentUserSingleton.currentUser!!.id).update(
+                userUpdate as Map<String, Any>
+            ).addOnSuccessListener {
+                navController.navigate(NoteForAllRoute.MyProfile.route)
+            }
+        }
 
-
+        private suspend fun checkPassword(
+            oldPassword: String
+        ): Boolean {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users")
+                    .document(CurrentUserSingleton.currentUser!!.id).get()
+                    .addOnSuccessListener { user ->
+                        val oldPasswordDb = user.getString("password")
+                        if (oldPasswordDb == oldPassword) {
+                            continuation.resume(true)
+                        }
+                    }.addOnFailureListener {
+                        continuation.resume(false)
+                    }
+            }
         }
 
         fun savePost(postId: String, db: FirebaseFirestore) {

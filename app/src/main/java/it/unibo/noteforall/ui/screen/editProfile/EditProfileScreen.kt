@@ -48,18 +48,24 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
     db: FirebaseFirestore,
     state: EditProfileState,
-    actions: EditProfileActions
+    actions: EditProfileActions,
+    navController: NavHostController
 ) {
     var isOldPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
@@ -117,7 +123,7 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = { showBottomSheet = true }, Modifier.size(80.dp)) {
                 AsyncImage(
-                    model = if(isPhotoSelected) selectedImageUri else state.imageURL,
+                    model = if (isPhotoSelected) selectedImageUri else state.imageURL,
                     contentDescription = "img",
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.clip(CircleShape)
@@ -254,8 +260,18 @@ fun EditProfileScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Button(
                     onClick = {
-                        selectedImageUri?.let{
-                            StorageUtil.uploadToStorage(imageUri=it, context=ctx, "user_pic")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            actions.changeUserInfo(
+                                selectedImageUri,
+                                ctx,
+                                state.name,
+                                state.surname,
+                                state.username,
+                                state.oldPassword,
+                                state.newPassword,
+                                state.repeatPassword,
+                                navController
+                            )
                         }
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green

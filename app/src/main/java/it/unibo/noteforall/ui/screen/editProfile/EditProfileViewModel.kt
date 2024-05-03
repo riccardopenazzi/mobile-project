@@ -1,7 +1,11 @@
 package it.unibo.noteforall.ui.screen.editProfile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.updateUserInfo
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +30,17 @@ interface EditProfileActions {
     fun setNewPassword(password: String)
     fun setRepeatPassword(password: String)
     fun setImageURL(imageURL: String)
+    suspend fun changeUserInfo(
+        imageUri: Uri? = null,
+        context: Context,
+        name: String,
+        surname: String,
+        username: String,
+        oldPassword: String,
+        newPassword: String,
+        repeatNewPassword: String,
+        navController: NavHostController
+    )
 }
 
 class EditProfileViewModel(db: FirebaseFirestore) : ViewModel() {
@@ -63,9 +78,20 @@ class EditProfileViewModel(db: FirebaseFirestore) : ViewModel() {
 
         override fun setImageURL(imageURL: String) =
             _state.update { it.copy(imageURL = imageURL) }
-    }
-    fun fecthData(db: FirebaseFirestore) {
 
+        override suspend fun changeUserInfo(
+            imageUri: Uri?,
+            context: Context,
+            name: String,
+            surname: String,
+            username: String,
+            oldPassword: String,
+            newPassword: String,
+            repeatNewPassword: String,
+            navController: NavHostController
+        ) {
+            updateUserInfo(imageUri, context, name, surname, username, oldPassword, newPassword, repeatNewPassword, navController)
+        }
     }
 }
 
