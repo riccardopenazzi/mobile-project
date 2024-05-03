@@ -110,8 +110,6 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = { AppBar(navigationController, currentRoute) },
                         bottomBar = {
-                            Log.d("test", NoteForAllRoute.routes.toString())
-                            Log.d("test", currentRoute.title)
                             if (items.any { it.title == currentRoute.title }) {
                                 NavigationBar(
                                     navController = navigationController,

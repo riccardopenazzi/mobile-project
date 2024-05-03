@@ -24,7 +24,6 @@ fun NavigationBar(
     currentRoute: NoteForAllRoute
 ) {
     NavigationBar {
-        Log.d("test", selectedItemIndex.toString())
         selectedItemIndex.set(NoteForAllRoute.routes.indexOf(currentRoute))
         items.forEachIndexed { index, item ->
             NavigationBarItem(

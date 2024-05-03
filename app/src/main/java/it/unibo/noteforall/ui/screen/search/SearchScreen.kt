@@ -50,7 +50,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
     var text by remember { mutableStateOf("") }
@@ -58,17 +57,7 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
 
     val focusManager = LocalFocusManager.current
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                contentColor = MaterialTheme.colorScheme.primary,
-                elevation = FloatingActionButtonDefaults.elevation(),
-                onClick = { /*TODO*/ }
-            ) {
-                Icon(Icons.Outlined.Menu, "Filter")
-            }
-        }
-    ) { contentPadding ->
+    Scaffold { contentPadding ->
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
