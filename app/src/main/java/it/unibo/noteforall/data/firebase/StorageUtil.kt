@@ -379,5 +379,17 @@ class StorageUtil {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(ref))
             ctx.startActivity(intent)
         }
+
+        fun getCategoriesList(categoriesList: MutableList<String>) {
+            FirebaseFirestore.getInstance().collection("posts").get().addOnSuccessListener { allPosts ->
+                for (post in allPosts) {
+                    Log.i("debCat", categoriesList.toString())
+                    val currentCategory = post.getString("category")
+                    if (currentCategory != null && !categoriesList.contains(currentCategory)) {
+                        categoriesList.add(currentCategory)
+                    }
+                }
+            }
+        }
     }
 }
