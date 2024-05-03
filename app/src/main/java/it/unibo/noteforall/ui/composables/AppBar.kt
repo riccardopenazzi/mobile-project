@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.data.database.NoteForAllDatabase
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -30,11 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Composable
 fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute) {
     var showFiltersDialog by remember { mutableStateOf(false) }
-    var categories = remember { mutableStateListOf<String>() }
+    val categories = remember { mutableStateListOf<String>() }
+
+    getCategoriesList(categories)
 
     if (showFiltersDialog) {
         FiltersDialog(
-            categories = listOf("prova", "prova2"),
+            categories = categories,
             onDismiss = { showFiltersDialog = false },
             onConfirm = { showFiltersDialog = false }
         )
