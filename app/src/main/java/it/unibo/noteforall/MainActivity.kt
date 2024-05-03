@@ -2,6 +2,7 @@ package it.unibo.noteforall
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : ComponentActivity() {
     val db = Firebase.firestore
@@ -68,8 +71,8 @@ class MainActivity : ComponentActivity() {
                 }
             ) {
                 val items = bottomNavigationItems
-                var selectedItemIndex by rememberSaveable {
-                    mutableStateOf(0)
+                val selectedItemIndex by rememberSaveable {
+                    mutableStateOf(AtomicInteger(0))
                 }
                 var isLogged by remember {
                     mutableStateOf(false)
@@ -107,14 +110,17 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = { AppBar(navigationController, currentRoute) },
                         bottomBar = {
+                            Log.d("test", NoteForAllRoute.routes.toString())
+                            Log.d("test", currentRoute.title)
                             if (items.any { it.title == currentRoute.title }) {
                                 NavigationBar(
                                     navController = navigationController,
                                     items = items,
                                     onItemSelected = { index ->
-                                        selectedItemIndex = index
+                                        selectedItemIndex.set(index)
                                     },
-                                    selectedItemIndex = selectedItemIndex
+                                    selectedItemIndex = selectedItemIndex,
+                                    currentRoute = currentRoute
                                 )
                             }
                         }
