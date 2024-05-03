@@ -117,9 +117,7 @@ class StorageUtil {
             }
         }
 
-        private suspend fun checkPassword(
-            oldPassword: String
-        ): Boolean {
+        private suspend fun checkPassword(oldPassword: String): Boolean {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id).get()
