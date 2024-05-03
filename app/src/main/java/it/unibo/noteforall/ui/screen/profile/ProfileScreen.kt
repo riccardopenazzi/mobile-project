@@ -123,7 +123,8 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            for (post in posts) {
+            val sortedPosts = posts.sortedBy { it.date }.reversed()
+            for (post in sortedPosts) {
                 NoteCard(navController = navController, note = post, db = db)
             }
         }

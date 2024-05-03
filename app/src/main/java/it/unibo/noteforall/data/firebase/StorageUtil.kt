@@ -7,7 +7,9 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -110,8 +112,11 @@ class StorageUtil {
         }
 
         fun savePost(postId: String, db: FirebaseFirestore) {
+            val time = Timestamp.now()
             val savedPost = hashMapOf(
-                "post_id" to postId
+                "post_id" to postId,
+                "saved_date" to time
+
             )
             db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
                 .collection("saved_posts")
@@ -156,7 +161,8 @@ class StorageUtil {
                                             noteRef = post.getString("note_ref"),
                                             author = user.getString("username"),
                                             authorPicRef = user.getString("user_pic"),
-                                            userId = post.getString("user_id")!!
+                                            userId = post.getString("user_id")!!,
+                                            date = post.getTimestamp("date")!!
                                         )
                                     )
                                 }
@@ -191,7 +197,8 @@ class StorageUtil {
                                             noteRef = post.getString("note_ref"),
                                             author = userInfo.getString("username"),
                                             authorPicRef = userInfo.getString("user_pic"),
-                                            userId = post.getString("user_id")!!
+                                            userId = post.getString("user_id")!!,
+                                            date = post.getTimestamp("note")
                                         )
                                     )
                                 }
@@ -225,7 +232,9 @@ class StorageUtil {
                                                         noteRef = post.getString("note_ref"),
                                                         author = userInfo.getString("username"),
                                                         authorPicRef = userInfo.getString("user_pic"),
-                                                        userId = post.getString("user_id")!!
+                                                        userId = post.getString("user_id")!!,
+                                                        date = post.getTimestamp("date"),
+                                                        savedDate = postId.getTimestamp("saved_date")
                                                     )
                                                 )
                                             }
@@ -266,7 +275,8 @@ class StorageUtil {
                                                     noteRef = post.getString("note_ref"),
                                                     author = user.getString("username"),
                                                     authorPicRef = user.getString("user_pic"),
-                                                    userId = post.getString("user_id")!!
+                                                    userId = post.getString("user_id")!!,
+                                                    date = post.getTimestamp("date")
                                                 )
                                             )
                                         }
@@ -307,7 +317,8 @@ class StorageUtil {
                                                     noteRef = post.getString("note_ref"),
                                                     author = user.getString("username"),
                                                     authorPicRef = user.getString("user_pic"),
-                                                    userId = post.getString("user_id")!!
+                                                    userId = post.getString("user_id")!!,
+                                                    date = post.getTimestamp("date")
                                                 )
                                             )
                                         }

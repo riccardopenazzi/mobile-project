@@ -41,7 +41,8 @@ fun SavedNotesScreen(navController: NavHostController, db: FirebaseFirestore) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            items(posts) { post ->
+            val sortedPosts = posts.sortedBy { it.savedDate }.reversed()
+            items(sortedPosts) { post ->
                 NoteCard(navController = navController, note = post, db = db)
             }
         }

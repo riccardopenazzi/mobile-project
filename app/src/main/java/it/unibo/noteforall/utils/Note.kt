@@ -1,5 +1,7 @@
 package it.unibo.noteforall.utils
 
+import com.google.firebase.Timestamp
+
 data class Note(
     val postId: String? = null,
     val isSaved: Boolean = false,
@@ -10,5 +12,7 @@ data class Note(
     val noteRef: String? = null,
     val author: String? = null,
     val authorPicRef: String? = null,
-    val userId: String
+    val userId: String,
+    val date: Timestamp?,
+    val savedDate: Timestamp? = null
 )

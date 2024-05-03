@@ -69,7 +69,8 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
             if (posts.size == 0) {
                 item { LoadingPostsAnimation() }
             }
-            items(posts) { post ->
+            val sortedPosts = posts.sortedBy { it.date }.reversed()
+            items(sortedPosts) { post ->
                 NoteCard(navController = navController, note = post, db = db)
             }
         }
