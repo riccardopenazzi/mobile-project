@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,14 +80,16 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     value = state.title,
                     onValueChange = actions::setTitle,
                     label = { Text(text = "Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = state.category,
                     onValueChange = actions::setCategory,
                     label = { Text(text = "Category") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -94,7 +97,8 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     onValueChange = actions::setDescription,
                     label = { Text(text = "Description") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 10
+                    minLines = 10,
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(

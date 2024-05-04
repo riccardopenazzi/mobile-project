@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -69,8 +70,8 @@ fun NoteCardExtended(
             modifier = Modifier.padding(10.dp),
             shape = RoundedCornerShape(5),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Column(
@@ -93,6 +94,7 @@ fun NoteCardExtended(
                     note.author?.let {
                         ClickableText(
                             text = AnnotatedString(it),
+                            style = TextStyle(MaterialTheme.colorScheme.onSurface),
                             modifier = Modifier.weight(1.5f),
                             onClick = {
                                 navController.navigate(

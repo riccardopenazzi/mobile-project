@@ -55,6 +55,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
@@ -216,22 +217,30 @@ fun SignupScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(text = "Name") })
+                label = { Text(text = "Name")},
+                colors = outlinedTextFieldColors()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = surname,
                 onValueChange = { surname = it },
-                label = { Text(text = "Surname") })
+                label = { Text(text = "Surname") },
+                colors = outlinedTextFieldColors()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text(text = "Email") })
+                label = { Text(text = "Email") },
+                colors = outlinedTextFieldColors()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text(text = "Username") })
+                label = { Text(text = "Username") },
+                colors = outlinedTextFieldColors()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = password,
@@ -248,7 +257,8 @@ fun SignupScreen(
                             contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                         )
                     }
-                }
+                },
+                colors = outlinedTextFieldColors()
             )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
@@ -266,7 +276,8 @@ fun SignupScreen(
                             contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
                         )
                     }
-                }
+                },
+                colors = outlinedTextFieldColors()
             )
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = ::requestLocation) {

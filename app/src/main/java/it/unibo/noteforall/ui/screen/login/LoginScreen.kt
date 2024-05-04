@@ -39,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.AuthenticationRoute
@@ -77,9 +78,14 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = key, onValueChange = { key = it }, label = {
-                Text(text = "Email or username")
-            })
+            OutlinedTextField(
+                value = key,
+                onValueChange = { key = it },
+                label = {
+                    Text(text = "Email or username")
+                },
+                colors = outlinedTextFieldColors()
+            )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = password,
@@ -98,7 +104,8 @@ fun LoginScreen(
                             contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                         )
                     }
-                }
+                },
+                colors = outlinedTextFieldColors()
             )
             Spacer(modifier = Modifier.height(14.dp))
             Button(

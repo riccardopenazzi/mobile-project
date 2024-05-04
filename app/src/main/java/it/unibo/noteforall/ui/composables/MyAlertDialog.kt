@@ -26,12 +26,12 @@ fun MyAlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(onClick = onConfirmation) {
-                Text("Confirm")
+                Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
             }                
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text("Dismiss")
+                Text(text = "Dismiss", color = MaterialTheme.colorScheme.secondary)
             }
         },
         properties = DialogProperties(

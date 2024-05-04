@@ -13,60 +13,41 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    /*primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80*/
     primary = Teal800,
+    secondary = Teal100,
     primaryContainer = Teal800,
     onPrimary = Color.White,
+    onSecondary = Color.Black,
     onPrimaryContainer = Color.White,
     secondaryContainer = Teal100,
     onSecondaryContainer = Color.Black,
-    tertiaryContainer = Teal50,
-    onTertiaryContainer = Color.Black,
-    surface = LightGray,
-    onSurface = Color.Black,
+    tertiaryContainer = Gray800,
+    onTertiaryContainer = Color.White,
+    onSurface = Color.White,
     errorContainer = Red800,
     onErrorContainer = Color.White,
-    outline = Teal800,
-    background = Teal50,
-    onBackground = Color.Black
+    outline = Teal100,
+    onBackground = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    /*primary = Teal800,
-    secondary = Teal200,
-    background = Teal200,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black
-*/
-
     primary = Teal800,
+    secondary = Teal800,
     primaryContainer = Teal800,
     onPrimary = Color.White,
+    onSecondary = Color.White,
     onPrimaryContainer = Color.White,
     secondaryContainer = Teal100,
     onSecondaryContainer = Color.Black,
-    tertiaryContainer = Color.White,
+    tertiaryContainer = LightGray,
     onTertiaryContainer = Color.Black,
-    surface = LightGray,
+    surface = Color.White,
     onSurface = Color.Black,
     errorContainer = Red800,
     onErrorContainer = Color.White,
     outline = Teal800,
     background = Teal50,
     onBackground = Color.Black
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
 
 @Composable

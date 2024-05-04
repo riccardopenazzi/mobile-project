@@ -19,6 +19,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -90,7 +92,8 @@ fun FiltersDialog(
                             label = { Text("Choose the category: ") },
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier.menuAnchor()
+                            modifier = Modifier.menuAnchor(),
+                            colors = outlinedTextFieldColors()
                         )
 
                         ExposedDropdownMenu(
@@ -101,7 +104,7 @@ fun FiltersDialog(
                         ) {
                             categories.forEach { category ->
                                 DropdownMenuItem(
-                                    text = { Text(text = category, color = MaterialTheme.colorScheme.onSurface) },
+                                    text = { Text(text = category) },
                                     onClick = {
                                         expanded = false
                                         selectedCategory = category
@@ -128,7 +131,8 @@ fun FiltersDialog(
                                 onClick = {
                                     ascending = true
                                     descending = false
-                                }
+                                },
+                                colors = RadioButtonDefaults.colors(MaterialTheme.colorScheme.secondary)
                             )
                             Text("From older to newer")
                         }
@@ -140,7 +144,8 @@ fun FiltersDialog(
                                 onClick = {
                                     descending = true
                                     ascending = false
-                                }
+                                },
+                                colors = RadioButtonDefaults.colors(MaterialTheme.colorScheme.secondary)
                             )
                             Text("From newer to older")
                         }
@@ -154,7 +159,7 @@ fun FiltersDialog(
                         modifier = Modifier.padding(8.dp),
                         onClick = onDismiss
                     ) {
-                        Text(text = "Dismiss", color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Dismiss", color = MaterialTheme.colorScheme.secondary)
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
@@ -165,7 +170,7 @@ fun FiltersDialog(
                             }
                         }
                     ) {
-                        Text(text = "Confirm", color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
                     }
                 }
             }

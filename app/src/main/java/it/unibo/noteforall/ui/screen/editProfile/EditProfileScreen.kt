@@ -55,6 +55,7 @@ import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
 import it.unibo.noteforall.ui.composables.MyAlertDialog
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 import kotlinx.coroutines.CoroutineScope
@@ -196,7 +197,8 @@ fun EditProfileScreen(
                     label = {
                         Text(text = "Name")
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -205,7 +207,8 @@ fun EditProfileScreen(
                     label = {
                         Text(text = "Surname")
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -214,7 +217,8 @@ fun EditProfileScreen(
                     label = {
                         Text(text = "Username")
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -235,7 +239,8 @@ fun EditProfileScreen(
                                 contentDescription = if (isOldPasswordVisible) "Hide password" else "Show password"
                             )
                         }
-                    }
+                    },
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -256,7 +261,8 @@ fun EditProfileScreen(
                                 contentDescription = if (isNewPasswordVisible) "Hide password" else "Show password"
                             )
                         }
-                    }
+                    },
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -277,7 +283,8 @@ fun EditProfileScreen(
                                 contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
                             )
                         }
-                    }
+                    },
+                    colors = outlinedTextFieldColors()
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(

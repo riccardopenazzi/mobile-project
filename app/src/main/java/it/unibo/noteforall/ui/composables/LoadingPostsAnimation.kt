@@ -16,6 +16,6 @@ fun LoadingPostsAnimation() {
         modifier = Modifier.fillMaxSize().padding(50.dp),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
     }
 }

@@ -36,6 +36,7 @@ import it.unibo.noteforall.AuthenticationActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
 import it.unibo.noteforall.ui.composables.MyAlertDialog
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,7 +87,8 @@ fun SettingsScreen(
                         label = { Text("Choose the theme: ") },
                         readOnly = true,
                         trailingIcon = { TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor()
+                        modifier = Modifier.menuAnchor(),
+                        colors = outlinedTextFieldColors()
                     )
 
                     ExposedDropdownMenu(

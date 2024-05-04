@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.searchPost
 import it.unibo.noteforall.ui.composables.FiltersDialog
 import it.unibo.noteforall.ui.composables.NoteCard
+import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.Note
 
 @Composable
@@ -87,7 +89,8 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
                         posts.clear()
                         searchPost(posts, db, text)
                         focusManager.clearFocus()
-                    })
+                    }),
+                    colors = outlinedTextFieldColors()
                 )
             }
             items(posts) { post ->
