@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
-import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
@@ -63,7 +63,7 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
                 .fillMaxSize(),
         ) {
             if (posts.size == 0) {
-                item { LoadingPostsAnimation() }
+                item { LoadingAnimation() }
             }
             val sortedPosts = posts.sortedBy { it.date }.reversed()
             items(sortedPosts) { post ->

@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -190,7 +190,7 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
             }
         }
         if (isUploading) {
-            item { LoadingPostsAnimation() }
+            item { LoadingAnimation() }
         }
     }
 }

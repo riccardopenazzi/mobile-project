@@ -52,6 +52,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execSignup
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
@@ -157,6 +158,10 @@ fun SignupScreen(
         }
     }
 
+    var isSigninUp by remember {
+        mutableStateOf(false)
+    }
+
     fun takePicture() {
         if (cameraPermission.status.isGranted) {
             cameraLauncher.captureImage()
@@ -170,145 +175,150 @@ fun SignupScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        item {
-            Text(
-                text = "NoteForAll",
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 30.dp)
-            )
-            IconButton(onClick = { showBottomSheet = true }) {
-                Icon(
-                    imageVector = Icons.Outlined.AccountCircle,
-                    contentDescription = "Select profile image",
-                    modifier = Modifier.size(50.dp)
+        if (isSigninUp) {
+           item { LoadingAnimation() }
+        } else {
+            item {
+                Text(
+                    text = "NoteForAll",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(vertical = 30.dp)
                 )
-            }
-
-            /* Bottom sheet */
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = sheetState
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        TextButton(onClick = ::photoPicker) {
-                            Text("Pick a photo")
-                        }
-                        Divider(Modifier.fillParentMaxWidth(0.8f))
-                        TextButton(onClick = ::takePicture) {
-                            Text("Take a picture")
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(text = "Name")},
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(
-                value = surname,
-                onValueChange = { surname = it },
-                label = { Text(text = "Surname") },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text(text = "Email") },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text(text = "Username") },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(text = "Password") },
-                singleLine = true,
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                        Icon(
-                            imageVector =
-                            if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
-                        )
-                    }
-                },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(
-                value = repeatPassword,
-                onValueChange = { repeatPassword = it },
-                label = { Text(text = "Repeat password") },
-                singleLine = true,
-                visualTransformation = if (isRepeatPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    IconButton(onClick = { isRepeatPasswordVisible = !isRepeatPasswordVisible }) {
-                        Icon(
-                            imageVector =
-                            if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                            contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
-                        )
-                    }
-                },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            IconButton(onClick = ::requestLocation) {
-                Icon(Icons.Outlined.AddLocationAlt, "Add location icon")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Latitude: ${locationService.coordinates?.latitude ?: "-"}")
-            Text("Longitude: ${locationService.coordinates?.longitude ?: "-"}")
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = {
-                CoroutineScope(Dispatchers.Main).launch {
-                    execSignup(
-                        name,
-                        surname,
-                        email,
-                        username,
-                        password,
-                        repeatPassword,
-                        db,
-                        internalDb,
-                        ctx,
-                        selectedImageUri
+                IconButton(onClick = { showBottomSheet = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.AccountCircle,
+                        contentDescription = "Select profile image",
+                        modifier = Modifier.size(50.dp)
                     )
                 }
-            }) {
-                Text(text = "Signup", color = MaterialTheme.colorScheme.onPrimary)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            TextButton(
-                onClick = {
-                    navController.navigate(AuthenticationRoute.Login.route)
-                },
-                shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-            ) {
-                Text(text = "Already have an account?", color = MaterialTheme.colorScheme.primary)
+
+                /* Bottom sheet */
+                if (showBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showBottomSheet = false },
+                        sheetState = sheetState
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextButton(onClick = ::photoPicker) {
+                                Text("Pick a photo")
+                            }
+                            Divider(Modifier.fillParentMaxWidth(0.8f))
+                            TextButton(onClick = ::takePicture) {
+                                Text("Take a picture")
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(text = "Name")},
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = surname,
+                    onValueChange = { surname = it },
+                    label = { Text(text = "Surname") },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text(text = "Email") },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text(text = "Username") },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(text = "Password") },
+                    singleLine = true,
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector =
+                                if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = repeatPassword,
+                    onValueChange = { repeatPassword = it },
+                    label = { Text(text = "Repeat password") },
+                    singleLine = true,
+                    visualTransformation = if (isRepeatPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { isRepeatPasswordVisible = !isRepeatPasswordVisible }) {
+                            Icon(
+                                imageVector =
+                                if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                IconButton(onClick = ::requestLocation) {
+                    Icon(Icons.Outlined.AddLocationAlt, "Add location icon")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Latitude: ${locationService.coordinates?.latitude ?: "-"}")
+                Text("Longitude: ${locationService.coordinates?.longitude ?: "-"}")
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = {
+                    isSigninUp = true
+                    CoroutineScope(Dispatchers.Main).launch {
+                        execSignup(
+                            name,
+                            surname,
+                            email,
+                            username,
+                            password,
+                            repeatPassword,
+                            db,
+                            internalDb,
+                            ctx,
+                            selectedImageUri
+                        )
+                    }
+                }) {
+                    Text(text = "Signup", color = MaterialTheme.colorScheme.onPrimary)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    onClick = {
+                        navController.navigate(AuthenticationRoute.Login.route)
+                    },
+                    shape = RoundedCornerShape(50),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Text(text = "Already have an account?", color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     }

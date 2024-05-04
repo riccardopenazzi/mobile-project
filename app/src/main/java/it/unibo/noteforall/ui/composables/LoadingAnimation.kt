@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoadingPostsAnimation() {
+fun LoadingAnimation() {
     Box(
         modifier = Modifier.fillMaxSize().padding(50.dp),
         contentAlignment = Alignment.Center

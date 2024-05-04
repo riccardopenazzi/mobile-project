@@ -39,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -64,87 +65,96 @@ fun LoginScreen(
 
     var isPasswordVisible by remember { mutableStateOf(false) }
 
+    var isLogging by remember {
+        mutableStateOf(false)
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        item {
-            Text(
-                text = "NoteForAll",
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-                modifier = Modifier.padding(vertical = 50.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = key,
-                onValueChange = { key = it },
-                label = {
-                    Text(text = "Email or username")
-                },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = {
-                    Text(text = "Password")
-                },
-                singleLine = true,
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                        Icon(
-                            imageVector =
+        if (isLogging) {
+           item { LoadingAnimation() }
+        } else {
+            item {
+                Text(
+                    text = "NoteForAll",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                    modifier = Modifier.padding(vertical = 50.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = key,
+                    onValueChange = { key = it },
+                    label = {
+                        Text(text = "Email or username")
+                    },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = {
+                        Text(text = "Password")
+                    },
+                    singleLine = true,
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector =
                                 if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
-                        )
-                    }
-                },
-                colors = outlinedTextFieldColors()
-            )
-            Spacer(modifier = Modifier.height(14.dp))
-            Button(
-                onClick = {
-                    execLogin(key, password, db) { success, id ->
-                        if (success) {
-                            Log.i("debLogin", "login ok")
-                            if (id != null) {
-                                val currentUser = CurrentUser(
-                                    id = id
-                                )
-                                CurrentUserSingleton.currentUser = currentUser
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val user = User(userId = id)
-                                    internalDb.dao.insertUserId(user)
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
+                    colors = outlinedTextFieldColors()
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                Button(
+                    onClick = {
+                        isLogging = true
+                        execLogin(key, password, db) { success, id ->
+                            if (success) {
+                                Log.i("debLogin", "login ok")
+                                if (id != null) {
+                                    val currentUser = CurrentUser(
+                                        id = id
+                                    )
+                                    CurrentUserSingleton.currentUser = currentUser
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        val user = User(userId = id)
+                                        internalDb.dao.insertUserId(user)
+                                    }
                                 }
-                            }
 
-                            val intent = Intent(ctx, MainActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            ctx.startActivity(intent)
-                        } else {
-                            Log.i("debLogin", "login NON ok")
+                                val intent = Intent(ctx, MainActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                ctx.startActivity(intent)
+                            } else {
+                                Log.i("debLogin", "login NON ok")
+                            }
                         }
                     }
+                ) {
+                    Text(text = "Login", color = MaterialTheme.colorScheme.onPrimary)
                 }
-            ) {
-                Text(text = "Login", color = MaterialTheme.colorScheme.onPrimary)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            TextButton(
-                onClick = {
-                    navController.navigate(AuthenticationRoute.Signup.route)
-                },
-                shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-            ) {
-                Text(text = "Don't have an account?", color = MaterialTheme.colorScheme.outline)
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    onClick = {
+                        navController.navigate(AuthenticationRoute.Signup.route)
+                    },
+                    shape = RoundedCornerShape(50),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Don't have an account?", color = MaterialTheme.colorScheme.outline)
+                }
             }
         }
     }

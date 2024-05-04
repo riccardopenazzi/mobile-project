@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.MyAlertDialog
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.rememberCameraLauncher
@@ -321,7 +321,7 @@ fun EditProfileScreen(
             }
         }
         if (showLoading) {
-            item { LoadingPostsAnimation() }
+            item { LoadingAnimation() }
         }
     }
 }
