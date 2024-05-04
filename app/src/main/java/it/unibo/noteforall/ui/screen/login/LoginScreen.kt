@@ -39,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execLogin
 import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUser
@@ -119,28 +120,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         isLogging = true
-                        execLogin(key, password, db) { success, id ->
-                            if (success) {
-                                Log.i("debLogin", "login ok")
-                                if (id != null) {
-                                    val currentUser = CurrentUser(
-                                        id = id
-                                    )
-                                    CurrentUserSingleton.currentUser = currentUser
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        val user = User(userId = id)
-                                        internalDb.dao.insertUserId(user)
-                                    }
-                                }
-
-                                val intent = Intent(ctx, MainActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                ctx.startActivity(intent)
-                            } else {
-                                Log.i("debLogin", "login NON ok")
-                            }
-                        }
+                        execLogin(key, password, db, internalDb, ctx)
                     }
                 ) {
                     Text(text = "Login", color = MaterialTheme.colorScheme.onPrimary)
@@ -157,38 +137,5 @@ fun LoginScreen(
                 }
             }
         }
-    }
-}
-
-fun execLogin(
-    key: String,
-    password: String,
-    db: FirebaseFirestore,
-    onResult: (Boolean, String?) -> Unit
-) {
-    if (key.isNotEmpty() && password.isNotEmpty()) {
-        db.collection("users").get().addOnSuccessListener { res ->
-            for (user in res) {
-                if ((user.getString("email") == key || user.getString("username") == key) &&
-                    user.getString("password") == password
-                ) {
-                    Log.i("debLogin", "Login success test id = ${user.id}")
-                    onResult(
-                        true,
-                        user.id
-                    ) // Chiamare la funzione di callback con true se il login ha successo
-                    return@addOnSuccessListener
-                }
-            }
-            // Se il ciclo termina senza trovare corrispondenze, chiamare la funzione di callback con false
-            onResult(false, null)
-        }.addOnFailureListener { exception ->
-            Log.w("debLogin", "Error getting documents.", exception)
-            // Se si verifica un errore durante la richiesta al database, chiamare la funzione di callback con false
-            onResult(false, null)
-        }
-    } else {
-        // Se uno dei campi è vuoto, chiamare la funzione di callback con false
-        onResult(false, null)
     }
 }

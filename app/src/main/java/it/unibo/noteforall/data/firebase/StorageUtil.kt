@@ -487,5 +487,37 @@ class StorageUtil {
             }
         }
 
+         fun execLogin(
+            key: String,
+            password: String,
+            db: FirebaseFirestore,
+            internalDb: NoteForAllDatabase,
+            ctx: Context
+        ) {
+            if (key.isNotEmpty() && password.isNotEmpty()) {
+                db.collection("users").get().addOnSuccessListener { res ->
+                    for (user in res) {
+                        if ((user.getString("email") == key || user.getString("username") == key) &&
+                            user.getString("password") == password
+                        ) {
+                            val currentUser = CurrentUser(
+                                id = user.id
+                            )
+                            CurrentUserSingleton.currentUser = currentUser
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val userCurr = User(userId = user.id)
+                                internalDb.dao.insertUserId(userCurr)
+                            }
+                            val intent = Intent(ctx, MainActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            ctx.startActivity(intent)
+                        }
+                    }
+                }
+            } else {
+                //error key or password is wrong
+            }
+        }
     }
 }
