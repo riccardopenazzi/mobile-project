@@ -23,6 +23,7 @@ import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.security.MessageDigest
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -110,7 +111,7 @@ class StorageUtil {
             if (oldPassword.isNotEmpty() && newPassword.isNotEmpty() && repeatNewPassword.isNotEmpty()) {
                 if (newPassword == repeatNewPassword) {
                     if (checkPassword(oldPassword)) {
-                        userUpdate["password"] = newPassword
+                        userUpdate["password"] = encryptPassword(newPassword)
                     } else {
                         //error old password don't correspond
                     }
@@ -458,7 +459,7 @@ class StorageUtil {
                         "surname" to surname,
                         "email" to email,
                         "username" to username,
-                        "password" to password
+                        "password" to encryptPassword(password)
                     )
                     if (imageUri != null) {
                         userPicPos = uploadToStorage(imageUri, ctx, "users_pic", ".jpg")
@@ -500,7 +501,7 @@ class StorageUtil {
                 db.collection("users").get().addOnSuccessListener { res ->
                     for (user in res) {
                         if ((user.getString("email") == key || user.getString("username") == key) &&
-                            user.getString("password") == password
+                            user.getString("password") == encryptPassword(password)
                         ) {
                             val currentUser = CurrentUser(
                                 id = user.id
@@ -556,6 +557,13 @@ class StorageUtil {
                     )
                 }
             }
+        }
+
+        private fun encryptPassword(password: String): String {
+            val messageDigest = MessageDigest.getInstance("SHA-256")
+            messageDigest.update(password.toByteArray())
+            val hashedPasswordBytes = messageDigest.digest()
+            return hashedPasswordBytes.joinToString("") { "%02x".format(it) }
         }
     }
 }
