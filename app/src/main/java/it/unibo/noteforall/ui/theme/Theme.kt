@@ -21,20 +21,36 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80*/
     primary = Teal800,
-    secondary = Teal200,
-    background = Teal200,
+    primaryContainer = Teal800,
     onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black
+    onPrimaryContainer = Color.White,
+    secondaryContainer = Teal200,
+    onSecondaryContainer = Color.Black,
+    surface = Teal50,
+    onSurface = Color.Black,
+    errorContainer = Red800,
+    onErrorContainer = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Teal800,
+    /*primary = Teal800,
     secondary = Teal200,
     background = Teal200,
     onPrimary = Color.White,
     onSecondary = Color.Black,
     onBackground = Color.Black
+*/
+
+    primary = Teal800,
+    primaryContainer = Teal800,
+    onPrimary = Color.White,
+    onPrimaryContainer = Color.White,
+    secondaryContainer = Teal200,
+    onSecondaryContainer = Color.Black,
+    surface = Teal50,
+    onSurface = Color.Black,
+    errorContainer = Red800,
+    onErrorContainer = Color.White
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

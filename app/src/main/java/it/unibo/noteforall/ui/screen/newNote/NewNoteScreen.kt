@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,13 +32,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
-import it.unibo.noteforall.ui.theme.Teal800
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -113,14 +112,18 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     Text(
                         text = "Upload note",
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(30))
                             .padding(6.dp)
                             .width(180.dp),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     if (state.fileURI != Uri.EMPTY) {
-                        Icon(imageVector = Icons.Outlined.Check, contentDescription = "File uploaded correctly")
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = "File uploaded correctly",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -139,14 +142,18 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     Text(
                         text = "Choose note preview",
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(30))
                             .padding(6.dp)
                             .width(180.dp),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     if (state.imageURI != Uri.EMPTY) {
-                        Icon(imageVector = Icons.Outlined.Check, contentDescription = "Image uploaded correctly")
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = "Image uploaded correctly",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
@@ -170,10 +177,10 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                                 )
                             }
                         }, colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green
+                            containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text(text = "Post", color = Color.White)
+                        Text(text = "Post", color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }

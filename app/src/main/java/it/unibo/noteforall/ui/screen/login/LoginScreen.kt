@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -70,10 +70,11 @@ fun LoginScreen(
     ) {
         item {
             Text(
-                text = "Note For All",
+                text = "NoteForAll",
                 fontWeight = FontWeight.Bold,
                 fontSize = 30.sp,
-                modifier = Modifier.padding(vertical = 50.dp)
+                modifier = Modifier.padding(vertical = 50.dp),
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(value = key, onValueChange = { key = it }, label = {
@@ -100,31 +101,33 @@ fun LoginScreen(
                 }
             )
             Spacer(modifier = Modifier.height(14.dp))
-            Button(onClick = {
-                execLogin(key, password, db) { success, id ->
-                    if (success) {
-                        Log.i("debLogin", "login ok")
-                        if (id != null) {
-                            val currentUser = CurrentUser(
-                                id = id
-                            )
-                            CurrentUserSingleton.currentUser = currentUser
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val user = User(userId = id)
-                                internalDb.dao.insertUserId(user)
+            Button(
+                onClick = {
+                    execLogin(key, password, db) { success, id ->
+                        if (success) {
+                            Log.i("debLogin", "login ok")
+                            if (id != null) {
+                                val currentUser = CurrentUser(
+                                    id = id
+                                )
+                                CurrentUserSingleton.currentUser = currentUser
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val user = User(userId = id)
+                                    internalDb.dao.insertUserId(user)
+                                }
                             }
-                        }
 
-                        val intent = Intent(ctx, MainActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        ctx.startActivity(intent)
-                    } else {
-                        Log.i("debLogin", "login NON ok")
+                            val intent = Intent(ctx, MainActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            ctx.startActivity(intent)
+                        } else {
+                            Log.i("debLogin", "login NON ok")
+                        }
                     }
                 }
-            }) {
-                Text(text = "Login")
+            ) {
+                Text(text = "Login", color = MaterialTheme.colorScheme.onPrimary)
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
@@ -132,9 +135,9 @@ fun LoginScreen(
                     navController.navigate(AuthenticationRoute.Signup.route)
                 },
                 shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, Color.Black)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
             ) {
-                Text(text = "Don't have an account?")
+                Text(text = "Don't have an account?", color = MaterialTheme.colorScheme.primary)
             }
         }
     }
