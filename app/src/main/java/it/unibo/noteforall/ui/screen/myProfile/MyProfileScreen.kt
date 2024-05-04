@@ -66,7 +66,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
             loadUserPosts(posts, db, CurrentUserSingleton.currentUser!!.id)
-            loadUserBadges(userBadges, db, CurrentUserSingleton.currentUser!!.id)
+            loadUserBadges(userBadges, db)
             loadAllBadges(allDbBadges, db)
             isLaunched = true
         }
@@ -130,7 +130,8 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             )*/
             LazyRow() {
                 for (badge in allDbBadges) {
-                    item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(0.5f)) }
+                    val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
+                    item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(if (isBadgeUnlocked) 1f else 0.5f)) }
                 }
             }
             val sortedPosts = posts.sortedBy { it.date }.reversed()
@@ -139,4 +140,13 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             }
         }
     }
+}
+
+fun checkBadgeUnlocked(searched: String, userBadges: MutableList<Badge>) : Boolean {
+    for (badge in userBadges) {
+        if (badge.imageRef == searched) {
+            return true
+        }
+    }
+    return false
 }

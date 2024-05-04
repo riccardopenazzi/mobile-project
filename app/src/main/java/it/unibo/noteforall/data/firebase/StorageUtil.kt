@@ -489,7 +489,7 @@ class StorageUtil {
             }
         }
 
-         fun execLogin(
+        fun execLogin(
             key: String,
             password: String,
             db: FirebaseFirestore,
@@ -522,8 +522,25 @@ class StorageUtil {
             }
         }
 
-        fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore, id: String) {
-
+        fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore) {
+            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
+                .collection("gamification_obtained").get().addOnSuccessListener { idList ->
+                    for (id in idList) {
+                        id.getString("gamification_object_id")?.let {
+                            db.collection("gamification_objects").document(it).get()
+                                .addOnSuccessListener { badge ->
+                                    val imageRef = badge.getString("image_ref") ?: ""
+                                    val title = badge.getString("title") ?: ""
+                                    userBadges.add(
+                                        Badge(
+                                            imageRef = imageRef,
+                                            title = title
+                                        )
+                                    )
+                                }
+                        }
+                    }
+                }
         }
 
         fun loadAllBadges(allDbBadges: MutableList<Badge>, db: FirebaseFirestore) {
