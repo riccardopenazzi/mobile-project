@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,7 +35,6 @@ import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserPosts
 import it.unibo.noteforall.ui.composables.NoteCard
-import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 
@@ -95,7 +95,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     Text(
                         text = name.value + " " + surname.value,
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -104,7 +104,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     Text(
                         text = username.value,
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -115,7 +115,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             Text(
                 text = "Badges here",
                 modifier = Modifier
-                    .border(1.dp, Teal800, RoundedCornerShape(30))
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                     .padding(30.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center

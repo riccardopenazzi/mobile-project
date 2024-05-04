@@ -23,7 +23,8 @@ fun NavigationBar(
     currentRoute: NoteForAllRoute
 ) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         selectedItemIndex.set(NoteForAllRoute.routes.indexOf(currentRoute))
         items.forEachIndexed { index, item ->
@@ -39,7 +40,7 @@ fun NavigationBar(
                     }
                 },
                 label = {
-                    Text(text = item.title, color = MaterialTheme.colorScheme.onSurface)
+                    Text(text = item.title)
                 },
                 icon = {
                     BadgedBox(badge = {}) {
@@ -47,8 +48,7 @@ fun NavigationBar(
                             imageVector = if (index == selectedItemIndex.get()) {
                                 item.selectedIcon
                             } else item.unselectedIcon,
-                            contentDescription = item.title,
-                            tint = MaterialTheme.colorScheme.onSurface
+                            contentDescription = item.title
                         )
                     }
                 }

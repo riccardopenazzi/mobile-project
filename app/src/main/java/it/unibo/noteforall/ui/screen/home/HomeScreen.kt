@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.screen.home
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +27,6 @@ import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
@@ -52,11 +44,15 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 elevation = FloatingActionButtonDefaults.elevation(),
                 onClick = { navController.navigate(NoteForAllRoute.NewNote.route) }
             ) {
-                Icon(Icons.Outlined.Add, "New post")
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "New post"
+                )
                 Text(text = "New post")
             }
         }

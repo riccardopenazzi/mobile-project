@@ -11,12 +11,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,16 +55,7 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
         )
     }
 
-    Scaffold (
-        floatingActionButton = {
-            FloatingActionButton(
-                contentColor = MaterialTheme.colorScheme.primary,
-                onClick = { showFiltersDialog = true}
-            ) {
-                Icon(Icons.Outlined.Menu, "Filters")
-            }
-        }
-    ) { contentPadding ->
+    Scaffold { contentPadding ->
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
