@@ -1,6 +1,7 @@
 package it.unibo.noteforall.ui.screen.editProfile
 
 import android.Manifest
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -28,6 +29,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -42,19 +44,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.ui.composables.LoadingPostsAnimation
+import it.unibo.noteforall.ui.composables.MyAlertDialog
 import it.unibo.noteforall.utils.rememberCameraLauncher
 import it.unibo.noteforall.utils.rememberPermission
 import kotlinx.coroutines.CoroutineScope
@@ -116,6 +116,28 @@ fun EditProfileScreen(
         }
     }
 
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        if (isChangingInfo) {
+            MyAlertDialog(
+                onDismissRequest = { showDialog = false },
+                onConfirmation = { editProfileInfo(ctx, state, actions, navController, selectedImageUri) },
+                title = "Confirm changes?",
+                text = "Confirming changes will edit your profile and bring you to your profile page",
+                icon = null
+            )
+        } else {
+            MyAlertDialog(
+                onDismissRequest = { showDialog = false },
+                onConfirmation = { /*TODO*/ },
+                title = "Delete changes?",
+                text = "Deleting changes will also bring you to your profile page",
+                icon = null
+            )
+        }
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -138,7 +160,9 @@ fun EditProfileScreen(
                 if (showBottomSheet) {
                     ModalBottomSheet(
                         onDismissRequest = { showBottomSheet = false },
-                        sheetState = sheetState
+                        sheetState = sheetState,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -246,7 +270,7 @@ fun EditProfileScreen(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -254,36 +278,28 @@ fun EditProfileScreen(
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
-                        onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
+                        onClick = { showDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(text = "Cancel", color = Color.White)
+                        Text("Cancel")
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     Button(
                         onClick = {
                             isChangingInfo = true
-                            CoroutineScope(Dispatchers.Main).launch {
-                                actions.changeUserInfo(
-                                    selectedImageUri,
-                                    ctx,
-                                    state.name,
-                                    state.surname,
-                                    state.username,
-                                    state.oldPassword,
-                                    state.newPassword,
-                                    state.repeatPassword,
-                                    navController
-                                )
-                            }
-                        }, colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green
+                            showDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(text = "Save", color = Color.White)
+                        Text("Save")
                     }
                 }
             }
@@ -291,6 +307,28 @@ fun EditProfileScreen(
         if (isChangingInfo) {
             item { LoadingPostsAnimation() }
         }
+    }
+}
+
+fun editProfileInfo(
+    ctx: Context,
+    state: EditProfileState,
+    actions: EditProfileActions,
+    navController: NavHostController,
+    selectedImageUri: Uri?
+) {
+    CoroutineScope(Dispatchers.Main).launch {
+        actions.changeUserInfo(
+            selectedImageUri,
+            ctx,
+            state.name,
+            state.surname,
+            state.username,
+            state.oldPassword,
+            state.newPassword,
+            state.repeatPassword,
+            navController
+        )
     }
 }
 

@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.composables
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,9 +66,12 @@ fun NoteCardExtended(
         var isSaved by remember { mutableStateOf(note.isSaved) }
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            modifier = Modifier
-                .padding(10.dp)
-                .background(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(5))
+            modifier = Modifier.padding(10.dp),
+            shape = RoundedCornerShape(5),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            )
         ) {
             Column(
                 modifier = Modifier.padding(10.dp),
@@ -126,11 +128,7 @@ fun NoteCardExtended(
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 note.title?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                    Text(text = it, style = MaterialTheme.typography.titleLarge)
                 }
                 Spacer(modifier = Modifier.size(10.dp))
                 note.category?.let {
@@ -143,11 +141,7 @@ fun NoteCardExtended(
                 }
                 Spacer(modifier = Modifier.size(10.dp))
                 note.description?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                    Text(text = it, style = MaterialTheme.typography.bodyMedium)
                 }
                 Spacer(modifier = Modifier.size(10.dp))
                 Row(

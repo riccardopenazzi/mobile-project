@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.profile
 
+//import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -35,10 +36,7 @@ import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.ui.composables.NoteCard
-//import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
-import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.Note
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun ProfileScreen(navController: NavHostController, userId: String, db: FirebaseFirestore) {
@@ -57,8 +55,6 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     }.addOnFailureListener { exception ->
         Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
     }
-
-    val ctx = LocalContext.current
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
@@ -98,7 +94,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     Text(
                         text = name.value + " " + surname.value,
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -107,7 +103,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                     Text(
                         text = username.value,
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -118,7 +114,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
             Text(
                 text = "Badges here",
                 modifier = Modifier
-                    .border(1.dp, Teal800, RoundedCornerShape(30))
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                     .padding(30.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center

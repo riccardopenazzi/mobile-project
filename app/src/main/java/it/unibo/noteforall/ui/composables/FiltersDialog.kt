@@ -60,15 +60,18 @@ fun FiltersDialog(
         Card (
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
                 .fillMaxWidth()
-                .fillMaxHeight(3 / 5f)
+                .fillMaxHeight(3 / 5f),
+            shape = RoundedCornerShape(5),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
         ) {
             Text(
                 text = "Filters",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(20.dp)
             )
             Column(
@@ -115,7 +118,7 @@ fun FiltersDialog(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Order by: ", color = MaterialTheme.colorScheme.onSurface)
+                    Text("Order by: ")
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -127,7 +130,7 @@ fun FiltersDialog(
                                     descending = false
                                 }
                             )
-                            Text(text  = "From older to newer", color = MaterialTheme.colorScheme.onSurface)
+                            Text("From older to newer")
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -139,7 +142,7 @@ fun FiltersDialog(
                                     ascending = false
                                 }
                             )
-                            Text(text = "From newer to older", color = MaterialTheme.colorScheme.onSurface)
+                            Text("From newer to older")
                         }
                     }
                 }

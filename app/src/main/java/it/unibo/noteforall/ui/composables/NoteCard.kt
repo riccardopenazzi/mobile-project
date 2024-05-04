@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.composables
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,9 +51,12 @@ fun NoteCard(
     Card(
         onClick = { navController.navigate(NoteForAllRoute.ViewNote.buildRoute(note.postId!!)) },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier
-            .padding(10.dp)
-            .background(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(5))
+        modifier = Modifier.padding(10.dp),
+        shape = RoundedCornerShape(5),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+        )
     ) {
         Column (
             modifier = Modifier.padding(10.dp),
@@ -103,16 +105,12 @@ fun NoteCard(
             )
             Spacer(modifier = Modifier.size(10.dp))
             note.title?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(text = it,style = MaterialTheme.typography.titleLarge)
             }
             Spacer(modifier = Modifier.size(20.dp))
             note.category?.let {
                 Text(
                     text = it,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                         .padding(6.dp)
