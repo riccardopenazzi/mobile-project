@@ -137,7 +137,7 @@ fun LoginScreen(
                 shape = RoundedCornerShape(50),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
             ) {
-                Text(text = "Don't have an account?", color = MaterialTheme.colorScheme.primary)
+                Text(text = "Don't have an account?", color = MaterialTheme.colorScheme.outline)
             }
         }
     }

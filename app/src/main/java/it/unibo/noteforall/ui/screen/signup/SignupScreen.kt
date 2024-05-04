@@ -297,7 +297,7 @@ fun SignupScreen(
                     navController.navigate(AuthenticationRoute.Login.route)
                 },
                 shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text(text = "Already have an account?", color = MaterialTheme.colorScheme.primary)
             }

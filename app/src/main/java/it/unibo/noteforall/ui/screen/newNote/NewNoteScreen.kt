@@ -112,7 +112,7 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     Text(
                         text = "Upload note",
                         modifier = Modifier
-                            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .width(180.dp),
                         textAlign = TextAlign.Center
@@ -142,7 +142,7 @@ fun NewNoteScreen(state: NewNoteState, actions: NewNoteActions, navController: N
                     Text(
                         text = "Choose note preview",
                         modifier = Modifier
-                            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                             .width(180.dp),
                         textAlign = TextAlign.Center
