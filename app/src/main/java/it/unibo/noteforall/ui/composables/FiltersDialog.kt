@@ -62,12 +62,13 @@ fun FiltersDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(3 / 5f)
-                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(5))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
         ) {
             Text(
                 text = "Filters",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(20.dp)
             )
             Column(
@@ -91,11 +92,13 @@ fun FiltersDialog(
 
                         ExposedDropdownMenu(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
                         ) {
                             categories.forEach { category ->
                                 DropdownMenuItem(
-                                    text = { Text(category) },
+                                    text = { Text(text = category, color = MaterialTheme.colorScheme.onSurface) },
                                     onClick = {
                                         expanded = false
                                         selectedCategory = category
@@ -112,7 +115,7 @@ fun FiltersDialog(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Order by: ")
+                    Text(text = "Order by: ", color = MaterialTheme.colorScheme.onSurface)
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -124,7 +127,7 @@ fun FiltersDialog(
                                     descending = false
                                 }
                             )
-                            Text("From older to newer")
+                            Text(text  = "From older to newer", color = MaterialTheme.colorScheme.onSurface)
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -136,7 +139,7 @@ fun FiltersDialog(
                                     ascending = false
                                 }
                             )
-                            Text("From newer to older")
+                            Text(text = "From newer to older", color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
@@ -148,7 +151,7 @@ fun FiltersDialog(
                         modifier = Modifier.padding(8.dp),
                         onClick = onDismiss
                     ) {
-                        Text("Dismiss")
+                        Text(text = "Dismiss", color = MaterialTheme.colorScheme.primary)
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
@@ -159,7 +162,7 @@ fun FiltersDialog(
                             }
                         }
                     ) {
-                        Text("Confirm")
+                        Text(text = "Confirm", color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }

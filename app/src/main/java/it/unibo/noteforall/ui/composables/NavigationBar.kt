@@ -1,14 +1,13 @@
 package it.unibo.noteforall.ui.composables
 
-import android.util.Log
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.utils.navigation.BottomNavigationItem
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
@@ -23,7 +22,9 @@ fun NavigationBar(
     selectedItemIndex: AtomicInteger,
     currentRoute: NoteForAllRoute
 ) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
         selectedItemIndex.set(NoteForAllRoute.routes.indexOf(currentRoute))
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -38,7 +39,7 @@ fun NavigationBar(
                     }
                 },
                 label = {
-                    Text(item.title)
+                    Text(text = item.title, color = MaterialTheme.colorScheme.onSurface)
                 },
                 icon = {
                     BadgedBox(badge = {}) {
@@ -46,7 +47,8 @@ fun NavigationBar(
                             imageVector = if (index == selectedItemIndex.get()) {
                                 item.selectedIcon
                             } else item.unselectedIcon,
-                            contentDescription = item.title
+                            contentDescription = item.title,
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

@@ -18,7 +18,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
@@ -59,7 +58,7 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 IconButton(onClick = { navController?.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = "Back button"
                     )
                 }
@@ -68,7 +67,7 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 IconButton(onClick = { navController?.navigate(NoteForAllRoute.Settings.route) }) {
                     Icon(
                         imageVector = Icons.Outlined.Settings,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = "Settings"
                     )
                 }
@@ -83,7 +82,7 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 IconButton(onClick = { showFiltersDialog = true }) {
                     Icon(
                         imageVector = Icons.Outlined.FilterAlt,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = "Filter button"
                     )
                 }
@@ -93,7 +92,7 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Edit,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         contentDescription = "Edit profile button"
                     )
                 }
