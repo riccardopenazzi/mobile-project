@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -33,8 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadAllBadges
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserBadges
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserPosts
 import it.unibo.noteforall.ui.composables.NoteCard
+import it.unibo.noteforall.utils.Badge
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 
@@ -46,7 +51,8 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     val userPicUrl = remember { mutableStateOf("") }
     var isLaunched by remember { mutableStateOf(false) }
     val posts = remember { mutableStateListOf<Note>() }
-
+    val userBadges = remember { mutableStateListOf<Badge>() }
+    val allDbBadges = remember { mutableStateListOf<Badge>() }
     db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get()
         .addOnSuccessListener { user ->
             name.value = user.getString("name").toString()
@@ -60,6 +66,8 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
             loadUserPosts(posts, db, CurrentUserSingleton.currentUser!!.id)
+            loadUserBadges(userBadges, db, CurrentUserSingleton.currentUser!!.id)
+            loadAllBadges(allDbBadges, db)
             isLaunched = true
         }
     }
@@ -112,14 +120,19 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(
+            /*Text(
                 text = "Badges here",
                 modifier = Modifier
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                     .padding(30.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
-            )
+            )*/
+            LazyRow() {
+                for (badge in allDbBadges) {
+                    item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(0.5f)) }
+                }
+            }
             val sortedPosts = posts.sortedBy { it.date }.reversed()
             for (post in sortedPosts) {
                 NoteCard(navController = navController, note = post, db = db)

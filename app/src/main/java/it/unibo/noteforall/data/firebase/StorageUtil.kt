@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -14,6 +15,7 @@ import com.google.firebase.storage.ktx.storage
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.utils.Badge
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
@@ -517,6 +519,25 @@ class StorageUtil {
                 }
             } else {
                 //error key or password is wrong
+            }
+        }
+
+        fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore, id: String) {
+
+        }
+
+        fun loadAllBadges(allDbBadges: MutableList<Badge>, db: FirebaseFirestore) {
+            db.collection("gamification_objects").get().addOnSuccessListener { badges ->
+                for (badge in badges) {
+                    val imageRef = badge.getString("image_ref") ?: ""
+                    val title = badge.getString("title") ?: ""
+                    allDbBadges.add(
+                        Badge(
+                            imageRef = imageRef,
+                            title = title
+                        )
+                    )
+                }
             }
         }
     }
