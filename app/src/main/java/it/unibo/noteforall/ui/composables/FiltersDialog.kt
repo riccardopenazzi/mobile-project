@@ -60,9 +60,9 @@ fun FiltersDialog(
         Card (
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
                 .fillMaxWidth()
                 .fillMaxHeight(3 / 5f)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
         ) {
             Text(
                 text = "Filters",

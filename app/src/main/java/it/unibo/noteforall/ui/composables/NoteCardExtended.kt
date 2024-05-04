@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -43,10 +43,8 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.downloadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadNote
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
-import it.unibo.noteforall.ui.theme.Teal800
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun NoteCardExtended(
@@ -69,7 +67,9 @@ fun NoteCardExtended(
         var isSaved by remember { mutableStateOf(note.isSaved) }
         Card(
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier
+                .padding(10.dp)
+                .background(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(5))
         ) {
             Column(
                 modifier = Modifier.padding(10.dp),
@@ -125,13 +125,19 @@ fun NoteCardExtended(
                         .clip(RoundedCornerShape(5))
                 )
                 Spacer(modifier = Modifier.size(10.dp))
-                note.title?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
+                note.title?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
                 Spacer(modifier = Modifier.size(10.dp))
                 note.category?.let {
                     Text(
                         text = it,
                         modifier = Modifier
-                            .border(1.dp, Teal800, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                     )
                 }
@@ -139,7 +145,8 @@ fun NoteCardExtended(
                 note.description?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
                 Spacer(modifier = Modifier.size(10.dp))
@@ -156,7 +163,7 @@ fun NoteCardExtended(
                     Text(
                         text = "Download note",
                         modifier = Modifier
-                            .border(1.dp, Color.DarkGray, RoundedCornerShape(30))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                             .padding(6.dp)
                     )
                 }
