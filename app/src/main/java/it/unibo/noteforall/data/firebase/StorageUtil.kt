@@ -11,9 +11,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import it.unibo.noteforall.MainActivity
+import it.unibo.noteforall.data.database.NoteForAllDatabase
+import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -287,7 +294,8 @@ class StorageUtil {
                             category = post.getString("category"),
                             picRef = post.getString("pic_ref"),
                             noteRef = post.getString("note_ref"),
-                            author = post.getString("user_id")?.let { getUserSingleInfo(it, "username") },
+                            author = post.getString("user_id")
+                                ?.let { getUserSingleInfo(it, "username") },
                             authorPicRef = post.getString("user_id")
                                 ?.let { getUserSingleInfo(it, "user_pic") },
                             userId = post.getString("user_id")!!,
@@ -405,5 +413,72 @@ class StorageUtil {
             }
 
         }
+
+        suspend fun checkDataUnique(username: String, email: String): Boolean {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users").get()
+                    .addOnSuccessListener { res ->
+                        for (user in res) {
+                            if (user.getString("username") == username || user.getString("email") == email) {
+                                continuation.resume(false)
+                            }
+                        }
+                        continuation.resume(true)
+                    }
+            }
+        }
+
+        suspend fun execSignup(
+            name: String,
+            surname: String,
+            email: String,
+            username: String,
+            password: String,
+            repeatPassword: String,
+            db: FirebaseFirestore,
+            internalDb: NoteForAllDatabase,
+            ctx: Context
+        ) {
+            if (name.isNotEmpty() &&
+                surname.isNotEmpty() &&
+                email.isNotEmpty() &&
+                username.isNotEmpty() &&
+                password.isNotEmpty() &&
+                repeatPassword.isNotEmpty() &&
+                password == repeatPassword
+            ) {
+                if (checkDataUnique(username, email)) {
+                    val user = hashMapOf(
+                        "name" to name,
+                        "surname" to surname,
+                        "email" to email,
+                        "username" to username,
+                        "password" to password
+                    )
+                    db.collection("users").add(user).addOnSuccessListener { user ->
+                        Log.d("debSignup", "DocumentSnapshot added with ID: ${user.id}")
+                        val currentUser = CurrentUser(
+                            id = user.id
+                        )
+                        CurrentUserSingleton.currentUser = currentUser
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val userTmp = User(userId = user.id)
+                            internalDb.dao.insertUserId(userTmp)
+                        }
+
+                        val intent = Intent(ctx, MainActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        ctx.startActivity(intent)
+                    }
+                        .addOnFailureListener { e ->
+                            Log.w("debSignup", "Error adding document", e)
+                        }
+                } else {
+                    //error username or email already exist
+                }
+            }
+        }
+
     }
 }

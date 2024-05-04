@@ -55,6 +55,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.database.User
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execSignup
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -288,17 +289,19 @@ fun SignupScreen(
             Text("Longitude: ${locationService.coordinates?.longitude ?: "-"}")
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = {
-                execSignup(
-                    name,
-                    surname,
-                    email,
-                    username,
-                    password,
-                    repeatPassword,
-                    db,
-                    internalDb,
-                    ctx
-                )
+                CoroutineScope(Dispatchers.Main).launch {
+                    execSignup(
+                        name,
+                        surname,
+                        email,
+                        username,
+                        password,
+                        repeatPassword,
+                        db,
+                        internalDb,
+                        ctx
+                    )
+                }
             }) {
                 Text(text = "Signup", color = MaterialTheme.colorScheme.onPrimary)
             }
@@ -316,50 +319,3 @@ fun SignupScreen(
     }
 }
 
-fun execSignup(
-    name: String,
-    surname: String,
-    email: String,
-    username: String,
-    password: String,
-    repeatPassword: String,
-    db: FirebaseFirestore,
-    internalDb: NoteForAllDatabase,
-    ctx: Context
-) {
-    if (name.isNotEmpty() &&
-        surname.isNotEmpty() &&
-        email.isNotEmpty() &&
-        username.isNotEmpty() &&
-        password.isNotEmpty() &&
-        repeatPassword.isNotEmpty() &&
-        password == repeatPassword
-    ) {
-        val user = hashMapOf(
-            "name" to name,
-            "surname" to surname,
-            "email" to email,
-            "username" to username,
-            "password" to password
-        )
-        db.collection("users").add(user).addOnSuccessListener { user ->
-            Log.d("debSignup", "DocumentSnapshot added with ID: ${user.id}")
-            val currentUser = CurrentUser(
-                id = user.id
-            )
-            CurrentUserSingleton.currentUser = currentUser
-            CoroutineScope(Dispatchers.IO).launch {
-                val userTmp = User(userId = user.id)
-                internalDb.dao.insertUserId(userTmp)
-            }
-
-            val intent = Intent(ctx, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            ctx.startActivity(intent)
-        }
-            .addOnFailureListener { e ->
-                Log.w("debSignup", "Error adding document", e)
-            }
-    }
-}
