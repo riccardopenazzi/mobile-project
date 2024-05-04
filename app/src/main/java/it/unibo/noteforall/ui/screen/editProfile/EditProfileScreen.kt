@@ -70,6 +70,8 @@ fun EditProfileScreen(
     navController: NavHostController
 ) {
     var isChangingInfo by rememberSaveable { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var showLoading by remember { mutableStateOf(false) }
     var isOldPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
     var isRepeatPasswordVisible by remember { mutableStateOf(false) }
@@ -116,21 +118,28 @@ fun EditProfileScreen(
         }
     }
 
-    var showDialog by remember { mutableStateOf(false) }
-
     if (showDialog) {
+        /* Pressed save button */
         if (isChangingInfo) {
             MyAlertDialog(
                 onDismissRequest = { showDialog = false },
-                onConfirmation = { editProfileInfo(ctx, state, actions, navController, selectedImageUri) },
+                onConfirmation = {
+                    showDialog = false
+                    editProfileInfo(ctx, state, actions, navController, selectedImageUri)
+                    showLoading = true
+                },
                 title = "Confirm changes?",
                 text = "Confirming changes will edit your profile and bring you to your profile page",
                 icon = null
             )
         } else {
+            /* Pressed cancel button */
             MyAlertDialog(
                 onDismissRequest = { showDialog = false },
-                onConfirmation = { /*TODO*/ },
+                onConfirmation = {
+                    showDialog = false
+                    navController.popBackStack()
+                },
                 title = "Delete changes?",
                 text = "Deleting changes will also bring you to your profile page",
                 icon = null
@@ -304,7 +313,7 @@ fun EditProfileScreen(
                 }
             }
         }
-        if (isChangingInfo) {
+        if (showLoading) {
             item { LoadingPostsAnimation() }
         }
     }
