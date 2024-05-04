@@ -1,8 +1,6 @@
 package it.unibo.noteforall.ui.screen.signup
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -52,13 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
-import it.unibo.noteforall.data.database.User
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execSignup
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
-import it.unibo.noteforall.utils.CurrentUser
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.LocationService
 import it.unibo.noteforall.utils.PermissionStatus
 import it.unibo.noteforall.utils.navigation.AuthenticationRoute
@@ -299,7 +293,8 @@ fun SignupScreen(
                         repeatPassword,
                         db,
                         internalDb,
-                        ctx
+                        ctx,
+                        selectedImageUri
                     )
                 }
             }) {

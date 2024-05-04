@@ -437,7 +437,8 @@ class StorageUtil {
             repeatPassword: String,
             db: FirebaseFirestore,
             internalDb: NoteForAllDatabase,
-            ctx: Context
+            ctx: Context,
+            imageUri: Uri?
         ) {
             if (name.isNotEmpty() &&
                 surname.isNotEmpty() &&
@@ -448,6 +449,8 @@ class StorageUtil {
                 password == repeatPassword
             ) {
                 if (checkDataUnique(username, email)) {
+                    var userPicPos =
+                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
                     val user = hashMapOf(
                         "name" to name,
                         "surname" to surname,
@@ -455,6 +458,10 @@ class StorageUtil {
                         "username" to username,
                         "password" to password
                     )
+                    if (imageUri != null) {
+                        userPicPos = uploadToStorage(imageUri, ctx, "users_pic", ".jpg")
+                    }
+                    user["user_pic"] = userPicPos
                     db.collection("users").add(user).addOnSuccessListener { user ->
                         Log.d("debSignup", "DocumentSnapshot added with ID: ${user.id}")
                         val currentUser = CurrentUser(
