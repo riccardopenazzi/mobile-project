@@ -60,7 +60,10 @@ fun SettingsScreen(
     if (showDialog) {
         MyAlertDialog(
             onDismissRequest = { showDialog = false },
-            onConfirmation = { startLogout(ctx, internalDb) },
+            onConfirmation = {
+                startLogout(ctx, internalDb)
+                viewModel.deleteTheme()
+            },
             title = "Are you sure to logout?",
             text = "",
             icon = null

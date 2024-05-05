@@ -163,12 +163,13 @@ fun FiltersDialog(
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = {
+                        onClick = onConfirm
+                        /*{
                             onConfirm
                             if (posts != null) {
                                 applyFilters(posts, selectedCategory, ascending, descending)
                             }
-                        }
+                        }*/
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
                     }
