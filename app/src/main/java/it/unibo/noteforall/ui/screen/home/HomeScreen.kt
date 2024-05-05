@@ -30,9 +30,9 @@ import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @Composable
-fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
+fun HomeScreen(navController: NavHostController, db: FirebaseFirestore, posts: MutableList<Note>) {
     var isLaunched by remember { mutableStateOf(false) }
-    val posts = remember { mutableStateListOf<Note>() }
+    //val posts = remember { mutableStateListOf<Note>() }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {

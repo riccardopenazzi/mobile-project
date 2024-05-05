@@ -39,9 +39,8 @@ import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.Note
 
 @Composable
-fun SearchScreen(db: FirebaseFirestore, navController: NavHostController) {
+fun SearchScreen(db: FirebaseFirestore, navController: NavHostController, posts: MutableList<Note>) {
     var text by remember { mutableStateOf("") }
-    val posts = remember { mutableStateListOf<Note>() }
     var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
     val focusManager = LocalFocusManager.current

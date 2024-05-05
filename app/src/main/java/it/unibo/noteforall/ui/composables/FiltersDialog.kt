@@ -45,7 +45,7 @@ fun FiltersDialog(
     categories: List<String>,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    posts: SnapshotStateList<Note>? = null
+    posts: MutableList<Note>
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
@@ -163,13 +163,11 @@ fun FiltersDialog(
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = onConfirm
-                        /*{
-                            onConfirm
-                            if (posts != null) {
-                                applyFilters(posts, selectedCategory, ascending, descending)
-                            }
-                        }*/
+                        onClick = //onConfirm
+                        {
+                            onConfirm()
+                            applyFilters(posts, selectedCategory, ascending, descending)
+                        }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
                     }

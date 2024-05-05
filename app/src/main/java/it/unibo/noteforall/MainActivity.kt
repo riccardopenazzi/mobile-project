@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +33,7 @@ import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.ui.theme.NoteForAllTheme
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
+import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllNavGraph
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import it.unibo.noteforall.utils.navigation.bottomNavigationItems
@@ -44,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : ComponentActivity() {
     val db = Firebase.firestore
-
+    val posts = mutableStateListOf<Note>()
     private val internalDb by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
                     }
 //---------------------------------------------------------------------------------------------
                     Scaffold(
-                        topBar = { AppBar(navigationController, currentRoute) },
+                        topBar = { AppBar(navigationController, currentRoute, posts) },
                         bottomBar = {
                             if (items.any { it.title == currentRoute.title }) {
                                 NavigationBar(
@@ -128,7 +130,8 @@ class MainActivity : ComponentActivity() {
                             db,
                             internalDb,
                             state,
-                            themeVm
+                            themeVm,
+                            posts
                         )
                     }
                 }

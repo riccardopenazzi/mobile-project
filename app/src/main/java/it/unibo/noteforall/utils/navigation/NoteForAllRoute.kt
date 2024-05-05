@@ -27,6 +27,7 @@ import it.unibo.noteforall.ui.screen.settings.ThemeState
 import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.ui.screen.viewNote.ViewNoteScreen
+import it.unibo.noteforall.utils.Note
 import org.koin.androidx.compose.koinViewModel
 
 sealed class NoteForAllRoute (
@@ -67,7 +68,8 @@ fun NoteForAllNavGraph(
     db: FirebaseFirestore,
     internalDb: NoteForAllDatabase,
     state: ThemeState,
-    themeVm: ThemeViewModel
+    themeVm: ThemeViewModel,
+    posts: MutableList<Note>
 ) {
     NavHost(
         navController = navController,
@@ -78,7 +80,7 @@ fun NoteForAllNavGraph(
 
         with(NoteForAllRoute.Home) {
             composable(route) {
-                HomeScreen(navController, db)
+                HomeScreen(navController, db, posts)
             }
         }
         with(NoteForAllRoute.MyProfile) {
@@ -93,7 +95,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Search) {
             composable(route) {
-                SearchScreen(db, navController)
+                SearchScreen(db, navController, posts)
             }
         }
         with(NoteForAllRoute.EditProfile) {

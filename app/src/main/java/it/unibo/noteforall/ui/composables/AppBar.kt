@@ -21,11 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
+import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute) {
+fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute, posts: MutableList<Note>) {
     var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
 
@@ -35,7 +36,8 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
         FiltersDialog(
             categories = categories,
             onDismiss = { showFiltersDialog = false },
-            onConfirm = { showFiltersDialog = false }
+            onConfirm = { showFiltersDialog = false },
+            posts
         )
     }
 

@@ -465,13 +465,23 @@ class StorageUtil {
             ascending: Boolean,
             descending: Boolean,
         ) {
-            if (selectedCategory.isNotEmpty()) {
+            Log.i("debFilter", "Sono apply")
+            val iterator = postsToFilter.iterator()
+            while (iterator.hasNext()) {
+                val post = iterator.next()
+                Log.i("debFilter", "Analizzo: ${post.date}")
+                if (selectedCategory.isNotEmpty() && post.category != selectedCategory) {
+                    iterator.remove()
+                }
+            }
+            /*if (selectedCategory.isNotEmpty()) {
                 for (post in postsToFilter) {
+                    Log.i("debFilter", "Analizzo: ${post.title}")
                     if (post.category != selectedCategory) {
                         postsToFilter.remove(post)
                     }
                 }
-            }
+            }*/
 
         }
 
