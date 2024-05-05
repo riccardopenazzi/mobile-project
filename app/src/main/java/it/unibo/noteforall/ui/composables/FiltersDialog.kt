@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -17,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,12 +49,27 @@ fun FiltersDialog(
     categories: List<String>,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    clearFilters: () -> Unit,
     posts: MutableList<Note>
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
-    var ascending by remember { mutableStateOf(false) }
-    var descending by remember { mutableStateOf(false) }
+    val ascending by remember { mutableStateOf(false) }
+    val descending by remember { mutableStateOf(false) }
+    var showAlertDialog by remember { mutableStateOf(false) }
+
+    if (showAlertDialog) {
+        MyAlertDialog(
+            onDismissRequest = { showAlertDialog = false },
+            onConfirmation = {
+                showAlertDialog = false
+                clearFilters()
+            },
+            title = "Reset all filters?",
+            text = "All filters selected or applied before will be removed and the research will be lost.",
+            icon = null
+        )
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -121,34 +140,26 @@ fun FiltersDialog(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Order by: ")
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = ascending,
-                                onClick = {
-                                    ascending = true
-                                    descending = false
-                                },
-                                colors = RadioButtonDefaults.colors(MaterialTheme.colorScheme.secondary)
-                            )
-                            Text("From older to newer")
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = descending,
-                                onClick = {
-                                    descending = true
-                                    ascending = false
-                                },
-                                colors = RadioButtonDefaults.colors(MaterialTheme.colorScheme.secondary)
-                            )
-                            Text("From newer to older")
-                        }
+                    Text("Posts from: ")
+                    /* DATE PICKER */
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            showAlertDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = MaterialTheme.colorScheme.errorContainer,
+                            containerColor = Color.Transparent
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.errorContainer),
+                    ) {
+                        Text("Reset filters")
                     }
                 }
                 Row(
@@ -163,8 +174,7 @@ fun FiltersDialog(
                     }
                     TextButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = //onConfirm
-                        {
+                        onClick = {
                             onConfirm()
                             applyFilters(posts, selectedCategory, ascending, descending)
                         }

@@ -14,11 +14,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +33,6 @@ import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.searchPost
-import it.unibo.noteforall.ui.composables.FiltersDialog
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.Note
@@ -41,19 +40,17 @@ import it.unibo.noteforall.utils.Note
 @Composable
 fun SearchScreen(db: FirebaseFirestore, navController: NavHostController, posts: MutableList<Note>) {
     var text by remember { mutableStateOf("") }
-    var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
     val focusManager = LocalFocusManager.current
+    var isLaunched by remember { mutableStateOf(false) }
 
     StorageUtil.getCategoriesList(categories)
 
-    if (showFiltersDialog) {
-        FiltersDialog(
-            categories = categories,
-            onDismiss = { showFiltersDialog = false },
-            onConfirm = { showFiltersDialog = false },
-            posts
-        )
+    LaunchedEffect(isLaunched) {
+        if (!isLaunched) {
+            posts.clear()
+            isLaunched = true
+        }
     }
 
     Scaffold { contentPadding ->
