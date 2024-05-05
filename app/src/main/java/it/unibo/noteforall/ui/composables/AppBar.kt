@@ -20,15 +20,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.searchPost
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute, posts: MutableList<Note>) {
     var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
+
+    val db = Firebase.firestore
 
     getCategoriesList(categories)
 
@@ -37,6 +47,21 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
             categories = categories,
             onDismiss = { showFiltersDialog = false },
             onConfirm = { showFiltersDialog = false },
+            clearFilters = {
+                when (currentRoute.title) {
+                    NoteForAllRoute.Home.title ->
+                        CoroutineScope(Dispatchers.Main).launch{
+                            posts.clear()
+                            loadHomePosts(posts, db)
+                        }
+                    NoteForAllRoute.Search.title ->
+                        CoroutineScope(Dispatchers.Main).launch{
+                            posts.clear()
+                        }
+                    else -> {}
+                }
+                showFiltersDialog = false
+            },
             posts
         )
     }

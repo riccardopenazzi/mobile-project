@@ -36,6 +36,7 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore, posts: M
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
+            posts.clear()
             loadHomePosts(posts, db)
             isLaunched = true
         }
