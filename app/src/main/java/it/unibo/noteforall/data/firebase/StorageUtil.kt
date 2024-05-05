@@ -78,10 +78,7 @@ class StorageUtil {
         }
 
         private suspend fun checkGamificationPosts(threshold: Int): Boolean {
-           /* val numPost = getUserPosts(CurrentUserSingleton.currentUser!!.id).size()
-            Log.i("debGame", "Post utente: $numPost")
-            return numPost == threshold*/
-            return getUserPosts(CurrentUserSingleton.currentUser!!.id).size() > threshold
+            return getUserPosts(CurrentUserSingleton.currentUser!!.id).size() == threshold
         }
 
         private suspend fun checkUserObtainedGamificationPosts(threshold: Int): Boolean {
