@@ -303,7 +303,9 @@ fun SignupScreen(
                             db,
                             internalDb,
                             ctx,
-                            selectedImageUri
+                            selectedImageUri,
+                            locationService.coordinates?.latitude,
+                            locationService.coordinates?.longitude
                         )
                     }
                 }) {

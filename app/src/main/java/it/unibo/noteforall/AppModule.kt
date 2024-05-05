@@ -29,7 +29,8 @@ val appModule = module {
         get(),
         NoteForAllDatabase::class.java,
         "noteforall.db"
-    ).build() }
+    ).fallbackToDestructiveMigration().build()
+    }
 
     viewModel { EditProfileViewModel(db) }
 

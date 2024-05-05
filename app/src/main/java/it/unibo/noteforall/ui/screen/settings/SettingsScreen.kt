@@ -131,7 +131,7 @@ fun SettingsScreen(
 }
 
 fun startLogout(ctx: Context, internalDb: NoteForAllDatabase) {
-    val user = User(userId = CurrentUserSingleton.currentUser!!.id)
+    val user = User(userId = CurrentUserSingleton.currentUser!!.id, 0.0, 0.0)
     CoroutineScope(Dispatchers.IO).launch {
         internalDb.dao.deleteUserId(user)
     }

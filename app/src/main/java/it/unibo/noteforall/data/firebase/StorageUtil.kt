@@ -78,10 +78,10 @@ class StorageUtil {
         }
 
         private suspend fun checkGamificationPosts(threshold: Int): Boolean {
-            val numPost = getUserPosts(CurrentUserSingleton.currentUser!!.id).size()
+           /* val numPost = getUserPosts(CurrentUserSingleton.currentUser!!.id).size()
             Log.i("debGame", "Post utente: $numPost")
-            return numPost == threshold
-            //return getUserPosts(CurrentUserSingleton.currentUser!!.id).size() > threshold
+            return numPost == threshold*/
+            return getUserPosts(CurrentUserSingleton.currentUser!!.id).size() > threshold
         }
 
         private suspend fun checkUserObtainedGamificationPosts(threshold: Int): Boolean {
@@ -509,7 +509,9 @@ class StorageUtil {
             db: FirebaseFirestore,
             internalDb: NoteForAllDatabase,
             ctx: Context,
-            imageUri: Uri?
+            imageUri: Uri?,
+            latitude: Double?,
+            longitude: Double?
         ) {
             if (name.isNotEmpty() &&
                 surname.isNotEmpty() &&
@@ -540,8 +542,13 @@ class StorageUtil {
                         )
                         CurrentUserSingleton.currentUser = currentUser
                         CoroutineScope(Dispatchers.IO).launch {
-                            val userTmp = User(userId = user.id)
-                            internalDb.dao.insertUserId(userTmp)
+                            if (longitude != null && latitude != null) {
+                                val userTmp = User(userId = user.id, userLong = longitude, userLat = latitude)
+                                internalDb.dao.insertUserId(userTmp)
+                            } else {
+                                val userTmp = User(userId = user.id, userLong = 0.0, userLat = 0.0)
+                                internalDb.dao.insertUserId(userTmp)
+                            }
                         }
 
                         val intent = Intent(ctx, MainActivity::class.java)
@@ -576,7 +583,7 @@ class StorageUtil {
                             )
                             CurrentUserSingleton.currentUser = currentUser
                             CoroutineScope(Dispatchers.IO).launch {
-                                val userCurr = User(userId = user.id)
+                                val userCurr = User(userId = user.id, 0.0, 0.0)
                                 internalDb.dao.insertUserId(userCurr)
                             }
                             val intent = Intent(ctx, MainActivity::class.java)
