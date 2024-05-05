@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -36,6 +38,8 @@ import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.ui.composables.NoteCard
+import it.unibo.noteforall.ui.screen.myProfile.checkBadgeUnlocked
+import it.unibo.noteforall.utils.Badge
 import it.unibo.noteforall.utils.Note
 
 @Composable
@@ -46,6 +50,8 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     val userPicUrl = remember { mutableStateOf("") }
     var isLaunched by remember { mutableStateOf(false) }
     val posts = remember { mutableStateListOf<Note>() }
+    val userBadges = remember { mutableStateListOf<Badge>() }
+    val allDbBadges = remember { mutableStateListOf<Badge>() }
 
     db.collection("users").document(userId).get().addOnSuccessListener { user ->
         name.value = user.getString("name").toString()
@@ -59,6 +65,8 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
             StorageUtil.loadUserPosts(posts, db, userId)
+            StorageUtil.loadUserBadges(userBadges, db, userId)
+            StorageUtil.loadAllBadges(allDbBadges, db)
             isLaunched = true
         }
     }
@@ -111,14 +119,20 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(
+            /*Text(
                 text = "Badges here",
                 modifier = Modifier
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
                     .padding(30.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
-            )
+            )*/
+            LazyRow() {
+                for (badge in allDbBadges) {
+                    val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
+                    item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(if (isBadgeUnlocked) 1f else 0.5f)) }
+                }
+            }
             val sortedPosts = posts.sortedBy { it.date }.reversed()
             for (post in sortedPosts) {
                 NoteCard(navController = navController, note = post, db = db)

@@ -67,7 +67,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
             loadUserPosts(posts, db, CurrentUserSingleton.currentUser!!.id)
-            loadUserBadges(userBadges, db)
+            loadUserBadges(userBadges, db, CurrentUserSingleton.currentUser!!.id)
             loadAllBadges(allDbBadges, db)
             isLaunched = true
         }

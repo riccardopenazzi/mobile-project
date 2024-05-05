@@ -279,9 +279,9 @@ class StorageUtil {
             }
         }
 
-        suspend fun getUserPosts(userId: String): QuerySnapshot {
+        private suspend fun getUserPosts(userId: String): QuerySnapshot {
             return suspendCoroutine { continuation ->
-                FirebaseFirestore.getInstance().collection("posts").whereEqualTo("user_id", userId).orderBy("date", Query.Direction.DESCENDING)
+                FirebaseFirestore.getInstance().collection("posts").whereEqualTo("user_id", userId)
                     .get()
                     .addOnSuccessListener { allUserPosts ->
                         continuation.resume(allUserPosts)
@@ -370,27 +370,30 @@ class StorageUtil {
             db: FirebaseFirestore,
             userId: String
         ) {
-            val allUserPosts = getUserPosts(userId)
+            //val allUserPosts = getUserPosts(userId)
+            val allUserPosts = getAllPosts()
             for (post in allUserPosts) {
-                val isSaved = isPostSaved(post.id)
-                Log.i("debSave", isSaved.toString())
-                val postOwnerUserId = post.getString("user_id")
-                if (postOwnerUserId != null) {
-                    noteList.add(
-                        Note(
-                            postId = post.id,
-                            isSaved = isSaved,
-                            title = post.getString("title"),
-                            description = post.getString("description"),
-                            category = post.getString("category"),
-                            picRef = post.getString("pic_ref"),
-                            noteRef = post.getString("note_ref"),
-                            author = getUserSingleInfo(postOwnerUserId, "username"),
-                            authorPicRef = getUserSingleInfo(postOwnerUserId, "user_pic"),
-                            userId = post.getString("user_id")!!,
-                            date = post.getTimestamp("date")
+                if (post.getString("user_id") == userId) {
+                    val isSaved = isPostSaved(post.id)
+                    Log.i("debSave", isSaved.toString())
+                    val postOwnerUserId = post.getString("user_id")
+                    if (postOwnerUserId != null) {
+                        noteList.add(
+                            Note(
+                                postId = post.id,
+                                isSaved = isSaved,
+                                title = post.getString("title"),
+                                description = post.getString("description"),
+                                category = post.getString("category"),
+                                picRef = post.getString("pic_ref"),
+                                noteRef = post.getString("note_ref"),
+                                author = getUserSingleInfo(postOwnerUserId, "username"),
+                                authorPicRef = getUserSingleInfo(postOwnerUserId, "user_pic"),
+                                userId = post.getString("user_id")!!,
+                                date = post.getTimestamp("date")
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -472,7 +475,7 @@ class StorageUtil {
 
         }
 
-        suspend fun checkDataUnique(username: String, email: String): Boolean {
+        private suspend fun checkDataUnique(username: String, email: String): Boolean {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users").get()
                     .addOnSuccessListener { res ->
@@ -581,17 +584,17 @@ class StorageUtil {
         private suspend fun getUserBadgesId(userId: String): QuerySnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users")
-                    .document(CurrentUserSingleton.currentUser!!.id)
+                    .document(userId)
                     .collection("gamification_obtained").get().addOnSuccessListener { idList ->
                         continuation.resume(idList)
                     }
             }
         }
 
-        suspend fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore) {
-            val idList = getUserBadgesId(CurrentUserSingleton.currentUser!!.id)
-            for (id in idList) {
-                id.getString("gamification_object_id")?.let {
+        suspend fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore, userId: String) {
+            val idList = getUserBadgesId(userId)
+            for (idBadge in idList) {
+                idBadge.getString("gamification_object_id")?.let {
                     db.collection("gamification_objects").document(it).get()
                         .addOnSuccessListener { badge ->
                             val imageRef = badge.getString("image_ref") ?: ""
