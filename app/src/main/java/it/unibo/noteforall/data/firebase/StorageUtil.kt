@@ -281,7 +281,7 @@ class StorageUtil {
 
         suspend fun getUserPosts(userId: String): QuerySnapshot {
             return suspendCoroutine { continuation ->
-                FirebaseFirestore.getInstance().collection("posts").whereEqualTo("user_id", userId)
+                FirebaseFirestore.getInstance().collection("posts").whereEqualTo("user_id", userId).orderBy("date", Query.Direction.DESCENDING)
                     .get()
                     .addOnSuccessListener { allUserPosts ->
                         continuation.resume(allUserPosts)
@@ -329,7 +329,7 @@ class StorageUtil {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id)
-                    .collection("saved_posts").get().addOnSuccessListener { savedPosts ->
+                    .collection("saved_posts").orderBy("saved_date", Query.Direction.DESCENDING).get().addOnSuccessListener { savedPosts ->
                         continuation.resume(savedPosts)
                     }
             }

@@ -53,6 +53,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
     val posts = remember { mutableStateListOf<Note>() }
     val userBadges = remember { mutableStateListOf<Badge>() }
     val allDbBadges = remember { mutableStateListOf<Badge>() }
+
     db.collection("users").document(CurrentUserSingleton.currentUser!!.id).get()
         .addOnSuccessListener { user ->
             name.value = user.getString("name").toString()
@@ -134,8 +135,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                     item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(if (isBadgeUnlocked) 1f else 0.5f)) }
                 }
             }
-            val sortedPosts = posts.sortedBy { it.date }.reversed()
-            for (post in sortedPosts) {
+            for (post in posts) {
                 NoteCard(navController = navController, note = post, db = db)
             }
         }
