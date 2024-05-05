@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -42,18 +41,73 @@ class StorageUtil {
         ) {
             post["pic_ref"] = uploadToStorage(imageUri, context, "posts_pic", "jpg")
             post["note_ref"] = uploadToStorage(noteUri, context, "posts_note", "pdf")
-            val postRef = FirebaseFirestore.getInstance().collection("posts")
-            postRef.add(post).addOnSuccessListener { newPost ->
-                val addDate = hashMapOf(
-                    "date" to Timestamp.now()
-                )
-                postRef.document(newPost.id).update(addDate as Map<String, Any>)
-                    .addOnSuccessListener {
-                        navController.navigate(NoteForAllRoute.Home.route)
+            if (uploadPost(post)) {
+                if (!checkUserObtainedGamificationPosts(1)) {
+                    if (checkGamificationPosts(1)) {
+                        addObtainedGamificationPost(1)
                     }
-            }.addOnFailureListener {
-                //TO DO MANAGE POST CREATION
+                }
+                if (!checkUserObtainedGamificationPosts(5)) {
+                    if (checkGamificationPosts(5)) {
+                        addObtainedGamificationPost(5)
+                    }
+                }
+                navController.navigate(NoteForAllRoute.Home.route)
+            } else {
+                //ERROR UPLOADING POST
             }
+            //gamification
+        }
+
+        private suspend fun uploadPost(post: HashMap<String, String>): Boolean {
+            return suspendCoroutine { continuation ->
+                val postRef = FirebaseFirestore.getInstance().collection("posts")
+                postRef.add(post).addOnSuccessListener { newPost ->
+                    val addDate = hashMapOf(
+                        "date" to Timestamp.now()
+                    )
+                    postRef.document(newPost.id).update(addDate as Map<String, Any>)
+                        .addOnSuccessListener {
+                            continuation.resume(true)
+                        }
+                }.addOnFailureListener {
+                    continuation.resume(false)
+                }
+            }
+        }
+
+        private suspend fun checkGamificationPosts(threshold: Int): Boolean {
+            val numPost = getUserPosts(CurrentUserSingleton.currentUser!!.id).size()
+            Log.i("debGame", "Post utente: $numPost")
+            return numPost == threshold
+            //return getUserPosts(CurrentUserSingleton.currentUser!!.id).size() > threshold
+        }
+
+        private suspend fun checkUserObtainedGamificationPosts(threshold: Int): Boolean {
+            val idList = getUserBadgesId(CurrentUserSingleton.currentUser!!.id)
+            val searchedId = when (threshold) {
+                1 -> "D2tj9ImbCWnglZvG1bzJ" //first upload id
+                else -> "6gsCgbjcLFZqUz4NWofm" //fifth upload id
+            }
+            for (id in idList) {
+                if (id.getString("gamification_object_id") == searchedId) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        private suspend fun addObtainedGamificationPost(threshold: Int) {
+            val toInsertId = when (threshold) {
+                1 -> "D2tj9ImbCWnglZvG1bzJ" //first upload id
+                else -> "6gsCgbjcLFZqUz4NWofm" //fifth upload id
+            }
+            val gamificationObject = hashMapOf(
+                "gamification_object_id" to toInsertId
+            )
+            FirebaseFirestore.getInstance().collection("users")
+                .document(CurrentUserSingleton.currentUser!!.id).collection("gamification_obtained")
+                .add(gamificationObject)
         }
 
         private suspend fun uploadToStorage(
@@ -523,26 +577,35 @@ class StorageUtil {
             }
         }
 
-        fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore) {
-            db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
-                .collection("gamification_obtained").get().addOnSuccessListener { idList ->
-                    for (id in idList) {
-                        id.getString("gamification_object_id")?.let {
-                            db.collection("gamification_objects").document(it).get()
-                                .addOnSuccessListener { badge ->
-                                    val imageRef = badge.getString("image_ref") ?: ""
-                                    val title = badge.getString("title") ?: ""
-                                    userBadges.add(
-                                        Badge(
-                                            imageRef = imageRef,
-                                            title = title
-                                        )
-                                    )
-                                }
-                        }
+        private suspend fun getUserBadgesId(userId: String): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users")
+                    .document(CurrentUserSingleton.currentUser!!.id)
+                    .collection("gamification_obtained").get().addOnSuccessListener { idList ->
+                        continuation.resume(idList)
                     }
-                }
+            }
         }
+
+        suspend fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore) {
+            val idList = getUserBadgesId(CurrentUserSingleton.currentUser!!.id)
+            for (id in idList) {
+                id.getString("gamification_object_id")?.let {
+                    db.collection("gamification_objects").document(it).get()
+                        .addOnSuccessListener { badge ->
+                            val imageRef = badge.getString("image_ref") ?: ""
+                            val title = badge.getString("title") ?: ""
+                            userBadges.add(
+                                Badge(
+                                    imageRef = imageRef,
+                                    title = title
+                                )
+                            )
+                        }
+                }
+            }
+        }
+
 
         fun loadAllBadges(allDbBadges: MutableList<Badge>, db: FirebaseFirestore) {
             db.collection("gamification_objects").get().addOnSuccessListener { badges ->
