@@ -471,15 +471,6 @@ class StorageUtil {
                     iterator.remove()
                 }
             }
-            /*if (selectedCategory.isNotEmpty()) {
-                for (post in postsToFilter) {
-                    Log.i("debFilter", "Analizzo: ${post.title}")
-                    if (post.category != selectedCategory) {
-                        postsToFilter.remove(post)
-                    }
-                }
-            }*/
-
         }
 
         private suspend fun checkDataUnique(username: String, email: String): Boolean {
