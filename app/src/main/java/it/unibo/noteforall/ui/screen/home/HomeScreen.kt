@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +32,6 @@ import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 @Composable
 fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
     var isLaunched by remember { mutableStateOf(false) }
-    //var posts by remember { mutableStateOf(mutableListOf<Note>()) }
     val posts = remember { mutableStateListOf<Note>() }
 
     LaunchedEffect(isLaunched) {
@@ -65,8 +65,7 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore) {
             if (posts.size == 0) {
                 item { LoadingAnimation() }
             }
-            val sortedPosts = posts.sortedBy { it.date }.reversed()
-            items(sortedPosts) { post ->
+            items(posts) { post ->
                 NoteCard(navController = navController, note = post, db = db)
             }
         }

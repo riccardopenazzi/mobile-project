@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -234,7 +235,7 @@ class StorageUtil {
 
         suspend fun getAllPosts(): QuerySnapshot {
             return suspendCoroutine { continuation ->
-                FirebaseFirestore.getInstance().collection("posts").get()
+                FirebaseFirestore.getInstance().collection("posts").orderBy("date", Query.Direction.DESCENDING).get()
                     .addOnSuccessListener { posts ->
                         continuation.resume(posts)
                     }
