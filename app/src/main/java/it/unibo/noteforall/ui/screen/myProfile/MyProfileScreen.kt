@@ -121,18 +121,27 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            /*Text(
-                text = "Badges here",
+            LazyRow(
                 modifier = Modifier
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
-                    .padding(30.dp)
+                    .padding(10.dp)
                     .fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )*/
-            LazyRow() {
+                horizontalArrangement = Arrangement.Center
+            ) {
                 for (badge in allDbBadges) {
                     val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
-                    item { AsyncImage(model = badge.imageRef, contentDescription = "Badge image", modifier = Modifier.size(40.dp).alpha(if (isBadgeUnlocked) 1f else 0.5f)) }
+                    item {
+                        AsyncImage(
+                            model = badge.imageRef,
+                            contentDescription = "Badge image",
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .alpha(if (isBadgeUnlocked) 1f else 0.5f)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
                 }
             }
             for (post in posts) {
