@@ -244,16 +244,25 @@ class StorageUtil {
 
         suspend fun loadHomePosts(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore
+            db: FirebaseFirestore,
+            isLoadFinished: AtomicBoolean? = null
         ) {
             val allPosts = getAllPosts()
             for (post in allPosts) {
                 val isSaved = isPostSaved(post.id)
                 addPostInList(post, noteList, isSaved)
+                if (allPosts.size() == noteList.size) {
+                    isLoadFinished?.set(true)
+                }
             }
         }
 
-        suspend fun addPostInList(postQuery: QueryDocumentSnapshot? = null, noteList: MutableList<Note>, isSaved: Boolean, postDocument: DocumentSnapshot? = null) {
+        suspend fun addPostInList(
+            postQuery: QueryDocumentSnapshot? = null,
+            noteList: MutableList<Note>,
+            isSaved: Boolean,
+            postDocument: DocumentSnapshot? = null
+        ) {
             val post =
                 postQuery ?: postDocument
             noteList.add(
@@ -348,7 +357,6 @@ class StorageUtil {
             db: FirebaseFirestore,
             userId: String
         ) {
-            //val allUserPosts = getUserPosts(userId)
             val allUserPosts = getAllPosts()
             for (post in allUserPosts) {
                 if (post.getString("user_id") == userId) {
@@ -395,15 +403,22 @@ class StorageUtil {
         fun applyFilters(
             postsToFilter: MutableList<Note>,
             selectedCategory: String,
-            ascending: Boolean,
-            descending: Boolean,
+            selectedDateMillis: Timestamp,
         ) {
             Log.i("debFilter", "Sono apply")
-            val iterator = postsToFilter.iterator()
+            var iterator = postsToFilter.iterator()
             while (iterator.hasNext()) {
                 val post = iterator.next()
                 Log.i("debFilter", "Analizzo: ${post.date}")
                 if (selectedCategory.isNotEmpty() && post.category != selectedCategory) {
+                    iterator.remove()
+                }
+            }
+            iterator = postsToFilter.iterator()
+            while (iterator.hasNext()) {
+                val post = iterator.next()
+                Log.i("debFilter", "Analizzo: ${post.date} e $selectedDateMillis")
+                if (post.date!! < selectedDateMillis) {
                     iterator.remove()
                 }
             }

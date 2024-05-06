@@ -26,9 +26,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonColors
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -37,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,8 +42,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.firebase.Timestamp
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.applyFilters
 import it.unibo.noteforall.utils.Note
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,8 +58,6 @@ fun FiltersDialog(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
-    val ascending by remember { mutableStateOf(false) }
-    val descending by remember { mutableStateOf(false) }
     var showAlertDialog by remember { mutableStateOf(false) }
     val dateSelected = rememberDatePickerState(
         initialDisplayMode = DisplayMode.Input
@@ -186,8 +182,14 @@ fun FiltersDialog(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             onConfirm()
-                            applyFilters(posts, selectedCategory, ascending, descending)
-                            Log.i("debDate", dateSelected.selectedDateMillis.toString())
+                            val dateSelectedMillis = dateSelected.selectedDateMillis
+                            val calendar = Calendar.getInstance()
+                            calendar.timeInMillis = dateSelectedMillis!!
+                            val selectedDate = calendar.time
+                            val selectedTimestamp = Timestamp(selectedDate)
+                            applyFilters(posts, selectedCategory, selectedTimestamp)
+                            calendar.timeInMillis = dateSelected.selectedDateMillis!!
+                            Log.i("debDate", calendar.timeInMillis.toString())
                         }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)

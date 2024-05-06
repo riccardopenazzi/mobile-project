@@ -29,15 +29,17 @@ import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.delay
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun HomeScreen(navController: NavHostController, db: FirebaseFirestore, posts: MutableList<Note>) {
     var isLaunched by remember { mutableStateOf(false) }
+    var isLoadFinished by remember { mutableStateOf(AtomicBoolean(false)) }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
             posts.clear()
-            loadHomePosts(posts, db)
+            loadHomePosts(posts, db, isLoadFinished)
             isLaunched = true
         }
     }
@@ -63,11 +65,16 @@ fun HomeScreen(navController: NavHostController, db: FirebaseFirestore, posts: M
                 .padding(contentPadding)
                 .fillMaxSize(),
         ) {
-            if (posts.size == 0) {
+            if (!isLoadFinished.get()) {
                 item { LoadingAnimation() }
-            }
-            items(posts) { post ->
-                NoteCard(navController = navController, note = post, db = db)
+            } else {
+                if (posts.size == 0) {
+                    item { Text(text = "No posts to show, remove filter") }
+                } else {
+                    items(posts) { post ->
+                        NoteCard(navController = navController, note = post, db = db)
+                    }
+                }
             }
         }
     }
