@@ -2,6 +2,7 @@ package it.unibo.noteforall.ui.screen.newNote
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.text.capitalize
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import it.unibo.noteforall.data.firebase.StorageUtil
@@ -10,6 +11,7 @@ import it.unibo.noteforall.utils.CurrentUserSingleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.Locale
 
 data class NewNoteState(
     val title: String = "",
@@ -67,7 +69,7 @@ class NewNoteViewModel : ViewModel() {
         ) {
             val post = hashMapOf(
                 "title" to title,
-                "category" to category,
+                "category" to category.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
                 "description" to description,
                 "user_id" to CurrentUserSingleton.currentUser!!.id
             )

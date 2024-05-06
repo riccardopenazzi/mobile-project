@@ -403,23 +403,26 @@ class StorageUtil {
         fun applyFilters(
             postsToFilter: MutableList<Note>,
             selectedCategory: String,
-            selectedDateMillis: Timestamp,
+            selectedDateMillis: Timestamp? = null,
         ) {
-            Log.i("debFilter", "Sono apply")
             var iterator = postsToFilter.iterator()
-            while (iterator.hasNext()) {
-                val post = iterator.next()
-                Log.i("debFilter", "Analizzo: ${post.date}")
-                if (selectedCategory.isNotEmpty() && post.category != selectedCategory) {
-                    iterator.remove()
+            if (selectedCategory != "") {
+                while (iterator.hasNext()) {
+                    val post = iterator.next()
+                    Log.i("debFilter", "Analizzo: ${post.date}")
+                    if (selectedCategory.isNotEmpty() && post.category != selectedCategory) {
+                        iterator.remove()
+                    }
                 }
             }
-            iterator = postsToFilter.iterator()
-            while (iterator.hasNext()) {
-                val post = iterator.next()
-                Log.i("debFilter", "Analizzo: ${post.date} e $selectedDateMillis")
-                if (post.date!! < selectedDateMillis) {
-                    iterator.remove()
+            if (selectedDateMillis != null) {
+                iterator = postsToFilter.iterator()
+                while (iterator.hasNext()) {
+                    val post = iterator.next()
+                    Log.i("debFilter", "Analizzo: ${post.date} e $selectedDateMillis")
+                    if (post.date!! < selectedDateMillis) {
+                        iterator.remove()
+                    }
                 }
             }
         }

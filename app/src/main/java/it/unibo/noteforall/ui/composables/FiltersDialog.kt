@@ -184,12 +184,12 @@ fun FiltersDialog(
                             onConfirm()
                             val dateSelectedMillis = dateSelected.selectedDateMillis
                             val calendar = Calendar.getInstance()
-                            calendar.timeInMillis = dateSelectedMillis!!
+                            if (dateSelectedMillis != null) {
+                                calendar.timeInMillis = dateSelectedMillis
+                            }
                             val selectedDate = calendar.time
                             val selectedTimestamp = Timestamp(selectedDate)
-                            applyFilters(posts, selectedCategory, selectedTimestamp)
-                            calendar.timeInMillis = dateSelected.selectedDateMillis!!
-                            Log.i("debDate", calendar.timeInMillis.toString())
+                            applyFilters(posts, selectedCategory, if (dateSelectedMillis != null) selectedTimestamp else null)
                         }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
