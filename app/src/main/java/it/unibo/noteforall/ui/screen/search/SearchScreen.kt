@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.screen.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,18 +34,22 @@ import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.searchPost
+import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.Note
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(db: FirebaseFirestore, navController: NavHostController, posts: MutableList<Note>) {
     var text by remember { mutableStateOf("") }
-    val categories = remember { mutableStateListOf<String>() }
     val focusManager = LocalFocusManager.current
     var isLaunched by remember { mutableStateOf(false) }
-
-    StorageUtil.getCategoriesList(categories)
+    var isSearched by remember { mutableStateOf(false) }
+    var isListUpdated by remember { mutableStateOf(false) }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
@@ -72,7 +77,7 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController, posts:
                     trailingIcon = {
                         IconButton(onClick = {
                             posts.clear()
-                            searchPost(posts, db, text)
+                            //searchPost(posts, db, text)
                         }) {
                             Icon(Icons.Outlined.Search, "Search")
                         }
@@ -83,14 +88,27 @@ fun SearchScreen(db: FirebaseFirestore, navController: NavHostController, posts:
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = {
                         posts.clear()
-                        searchPost(posts, db, text)
+                        isSearched = true
+                        isListUpdated = true
+                        CoroutineScope(Dispatchers.Main).launch {
+                            searchPost(posts, db, text)
+                        }
                         focusManager.clearFocus()
                     }),
                     colors = outlinedTextFieldColors()
                 )
             }
-            items(posts) { post ->
-                NoteCard(navController = navController, note = post, db = db)
+            if (isSearched && posts.size == 0) {
+                item { LoadingAnimation() }
+            } else {
+                if (isListUpdated) {
+                    items(posts) { post ->
+                        if (isSearched) {
+                            isSearched = false
+                        }
+                        NoteCard(navController = navController, note = post, db = db)
+                    }
+                }
             }
         }
     }

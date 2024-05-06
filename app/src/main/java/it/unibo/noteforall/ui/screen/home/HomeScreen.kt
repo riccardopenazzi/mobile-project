@@ -28,11 +28,11 @@ import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(navController: NavHostController, db: FirebaseFirestore, posts: MutableList<Note>) {
     var isLaunched by remember { mutableStateOf(false) }
-    //val posts = remember { mutableStateListOf<Note>() }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
