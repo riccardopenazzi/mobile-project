@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -327,9 +328,13 @@ class StorageUtil {
 
         suspend fun loadSavedPosts(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore
+            db: FirebaseFirestore,
+            isEmpty: AtomicBoolean
         ) {
             val savedPosts = getUserSavedPosts()
+            if (savedPosts.size() == 0) {
+                isEmpty.set(true)
+            }
             for (postId in savedPosts) {
                 val post = postId.getString("post_id")?.let { getPostFromId(it) }
                 if (post != null) {
