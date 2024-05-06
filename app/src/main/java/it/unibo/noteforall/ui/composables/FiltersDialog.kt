@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,10 +11,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -26,6 +31,7 @@ import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +63,9 @@ fun FiltersDialog(
     val ascending by remember { mutableStateOf(false) }
     val descending by remember { mutableStateOf(false) }
     var showAlertDialog by remember { mutableStateOf(false) }
+    val dateSelected = rememberDatePickerState(
+        initialDisplayMode = DisplayMode.Input
+    )
 
     if (showAlertDialog) {
         MyAlertDialog(
@@ -78,11 +87,13 @@ fun FiltersDialog(
             dismissOnClickOutside = false
         )
     ) {
+        val scrollState = rememberScrollState()
         Card (
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(3 / 5f),
+                .fillMaxHeight(4 / 5f)
+                .verticalScroll(scrollState),
             shape = RoundedCornerShape(5),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -100,6 +111,15 @@ fun FiltersDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("Posts from: ")
+                    DatePicker(state = dateSelected)
+                }
                 Box {
                     ExposedDropdownMenuBox(
                         expanded = expanded,
@@ -137,16 +157,6 @@ fun FiltersDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Posts from: ")
-                    /* DATE PICKER */
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp),
                     horizontalArrangement = Arrangement.Start
                 ) {
                     OutlinedButton(
@@ -177,6 +187,7 @@ fun FiltersDialog(
                         onClick = {
                             onConfirm()
                             applyFilters(posts, selectedCategory, ascending, descending)
+                            Log.i("debDate", dateSelected.selectedDateMillis.toString())
                         }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
