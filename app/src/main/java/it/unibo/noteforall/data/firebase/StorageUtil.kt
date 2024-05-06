@@ -9,6 +9,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -232,7 +233,8 @@ class StorageUtil {
 
         suspend fun getAllPosts(): QuerySnapshot {
             return suspendCoroutine { continuation ->
-                FirebaseFirestore.getInstance().collection("posts").orderBy("date", Query.Direction.DESCENDING).get()
+                FirebaseFirestore.getInstance().collection("posts")
+                    .orderBy("date", Query.Direction.DESCENDING).get()
                     .addOnSuccessListener { posts ->
                         continuation.resume(posts)
                     }
@@ -246,25 +248,30 @@ class StorageUtil {
             val allPosts = getAllPosts()
             for (post in allPosts) {
                 val isSaved = isPostSaved(post.id)
-                noteList.add(
-                    Note(
-                        postId = post.id,
-                        isSaved = isSaved,
-                        title = post.getString("title"),
-                        description = post.getString("description"),
-                        category = post.getString("category"),
-                        picRef = post.getString("pic_ref"),
-                        noteRef = post.getString("note_ref"),
-                        author = post.getString("user_id")
-                            ?.let { getUserSingleInfo(it, "username") },
-                        authorPicRef = post.getString("user_id")
-                            ?.let { getUserSingleInfo(it, "user_pic") },
-                        userId = post.getString("user_id")!!,
-                        date = post.getTimestamp("date")!!
-                    )
-                )
+                addPostInList(post, noteList, isSaved)
             }
+        }
 
+        suspend fun addPostInList(postQuery: QueryDocumentSnapshot? = null, noteList: MutableList<Note>, isSaved: Boolean, postDocument: DocumentSnapshot? = null) {
+            val post =
+                postQuery ?: postDocument
+            noteList.add(
+                Note(
+                    postId = post!!.id,
+                    isSaved = isSaved,
+                    title = post.getString("title"),
+                    description = post.getString("description"),
+                    category = post.getString("category"),
+                    picRef = post.getString("pic_ref"),
+                    noteRef = post.getString("note_ref"),
+                    author = post.getString("user_id")
+                        ?.let { getUserSingleInfo(it, "username") },
+                    authorPicRef = post.getString("user_id")
+                        ?.let { getUserSingleInfo(it, "user_pic") },
+                    userId = post.getString("user_id")!!,
+                    date = post.getTimestamp("date")!!
+                )
+            )
         }
 
         suspend fun getPostFromId(noteId: String): DocumentSnapshot {
@@ -304,29 +311,15 @@ class StorageUtil {
         ) {
             val post = getPostFromId(noteId)
             val isSaved = isPostSaved(noteId)
-            posts.add(
-                Note(
-                    postId = post.id,
-                    isSaved = isSaved,
-                    title = post.getString("title"),
-                    description = post.getString("description"),
-                    category = post.getString("category"),
-                    picRef = post.getString("pic_ref"),
-                    noteRef = post.getString("note_ref"),
-                    author = post.getString("user_id")?.let { getUserSingleInfo(it, "username") },
-                    authorPicRef = post.getString("user_id")
-                        ?.let { getUserSingleInfo(it, "user_pic") },
-                    userId = post.getString("user_id")!!,
-                    date = post.getTimestamp("note")
-                )
-            )
+            addPostInList(noteList = posts, isSaved = isSaved, postDocument = post)
         }
 
         suspend fun getUserSavedPosts(): QuerySnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id)
-                    .collection("saved_posts").orderBy("saved_date", Query.Direction.DESCENDING).get().addOnSuccessListener { savedPosts ->
+                    .collection("saved_posts").orderBy("saved_date", Query.Direction.DESCENDING)
+                    .get().addOnSuccessListener { savedPosts ->
                         continuation.resume(savedPosts)
                     }
             }
@@ -340,24 +333,7 @@ class StorageUtil {
             for (postId in savedPosts) {
                 val post = postId.getString("post_id")?.let { getPostFromId(it) }
                 if (post != null) {
-                    noteList.add(
-                        Note(
-                            postId = post.id,
-                            isSaved = true,
-                            title = post.getString("title"),
-                            description = post.getString("description"),
-                            category = post.getString("category"),
-                            picRef = post.getString("pic_ref"),
-                            noteRef = post.getString("note_ref"),
-                            author = post.getString("user_id")
-                                ?.let { getUserSingleInfo(it, "username") },
-                            authorPicRef = post.getString("user_id")
-                                ?.let { getUserSingleInfo(it, "user_pic") },
-                            userId = post.getString("user_id")!!,
-                            date = post.getTimestamp("date"),
-                            savedDate = postId.getTimestamp("saved_date")
-                        )
-                    )
+                    addPostInList(noteList = noteList, isSaved = true, postDocument = post)
                 }
             }
         }
@@ -372,68 +348,23 @@ class StorageUtil {
             for (post in allUserPosts) {
                 if (post.getString("user_id") == userId) {
                     val isSaved = isPostSaved(post.id)
-                    Log.i("debSave", isSaved.toString())
-                    val postOwnerUserId = post.getString("user_id")
-                    if (postOwnerUserId != null) {
-                        noteList.add(
-                            Note(
-                                postId = post.id,
-                                isSaved = isSaved,
-                                title = post.getString("title"),
-                                description = post.getString("description"),
-                                category = post.getString("category"),
-                                picRef = post.getString("pic_ref"),
-                                noteRef = post.getString("note_ref"),
-                                author = getUserSingleInfo(postOwnerUserId, "username"),
-                                authorPicRef = getUserSingleInfo(postOwnerUserId, "user_pic"),
-                                userId = post.getString("user_id")!!,
-                                date = post.getTimestamp("date")
-                            )
-                        )
-                    }
+                    addPostInList(post, noteList, isSaved)
                 }
             }
         }
 
-        fun searchPost(
+        suspend fun searchPost(
             noteList: MutableList<Note>,
             db: FirebaseFirestore,
             key: String
         ) {
-            db.collection("posts").get().addOnSuccessListener { posts ->
-                for (post in posts) {
-                    if (post.getString("title")?.contains(key)!! || post.getString("description")
-                            ?.contains(key)!! || post.getString("category")?.contains(key)!!
-                    ) {
-                        val userId = post.getString("user_id")
-                        if (userId != null) {
-                            db.collection("users").document(userId).get()
-                                .addOnSuccessListener { user ->
-                                    val savedPostsRef = db.collection("users")
-                                        .document(CurrentUserSingleton.currentUser!!.id)
-                                        .collection("saved_posts")
-                                    savedPostsRef.whereEqualTo("post_id", post.id).get()
-                                        .addOnSuccessListener { res ->
-                                            Log.i("debHome", "Aggiungo in lista")
-                                            noteList.add(
-                                                Note(
-                                                    postId = post.id,
-                                                    isSaved = !res.isEmpty,
-                                                    title = post.getString("title"),
-                                                    description = post.getString("description"),
-                                                    category = post.getString("category"),
-                                                    picRef = post.getString("pic_ref"),
-                                                    noteRef = post.getString("note_ref"),
-                                                    author = user.getString("username"),
-                                                    authorPicRef = user.getString("user_pic"),
-                                                    userId = post.getString("user_id")!!,
-                                                    date = post.getTimestamp("date")
-                                                )
-                                            )
-                                        }
-                                }
-                        }
-                    }
+            val posts = getAllPosts()
+            for (post in posts) {
+                if (post.getString("title")?.contains(key)!! || post.getString("description")
+                        ?.contains(key)!! || post.getString("category")?.contains(key)!!
+                ) {
+                    val isSaved = isPostSaved(post.id)
+                    addPostInList(post, noteList, isSaved)
                 }
             }
         }
@@ -531,7 +462,8 @@ class StorageUtil {
                         CurrentUserSingleton.currentUser = currentUser
                         CoroutineScope(Dispatchers.IO).launch {
                             if (longitude != null && latitude != null) {
-                                val userTmp = User(userId = user.id, userLong = longitude, userLat = latitude)
+                                val userTmp =
+                                    User(userId = user.id, userLong = longitude, userLat = latitude)
                                 internalDb.dao.insertUserId(userTmp)
                             } else {
                                 val userTmp = User(userId = user.id, userLong = 0.0, userLat = 0.0)
@@ -596,7 +528,11 @@ class StorageUtil {
             }
         }
 
-        suspend fun loadUserBadges(userBadges: MutableList<Badge>, db: FirebaseFirestore, userId: String) {
+        suspend fun loadUserBadges(
+            userBadges: MutableList<Badge>,
+            db: FirebaseFirestore,
+            userId: String
+        ) {
             val idList = getUserBadgesId(userId)
             for (idBadge in idList) {
                 idBadge.getString("gamification_object_id")?.let {
