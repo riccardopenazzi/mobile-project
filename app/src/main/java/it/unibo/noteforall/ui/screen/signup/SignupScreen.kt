@@ -235,7 +235,8 @@ fun SignupScreen(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text(text = "Email") },
-                    colors = outlinedTextFieldColors()
+                    colors = outlinedTextFieldColors(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
