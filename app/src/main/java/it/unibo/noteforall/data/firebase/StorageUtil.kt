@@ -36,6 +36,12 @@ import kotlin.coroutines.suspendCoroutine
 class StorageUtil {
 
     companion object {
+        private const val DEFAULT_USER_PIC_URL = "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
+        private const val FIRST_UPLOAD_GAMIFICATION_ID = "D2tj9ImbCWnglZvG1bzJ"
+        private const val FIFTH_UPLOAD_GAMIFICATION_ID = "6gsCgbjcLFZqUz4NWofm"
+        private const val POSTS_NOTE_BUCKET = "posts_note"
+        private const val POSTS_PIC_BUCKET = "posts_pic"
+        private const val USERS_PIC_BUCKET = "users_pic"
 
         suspend fun createPost(
             imageUri: Uri,
@@ -44,8 +50,8 @@ class StorageUtil {
             post: HashMap<String, String>,
             navController: NavHostController
         ) {
-            post["pic_ref"] = uploadToStorage(imageUri, context, "posts_pic", "jpg")
-            post["note_ref"] = uploadToStorage(noteUri, context, "posts_note", "pdf")
+            post["pic_ref"] = uploadToStorage(imageUri, context, POSTS_PIC_BUCKET, "jpg")
+            post["note_ref"] = uploadToStorage(noteUri, context, POSTS_NOTE_BUCKET, "pdf")
             if (uploadPost(post)) {
                 //gamification
                 if (!checkUserObtainedGamificationPosts(1)) {
@@ -92,8 +98,8 @@ class StorageUtil {
         private suspend fun checkUserObtainedGamificationPosts(threshold: Int): Boolean {
             val idList = getUserBadgesId(CurrentUserSingleton.currentUser!!.id)
             val searchedId = when (threshold) {
-                1 -> "D2tj9ImbCWnglZvG1bzJ" //first upload id
-                else -> "6gsCgbjcLFZqUz4NWofm" //fifth upload id
+                1 -> FIRST_UPLOAD_GAMIFICATION_ID
+                else -> FIFTH_UPLOAD_GAMIFICATION_ID
             }
             for (id in idList) {
                 if (id.getString("gamification_object_id") == searchedId) {
@@ -105,8 +111,8 @@ class StorageUtil {
 
         private suspend fun addObtainedGamificationPost(threshold: Int) {
             val toInsertId = when (threshold) {
-                1 -> "D2tj9ImbCWnglZvG1bzJ" //first upload id
-                else -> "6gsCgbjcLFZqUz4NWofm" //fifth upload id
+                1 -> FIRST_UPLOAD_GAMIFICATION_ID
+                else -> FIFTH_UPLOAD_GAMIFICATION_ID
             }
             val gamificationObject = hashMapOf(
                 "gamification_object_id" to toInsertId
@@ -169,7 +175,7 @@ class StorageUtil {
             )
             //change pic if necessary
             if (imageUri != null) {
-                val picPosition = uploadToStorage(imageUri, context, "users_pic", "jpg")
+                val picPosition = uploadToStorage(imageUri, context, USERS_PIC_BUCKET, "jpg")
                 userUpdate["user_pic"] = picPosition
             }
             //change password if necessary
@@ -491,7 +497,7 @@ class StorageUtil {
                     if (checkEmail(email)) {
                         if (checkDataUnique(username, email)) {
                             var userPicPos =
-                                "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
+                                DEFAULT_USER_PIC_URL
                             val user = hashMapOf(
                                 "name" to name,
                                 "surname" to surname,
@@ -500,7 +506,7 @@ class StorageUtil {
                                 "password" to encryptPassword(password)
                             )
                             if (imageUri != null) {
-                                userPicPos = uploadToStorage(imageUri, ctx, "users_pic", ".jpg")
+                                userPicPos = uploadToStorage(imageUri, ctx, USERS_PIC_BUCKET, ".jpg")
                             }
                             user["user_pic"] = userPicPos
                             val insertId = insertUser(user)
