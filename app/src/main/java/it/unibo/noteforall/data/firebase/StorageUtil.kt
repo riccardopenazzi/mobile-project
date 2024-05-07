@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -45,6 +47,7 @@ class StorageUtil {
             post["pic_ref"] = uploadToStorage(imageUri, context, "posts_pic", "jpg")
             post["note_ref"] = uploadToStorage(noteUri, context, "posts_note", "pdf")
             if (uploadPost(post)) {
+                //gamification
                 if (!checkUserObtainedGamificationPosts(1)) {
                     if (checkGamificationPosts(1)) {
                         addObtainedGamificationPost(1)
@@ -57,9 +60,12 @@ class StorageUtil {
                 }
                 navController.navigate(NoteForAllRoute.Home.route)
             } else {
-                //ERROR UPLOADING POST
+                Toast.makeText(
+                    context,
+                    "Something went wrong while uploading posts, please try again",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            //gamification
         }
 
         private suspend fun uploadPost(post: HashMap<String, String>): Boolean {
@@ -132,6 +138,11 @@ class StorageUtil {
                         }
                         .addOnFailureListener { exception ->
                             continuation.resumeWithException(exception)
+                            Toast.makeText(
+                                context,
+                                "Error while uploading documents to db, please try again",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 } ?: run {
                     // Handle case where imageByteArray is null
@@ -441,6 +452,21 @@ class StorageUtil {
             }
         }
 
+        private fun checkEmail(email: String): Boolean {
+            val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+            return email.matches(emailRegex.toRegex())
+        }
+
+        private suspend fun insertUser(user: HashMap<String, String>): String {
+            return suspendCoroutine { continuation ->
+                val ret = ""
+                FirebaseFirestore.getInstance().collection("users").add(user)
+                    .addOnSuccessListener { success ->
+                        continuation.resume(success.id)
+                    }
+            }
+        }
+
         suspend fun execSignup(
             name: String,
             surname: String,
@@ -454,90 +480,141 @@ class StorageUtil {
             imageUri: Uri?,
             latitude: Double?,
             longitude: Double?
-        ) {
+        ): Boolean {
             if (name.isNotEmpty() &&
                 surname.isNotEmpty() &&
-                email.isNotEmpty() &&
                 username.isNotEmpty() &&
                 password.isNotEmpty() &&
-                repeatPassword.isNotEmpty() &&
-                password == repeatPassword
+                repeatPassword.isNotEmpty()
             ) {
-                if (checkDataUnique(username, email)) {
-                    var userPicPos =
-                        "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
-                    val user = hashMapOf(
-                        "name" to name,
-                        "surname" to surname,
-                        "email" to email,
-                        "username" to username,
-                        "password" to encryptPassword(password)
-                    )
-                    if (imageUri != null) {
-                        userPicPos = uploadToStorage(imageUri, ctx, "users_pic", ".jpg")
-                    }
-                    user["user_pic"] = userPicPos
-                    db.collection("users").add(user).addOnSuccessListener { user ->
-                        Log.d("debSignup", "DocumentSnapshot added with ID: ${user.id}")
-                        val currentUser = CurrentUser(
-                            id = user.id
-                        )
-                        CurrentUserSingleton.currentUser = currentUser
-                        CoroutineScope(Dispatchers.IO).launch {
-                            if (longitude != null && latitude != null) {
-                                val userTmp =
-                                    User(userId = user.id, userLong = longitude, userLat = latitude)
-                                internalDb.dao.insertUserId(userTmp)
-                            } else {
-                                val userTmp = User(userId = user.id, userLong = 0.0, userLat = 0.0)
-                                internalDb.dao.insertUserId(userTmp)
+                if (password == repeatPassword) {
+                    if (checkEmail(email)) {
+                        if (checkDataUnique(username, email)) {
+                            var userPicPos =
+                                "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
+                            val user = hashMapOf(
+                                "name" to name,
+                                "surname" to surname,
+                                "email" to email,
+                                "username" to username,
+                                "password" to encryptPassword(password)
+                            )
+                            if (imageUri != null) {
+                                userPicPos = uploadToStorage(imageUri, ctx, "users_pic", ".jpg")
                             }
+                            user["user_pic"] = userPicPos
+                            val insertId = insertUser(user)
+                            if (insertId != "") {
+                                val currentUser = CurrentUser(
+                                    id = insertId
+                                )
+                                CurrentUserSingleton.currentUser = currentUser
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    if (longitude != null && latitude != null) {
+                                        val userTmp =
+                                            User(
+                                                userId = insertId,
+                                                userLong = longitude,
+                                                userLat = latitude
+                                            )
+                                        internalDb.dao.insertUserId(userTmp)
+                                    } else {
+                                        val userTmp =
+                                            User(userId = insertId, userLong = 0.0, userLat = 0.0)
+                                        internalDb.dao.insertUserId(userTmp)
+                                    }
+                                }
+                                val intent = Intent(ctx, MainActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                ctx.startActivity(intent)
+                                return true
+                            } else {
+                                return false
+                            }
+                        } else {
+                            //error username or email already exist
+                            Toast.makeText(
+                                ctx,
+                                "Error username or email already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return false
                         }
-
-                        val intent = Intent(ctx, MainActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        ctx.startActivity(intent)
+                    } else {
+                        //error email doesn't match regex
+                        Toast.makeText(
+                            ctx,
+                            "Error invalid email, please check it's correct and try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return false
                     }
-                        .addOnFailureListener { e ->
-                            Log.w("debSignup", "Error adding document", e)
-                        }
                 } else {
-                    //error username or email already exist
+                    Toast.makeText(
+                        ctx,
+                        "Error password and repeat password don't match, please correct them and try again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return false
                 }
+            } else {
+                //error some fields are empty
+                Toast.makeText(
+                    ctx,
+                    "Error some fields are empty, please fill every blank and try again",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return false
             }
         }
 
-        fun execLogin(
+        suspend fun execLogin(
             key: String,
             password: String,
             db: FirebaseFirestore,
             internalDb: NoteForAllDatabase,
             ctx: Context
-        ) {
+        ): Boolean {
             if (key.isNotEmpty() && password.isNotEmpty()) {
-                db.collection("users").get().addOnSuccessListener { res ->
-                    for (user in res) {
-                        if ((user.getString("email") == key || user.getString("username") == key) &&
-                            user.getString("password") == encryptPassword(password)
-                        ) {
-                            val currentUser = CurrentUser(
-                                id = user.id
-                            )
-                            CurrentUserSingleton.currentUser = currentUser
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val userCurr = User(userId = user.id, 0.0, 0.0)
-                                internalDb.dao.insertUserId(userCurr)
-                            }
-                            val intent = Intent(ctx, MainActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            ctx.startActivity(intent)
+                val users = getAllUsers()
+                for (user in users) {
+                    if ((user.getString("email") == key || user.getString("username") == key) &&
+                        user.getString("password") == encryptPassword(password)
+                    ) {
+                        val currentUser = CurrentUser(
+                            id = user.id
+                        )
+                        CurrentUserSingleton.currentUser = currentUser
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val userCurr = User(userId = user.id, 0.0, 0.0)
+                            internalDb.dao.insertUserId(userCurr)
                         }
+                        val intent = Intent(ctx, MainActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        ctx.startActivity(intent)
+                        return true
                     }
                 }
+                //error no user found in db
+                Toast.makeText(ctx, "Error username or password wrong", Toast.LENGTH_SHORT)
+                    .show()
+                return false
             } else {
-                //error key or password is wrong
+                //error key or password empty
+                Toast.makeText(ctx, "Error username or password is empty", Toast.LENGTH_SHORT)
+                    .show()
+                return false
+            }
+        }
+
+        suspend fun getAllUsers(): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users").get()
+                    .addOnSuccessListener { users ->
+                        continuation.resume(users)
+                    }
             }
         }
 

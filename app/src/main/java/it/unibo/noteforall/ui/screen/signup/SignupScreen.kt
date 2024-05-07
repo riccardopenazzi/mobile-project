@@ -293,7 +293,7 @@ fun SignupScreen(
                 Button(onClick = {
                     isSigninUp = true
                     CoroutineScope(Dispatchers.Main).launch {
-                        execSignup(
+                        val res = execSignup(
                             name,
                             surname,
                             email,
@@ -307,6 +307,9 @@ fun SignupScreen(
                             locationService.coordinates?.latitude,
                             locationService.coordinates?.longitude
                         )
+                        if (!res) {
+                            isSigninUp = false
+                        }
                     }
                 }) {
                     Text(text = "Signup", color = MaterialTheme.colorScheme.onPrimary)

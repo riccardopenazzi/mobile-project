@@ -120,7 +120,12 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         isLogging = true
-                        execLogin(key, password, db, internalDb, ctx)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val res = execLogin(key, password, db, internalDb, ctx)
+                            if (!res) {
+                                isLogging = false
+                            }
+                        }
                     }
                 ) {
                     Text(text = "Login", color = MaterialTheme.colorScheme.onPrimary)
