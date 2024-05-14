@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil
+import it.unibo.noteforall.ui.composables.BadgeExtended
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.ui.screen.myProfile.checkBadgeUnlocked
 import it.unibo.noteforall.utils.Badge
@@ -128,18 +129,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
             ) {
                 for (badge in allDbBadges) {
                     val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
-                    item {
-                        AsyncImage(
-                            model = badge.imageRef,
-                            contentDescription = "Badge image",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                                .alpha(if (isBadgeUnlocked) 1f else 0.5f)
-                        )
-                        Spacer(Modifier.width(10.dp))
-                    }
+                    item { BadgeExtended(title = badge.title, imageRef = badge.imageRef, instructions = badge.instructions,isUnlocked = isBadgeUnlocked) }
                 }
             }
             val sortedPosts = posts.sortedBy { it.date }.reversed()

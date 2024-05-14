@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadAllBadges
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserBadges
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadUserPosts
+import it.unibo.noteforall.ui.composables.BadgeExtended
 import it.unibo.noteforall.ui.composables.NoteCard
 import it.unibo.noteforall.utils.Badge
 import it.unibo.noteforall.utils.CurrentUserSingleton
@@ -130,18 +132,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             ) {
                 for (badge in allDbBadges) {
                     val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
-                    item {
-                        AsyncImage(
-                            model = badge.imageRef,
-                            contentDescription = "Badge image",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                                .alpha(if (isBadgeUnlocked) 1f else 0.5f)
-                        )
-                        Spacer(Modifier.width(10.dp))
-                    }
+                    item { BadgeExtended(title = badge.title, imageRef = badge.imageRef, instructions = badge.instructions,isUnlocked = isBadgeUnlocked) }
                 }
             }
             for (post in posts) {

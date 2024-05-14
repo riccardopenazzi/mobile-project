@@ -646,10 +646,12 @@ class StorageUtil {
                         .addOnSuccessListener { badge ->
                             val imageRef = badge.getString("image_ref") ?: ""
                             val title = badge.getString("title") ?: ""
+                            val instructions = badge.getString("instructions") ?: ""
                             userBadges.add(
                                 Badge(
                                     imageRef = imageRef,
-                                    title = title
+                                    title = title,
+                                    instructions = instructions
                                 )
                             )
                         }
@@ -663,10 +665,12 @@ class StorageUtil {
                 for (badge in badges) {
                     val imageRef = badge.getString("image_ref") ?: ""
                     val title = badge.getString("title") ?: ""
+                    val instructions = badge.getString("instructions") ?: ""
                     allDbBadges.add(
                         Badge(
                             imageRef = imageRef,
-                            title = title
+                            title = title,
+                            instructions = instructions
                         )
                     )
                 }
