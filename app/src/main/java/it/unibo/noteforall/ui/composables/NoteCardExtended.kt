@@ -50,6 +50,9 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun NoteCardExtended(
@@ -112,7 +115,9 @@ fun NoteCardExtended(
                     }
                     IconButton(onClick = {
                         if (!isSaved) {
-                            note.postId?.let { savePost(it, db) }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                note.postId?.let { savePost(it, db) }
+                            }
                         } else {
                             note.postId?.let { unsavePost(it, db) }
                         }

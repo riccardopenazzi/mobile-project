@@ -39,6 +39,9 @@ import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +87,9 @@ fun NoteCard(
                 )}
                 IconButton(onClick = {
                     if (!isSaved) {
-                        note.postId?.let { savePost(it, db) }
+                        CoroutineScope(Dispatchers.Main).launch {
+                            note.postId?.let { savePost(it, db) }
+                        }
                     } else {
                         note.postId?.let { unsavePost(it, db) }
                     }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -37,7 +36,8 @@ import kotlin.coroutines.suspendCoroutine
 class StorageUtil {
 
     companion object {
-        private const val DEFAULT_USER_PIC_URL = "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
+        private const val DEFAULT_USER_PIC_URL =
+            "https://firebasestorage.googleapis.com/v0/b/noteforall-2f581.appspot.com/o/users_pic%2Fdefault_user_pic.png?alt=media"
         private const val FIRST_UPLOAD_GAMIFICATION_ID = "D2tj9ImbCWnglZvG1bzJ"
         private const val FIFTH_UPLOAD_GAMIFICATION_ID = "6gsCgbjcLFZqUz4NWofm"
         private const val POSTS_NOTE_BUCKET = "posts_note"
@@ -82,12 +82,12 @@ class StorageUtil {
                     val addDate = hashMapOf(
                         "date" to Timestamp.now()
                     )
-                    val num_saved = hashMapOf(
+                    val numSaved = hashMapOf(
                         "num_saved" to 0
                     )
                     postRef.document(newPost.id).update(addDate as Map<String, Any>)
                         .addOnSuccessListener {
-                            postRef.document(newPost.id).update(num_saved as Map<String, Number>)
+                            postRef.document(newPost.id).update(numSaved as Map<String, Number>)
                                 .addOnSuccessListener {
                                     continuation.resume(true)
                                 }
@@ -116,7 +116,7 @@ class StorageUtil {
             return false
         }
 
-        private suspend fun addObtainedGamificationPost(threshold: Int) {
+        private fun addObtainedGamificationPost(threshold: Int) {
             val toInsertId = when (threshold) {
                 1 -> FIRST_UPLOAD_GAMIFICATION_ID
                 else -> FIFTH_UPLOAD_GAMIFICATION_ID
@@ -233,17 +233,18 @@ class StorageUtil {
             }
         }
 
-        fun savePost(postId: String, db: FirebaseFirestore) {
+        suspend fun savePost(postId: String, db: FirebaseFirestore) {
             val time = Timestamp.now()
             val savedPost = hashMapOf(
                 "post_id" to postId,
                 "saved_date" to time
-
             )
             db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
                 .collection("saved_posts")
                 .add(savedPost)
             db.collection("posts").document(postId).update("num_saved", FieldValue.increment(1))
+            val targetId = getAuthorFromPostId(postId)
+            createNotification(targetId, postId, "save")
         }
 
         fun unsavePost(postId: String, db: FirebaseFirestore) {
@@ -252,12 +253,13 @@ class StorageUtil {
                 .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
                     if (!post.isEmpty) {
                         post.documents.first().reference.delete()
-                        db.collection("posts").document(postId).update("num_saved", FieldValue.increment(-1))
+                        db.collection("posts").document(postId)
+                            .update("num_saved", FieldValue.increment(-1))
                     }
                 }
         }
 
-        suspend fun getAllPosts(): QuerySnapshot {
+        private suspend fun getAllPosts(): QuerySnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("posts")
                     .orderBy("date", Query.Direction.DESCENDING).get()
@@ -282,7 +284,7 @@ class StorageUtil {
             }
         }
 
-        suspend fun addPostInList(
+        private suspend fun addPostInList(
             postQuery: QueryDocumentSnapshot? = null,
             noteList: MutableList<Note>,
             isSaved: Boolean,
@@ -309,7 +311,7 @@ class StorageUtil {
             )
         }
 
-        suspend fun getPostFromId(noteId: String): DocumentSnapshot {
+        private suspend fun getPostFromId(noteId: String): DocumentSnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("posts").document(noteId).get()
                     .addOnSuccessListener { post ->
@@ -349,7 +351,7 @@ class StorageUtil {
             addPostInList(noteList = posts, isSaved = isSaved, postDocument = post)
         }
 
-        suspend fun getUserSavedPosts(): QuerySnapshot {
+        private suspend fun getUserSavedPosts(): QuerySnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id)
@@ -473,7 +475,6 @@ class StorageUtil {
 
         private suspend fun insertUser(user: HashMap<String, String>): String {
             return suspendCoroutine { continuation ->
-                val ret = ""
                 FirebaseFirestore.getInstance().collection("users").add(user)
                     .addOnSuccessListener { success ->
                         continuation.resume(success.id)
@@ -514,7 +515,8 @@ class StorageUtil {
                                 "password" to encryptPassword(password)
                             )
                             if (imageUri != null) {
-                                userPicPos = uploadToStorage(imageUri, ctx, USERS_PIC_BUCKET, ".jpg")
+                                userPicPos =
+                                    uploadToStorage(imageUri, ctx, USERS_PIC_BUCKET, ".jpg")
                             }
                             user["user_pic"] = userPicPos
                             val insertId = insertUser(user)
@@ -623,7 +625,7 @@ class StorageUtil {
             }
         }
 
-        suspend fun getAllUsers(): QuerySnapshot {
+        private suspend fun getAllUsers(): QuerySnapshot {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users").get()
                     .addOnSuccessListener { users ->
@@ -690,6 +692,47 @@ class StorageUtil {
             messageDigest.update(password.toByteArray())
             val hashedPasswordBytes = messageDigest.digest()
             return hashedPasswordBytes.joinToString("") { "%02x".format(it) }
+        }
+
+        suspend fun getUsernameFromId(id: String): String {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users").document(id).get()
+                    .addOnSuccessListener { doc ->
+                        continuation.resume(doc.getString("username").toString())
+                    }
+            }
+        }
+
+        suspend fun getAuthorFromPostId(idPost: String) : String {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("posts").document(idPost).get().addOnSuccessListener{post->
+                    continuation.resume(post.getString("user_id").toString())
+                }
+            }
+        }
+
+        suspend fun createNotification(
+            idTarget: String,
+            postTarget: String,
+            type: String
+        ) {
+            if (idTarget != CurrentUserSingleton.currentUser!!.id) {
+                val username = getUsernameFromId(CurrentUserSingleton.currentUser!!.id)
+                return suspendCoroutine { continuation ->
+                    val content = when (type) {
+                        "save" -> "$username saved your post"
+                        else -> ""
+                    }
+                    val notification = hashMapOf(
+                        "id_target" to idTarget,
+                        "id_source" to CurrentUserSingleton.currentUser!!.id,
+                        "content" to content,
+                        "post_target" to postTarget
+                    )
+                    FirebaseFirestore.getInstance().collection("notifications").add(notification)
+                    continuation.resume(Unit)
+                }
+            }
         }
     }
 }
