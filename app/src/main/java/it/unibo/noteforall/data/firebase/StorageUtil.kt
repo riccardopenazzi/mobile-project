@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -81,9 +82,15 @@ class StorageUtil {
                     val addDate = hashMapOf(
                         "date" to Timestamp.now()
                     )
+                    val num_saved = hashMapOf(
+                        "num_saved" to 0
+                    )
                     postRef.document(newPost.id).update(addDate as Map<String, Any>)
                         .addOnSuccessListener {
-                            continuation.resume(true)
+                            postRef.document(newPost.id).update(num_saved as Map<String, Number>)
+                                .addOnSuccessListener {
+                                    continuation.resume(true)
+                                }
                         }
                 }.addOnFailureListener {
                     continuation.resume(false)
@@ -236,6 +243,7 @@ class StorageUtil {
             db.collection("users").document(CurrentUserSingleton.currentUser!!.id)
                 .collection("saved_posts")
                 .add(savedPost)
+            db.collection("posts").document(postId).update("num_saved", FieldValue.increment(1))
         }
 
         fun unsavePost(postId: String, db: FirebaseFirestore) {
@@ -243,8 +251,8 @@ class StorageUtil {
                 .collection("saved_posts")
                 .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
                     if (!post.isEmpty) {
-                        Log.i("deb", "Post non è empty")
                         post.documents.first().reference.delete()
+                        db.collection("posts").document(postId).update("num_saved", FieldValue.increment(-1))
                     }
                 }
         }
