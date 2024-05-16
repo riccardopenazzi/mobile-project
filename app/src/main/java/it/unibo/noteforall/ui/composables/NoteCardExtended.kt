@@ -1,5 +1,7 @@
 package it.unibo.noteforall.ui.composables
 
+import android.app.SearchManager
+import android.content.Intent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,8 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -133,13 +138,34 @@ fun NoteCardExtended(
                     Text(text = it, style = MaterialTheme.typography.titleLarge)
                 }
                 Spacer(modifier = Modifier.size(10.dp))
-                note.category?.let {
-                    Text(
-                        text = it,
-                        modifier = Modifier
-                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
-                            .padding(6.dp)
-                    )
+                Row (
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    note.category?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    RoundedCornerShape(30)
+                                )
+                                .padding(6.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Button(onClick = {
+                        val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
+                            putExtra(SearchManager.QUERY, note.title)
+                        }
+                        if (intent.resolveActivity(ctx.packageManager) != null) {
+                            ctx.startActivity(intent)
+                        }
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Search, contentDescription = "search icon")
+                        Text(text = "Search more")
+                    }
                 }
                 Spacer(modifier = Modifier.size(10.dp))
                 note.description?.let {
