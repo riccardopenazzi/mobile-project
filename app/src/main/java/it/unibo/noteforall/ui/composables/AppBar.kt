@@ -33,6 +33,7 @@ import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.checkExistNewNotification
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
+import it.unibo.noteforall.data.firebase.StorageUtil.Companion.readAllNotifications
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
@@ -42,7 +43,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRoute, posts: MutableList<Note>) {
+fun AppBar(
+    navController: NavHostController? = null,
+    currentRoute: NoteForAllRoute,
+    posts: MutableList<Note>
+) {
     var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
     var newNotification by remember { mutableStateOf(false) }
@@ -58,14 +63,16 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
             clearFilters = {
                 when (currentRoute.title) {
                     NoteForAllRoute.Home.title ->
-                        CoroutineScope(Dispatchers.Main).launch{
+                        CoroutineScope(Dispatchers.Main).launch {
                             posts.clear()
                             loadHomePosts(posts, db)
                         }
+
                     NoteForAllRoute.Search.title ->
-                        CoroutineScope(Dispatchers.Main).launch{
+                        CoroutineScope(Dispatchers.Main).launch {
                             posts.clear()
                         }
+
                     else -> {}
                 }
                 showFiltersDialog = false
@@ -91,7 +98,14 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 (currentRoute.title == NoteForAllRoute.Settings.title) ||
                 (currentRoute.title == NoteForAllRoute.Notifications.title)
             ) {
-                IconButton(onClick = { navController?.popBackStack() }) {
+                IconButton(onClick = {
+                    if (currentRoute.title == NoteForAllRoute.Notifications.title) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            readAllNotifications(CurrentUserSingleton.currentUser!!.id)
+                        }
+                    }
+                    navController?.popBackStack()
+                }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         tint = MaterialTheme.colorScheme.onPrimary,
@@ -100,7 +114,7 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 }
             }
             if (currentRoute.title == NoteForAllRoute.MyProfile.title) {
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -112,7 +126,8 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                         )
                     }
                     LaunchedEffect(Unit) {
-                        newNotification = checkExistNewNotification(CurrentUserSingleton.currentUser!!.id)
+                        newNotification =
+                            checkExistNewNotification(CurrentUserSingleton.currentUser!!.id)
                     }
                     IconButton(onClick = { navController?.navigate(NoteForAllRoute.Notifications.route) }) {
                         Icon(

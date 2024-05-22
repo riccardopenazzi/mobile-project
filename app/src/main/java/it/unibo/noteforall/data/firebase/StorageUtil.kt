@@ -788,5 +788,12 @@ class StorageUtil {
             }
             return false
         }
+
+        suspend fun readAllNotifications(id: String) {
+            val userNotification = getAllUserNotifications(id)
+            for (notification in userNotification) {
+                FirebaseFirestore.getInstance().collection("notifications").document(notification.id).update("is_read", true)
+            }
+        }
     }
 }
