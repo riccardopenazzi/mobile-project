@@ -22,6 +22,7 @@ import it.unibo.noteforall.utils.Badge
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
+import it.unibo.noteforall.utils.Notification
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -703,11 +704,12 @@ class StorageUtil {
             }
         }
 
-        suspend fun getAuthorFromPostId(idPost: String) : String {
+        suspend fun getAuthorFromPostId(idPost: String): String {
             return suspendCoroutine { continuation ->
-                FirebaseFirestore.getInstance().collection("posts").document(idPost).get().addOnSuccessListener{post->
-                    continuation.resume(post.getString("user_id").toString())
-                }
+                FirebaseFirestore.getInstance().collection("posts").document(idPost).get()
+                    .addOnSuccessListener { post ->
+                        continuation.resume(post.getString("user_id").toString())
+                    }
             }
         }
 
@@ -718,6 +720,7 @@ class StorageUtil {
         ) {
             if (idTarget != CurrentUserSingleton.currentUser!!.id) {
                 val username = getUsernameFromId(CurrentUserSingleton.currentUser!!.id)
+                val sourcePicRef = getUserPicFromId(CurrentUserSingleton.currentUser!!.id)
                 return suspendCoroutine { continuation ->
                     val content = when (type) {
                         "save" -> "$username saved your post"
@@ -727,10 +730,40 @@ class StorageUtil {
                         "id_target" to idTarget,
                         "id_source" to CurrentUserSingleton.currentUser!!.id,
                         "content" to content,
-                        "post_target" to postTarget
+                        "post_target" to postTarget,
+                        "source_pic_ref" to sourcePicRef,
+                        "is_read" to false
                     )
                     FirebaseFirestore.getInstance().collection("notifications").add(notification)
                     continuation.resume(Unit)
+                }
+            }
+        }
+
+        suspend fun getUserPicFromId(id: String): String {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("users").document(id).get()
+                    .addOnSuccessListener { res ->
+                        val userPic = res.getString("user_pic") ?: DEFAULT_USER_PIC_URL
+                        continuation.resume(userPic)
+                    }
+            }
+        }
+
+        suspend fun getUserNotification(id: String, notificationList: MutableList<Notification>) {
+            FirebaseFirestore.getInstance().collection("notifications")
+                .whereEqualTo("id_target", id).get().addOnSuccessListener { res ->
+                for (notification in res) {
+                    notificationList.add(
+                        Notification(
+                            content = notification.getString("content")!!,
+                            idSource = notification.getString("id_source")!!,
+                            idTarget = notification.getString("id_target")!!,
+                            postTarget = notification.getString("post_target")!!,
+                            sourcePicRef = notification.getString("source_pic_ref")!!,
+                            isRead = notification.getBoolean("is_read")!!
+                        )
+                    )
                 }
             }
         }

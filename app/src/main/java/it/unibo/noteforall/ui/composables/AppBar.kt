@@ -1,9 +1,14 @@
 package it.unibo.noteforall.ui.composables
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,7 +23,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -80,7 +88,8 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 (currentRoute.title == NoteForAllRoute.Profile.title) ||
                 (currentRoute.title == NoteForAllRoute.EditProfile.title) ||
                 (currentRoute.title == NoteForAllRoute.NewNote.title) ||
-                (currentRoute.title == NoteForAllRoute.Settings.title)
+                (currentRoute.title == NoteForAllRoute.Settings.title) ||
+                (currentRoute.title == NoteForAllRoute.Notifications.title)
             ) {
                 IconButton(onClick = { navController?.popBackStack() }) {
                     Icon(
@@ -91,12 +100,25 @@ fun AppBar(navController: NavHostController? = null, currentRoute: NoteForAllRou
                 }
             }
             if (currentRoute.title == NoteForAllRoute.MyProfile.title) {
-                IconButton(onClick = { navController?.navigate(NoteForAllRoute.Settings.route) }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        contentDescription = "Settings"
-                    )
+                Row (
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { navController?.navigate(NoteForAllRoute.Settings.route) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = "Settings"
+                        )
+                    }
+                    //Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(onClick = { navController?.navigate(NoteForAllRoute.Notifications.route) }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Notifications,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = "Notifications"
+                        )
+                    }
                 }
             }
         },

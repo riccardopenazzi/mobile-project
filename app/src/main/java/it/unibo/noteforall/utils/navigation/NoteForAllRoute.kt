@@ -19,6 +19,7 @@ import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteViewModel
+import it.unibo.noteforall.ui.screen.notification.NotificationScreen
 import it.unibo.noteforall.ui.screen.profile.ProfileScreen
 import it.unibo.noteforall.ui.screen.saved.SavedNotesScreen
 import it.unibo.noteforall.ui.screen.search.SearchScreen
@@ -56,8 +57,9 @@ sealed class NoteForAllRoute (
     ) {
         fun buildRoute(userId: String) = "profile/${userId}"
     }
+    data object Notifications: NoteForAllRoute("notifications", "Notifications")
     companion object {
-        val routes = setOf(Home, Saved, Search, MyProfile, EditProfile, NewNote, ViewNote, Profile, Settings)
+        val routes = setOf(Home, Saved, Search, MyProfile, EditProfile, NewNote, ViewNote, Profile, Settings, Notifications)
     }
 }
 
@@ -76,8 +78,6 @@ fun NoteForAllNavGraph(
         startDestination = NoteForAllRoute.Home.route,
         modifier = modifier
     ) {
-
-
         with(NoteForAllRoute.Home) {
             composable(route) {
                 HomeScreen(navController, db, posts)
@@ -127,6 +127,11 @@ fun NoteForAllNavGraph(
             composable(route, arguments) {backStackEntry ->
                 val id = backStackEntry.arguments?.getString("userId")!!
                 ProfileScreen(navController = navController, userId = id, db = db)
+            }
+        }
+        with(NoteForAllRoute.Notifications) {
+            composable(route) {
+                NotificationScreen()
             }
         }
     }
