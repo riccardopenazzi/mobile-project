@@ -721,22 +721,20 @@ class StorageUtil {
             if (idTarget != CurrentUserSingleton.currentUser!!.id) {
                 val username = getUsernameFromId(CurrentUserSingleton.currentUser!!.id)
                 val sourcePicRef = getUserPicFromId(CurrentUserSingleton.currentUser!!.id)
-                return suspendCoroutine { continuation ->
-                    val content = when (type) {
-                        "save" -> "$username saved your post"
-                        else -> ""
-                    }
-                    val notification = hashMapOf(
-                        "id_target" to idTarget,
-                        "id_source" to CurrentUserSingleton.currentUser!!.id,
-                        "content" to content,
-                        "post_target" to postTarget,
-                        "source_pic_ref" to sourcePicRef,
-                        "is_read" to false
-                    )
-                    FirebaseFirestore.getInstance().collection("notifications").add(notification)
-                    continuation.resume(Unit)
+                val content = when (type) {
+                    "save" -> "$username saved your post"
+                    else -> ""
                 }
+                val notification = hashMapOf(
+                    "id_target" to idTarget,
+                    "id_source" to CurrentUserSingleton.currentUser!!.id,
+                    "content" to content,
+                    "post_target" to postTarget,
+                    "source_pic_ref" to sourcePicRef,
+                    "is_read" to false,
+                    "date" to Timestamp.now()
+                )
+                FirebaseFirestore.getInstance().collection("notifications").add(notification)
             }
         }
 
@@ -750,12 +748,13 @@ class StorageUtil {
             }
         }
 
-        suspend fun getAllUserNotifications(id: String): QuerySnapshot {
+        suspend fun getAllUserNotifications(id: String): List<DocumentSnapshot> {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("notifications")
-                    .whereEqualTo("id_target", id).get().addOnSuccessListener { res ->
-                        continuation.resume(res)
-                    }
+                    .orderBy("date", Query.Direction.DESCENDING).get().addOnSuccessListener { res ->
+                    val filteredRes = res.documents.filter { current -> current.getString("id_target") == id }
+                    continuation.resume(filteredRes)
+                }
             }
         }
 
@@ -792,7 +791,8 @@ class StorageUtil {
         suspend fun readAllNotifications(id: String) {
             val userNotification = getAllUserNotifications(id)
             for (notification in userNotification) {
-                FirebaseFirestore.getInstance().collection("notifications").document(notification.id).update("is_read", true)
+                FirebaseFirestore.getInstance().collection("notifications")
+                    .document(notification.id).update("is_read", true)
             }
         }
     }
