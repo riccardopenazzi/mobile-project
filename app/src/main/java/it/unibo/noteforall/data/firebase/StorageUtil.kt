@@ -750,22 +750,43 @@ class StorageUtil {
             }
         }
 
-        suspend fun getUserNotification(id: String, notificationList: MutableList<Notification>) {
-            FirebaseFirestore.getInstance().collection("notifications")
-                .whereEqualTo("id_target", id).get().addOnSuccessListener { res ->
-                for (notification in res) {
-                    notificationList.add(
-                        Notification(
-                            content = notification.getString("content")!!,
-                            idSource = notification.getString("id_source")!!,
-                            idTarget = notification.getString("id_target")!!,
-                            postTarget = notification.getString("post_target")!!,
-                            sourcePicRef = notification.getString("source_pic_ref")!!,
-                            isRead = notification.getBoolean("is_read")!!
-                        )
+        suspend fun getAllUserNotifications(id: String): QuerySnapshot {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("notifications")
+                    .whereEqualTo("id_target", id).get().addOnSuccessListener { res ->
+                        continuation.resume(res)
+                    }
+            }
+        }
+
+        suspend fun createNotificationList(
+            id: String,
+            notificationList: MutableList<Notification>
+        ) {
+            val userNotification = getAllUserNotifications(id)
+            for (notification in userNotification) {
+                notificationList.add(
+                    Notification(
+                        content = notification.getString("content")!!,
+                        idSource = notification.getString("id_source")!!,
+                        idTarget = notification.getString("id_target")!!,
+                        postTarget = notification.getString("post_target")!!,
+                        sourcePicRef = notification.getString("source_pic_ref")!!,
+                        isRead = notification.getBoolean("is_read")!!
                     )
+                )
+            }
+
+        }
+
+        suspend fun checkExistNewNotification(id: String): Boolean {
+            val userNotification = getAllUserNotifications(id)
+            for (notification in userNotification) {
+                if (notification.getBoolean("is_read") == false) {
+                    return true
                 }
             }
+            return false
         }
     }
 }

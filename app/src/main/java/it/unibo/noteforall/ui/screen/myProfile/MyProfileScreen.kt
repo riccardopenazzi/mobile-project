@@ -132,7 +132,7 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             ) {
                 for (badge in allDbBadges) {
                     val isBadgeUnlocked = checkBadgeUnlocked(badge.imageRef, userBadges)
-                    item { BadgeExtended(title = badge.title, imageRef = badge.imageRef, instructions = badge.instructions,isUnlocked = isBadgeUnlocked) }
+                    item { BadgeExtended(title = badge.title, imageRef = badge.imageRef, instructions = badge.instructions, isUnlocked = isBadgeUnlocked) }
                 }
             }
             for (post in posts) {
