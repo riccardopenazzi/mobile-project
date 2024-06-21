@@ -1,15 +1,17 @@
 package it.unibo.noteforall.ui.composables
 
-import android.util.Log
+import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,6 +65,10 @@ fun FiltersDialog(
     val dateSelected = rememberDatePickerState(
         initialDisplayMode = DisplayMode.Input
     )
+    var showDatePicker by remember { mutableStateOf(false)}
+    var dateSelectedMillis: Long? = null
+    val calendar = Calendar.getInstance()
+    var date by remember { mutableStateOf("No date selected")}
 
     if (showAlertDialog) {
         MyAlertDialog(
@@ -74,6 +81,26 @@ fun FiltersDialog(
             text = "All filters selected or applied before will be removed and the research will be lost.",
             icon = null
         )
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDatePicker = false
+                    dateSelectedMillis = dateSelected.selectedDateMillis
+                    if (dateSelectedMillis != null) {
+                        calendar.timeInMillis = dateSelectedMillis!!
+                    }
+                    date = DateFormat.format("dd/MM/yyyy", calendar.time).toString()
+                }) {
+                    Text("Confirm")
+                }
+            }
+        ) {
+            DatePicker(state = dateSelected, showModeToggle = true)
+        }
     }
 
     Dialog(
@@ -113,8 +140,22 @@ fun FiltersDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("Posts from: ")
-                    DatePicker(state = dateSelected)
+                    Row(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Posts from: ", fontWeight = FontWeight.Bold)
+                        OutlinedButton(
+                            onClick = { showDatePicker = true },
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Text(date)
+                        }
+                    }
                 }
                 Box {
                     ExposedDropdownMenuBox(
@@ -149,6 +190,7 @@ fun FiltersDialog(
                         }
                     }
                 }
+                Spacer(Modifier.height(10.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,14 +224,9 @@ fun FiltersDialog(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             onConfirm()
-                            val dateSelectedMillis = dateSelected.selectedDateMillis
-                            val calendar = Calendar.getInstance()
-                            if (dateSelectedMillis != null) {
-                                calendar.timeInMillis = dateSelectedMillis
-                            }
                             val selectedDate = calendar.time
                             val selectedTimestamp = Timestamp(selectedDate)
-                            applyFilters(posts, selectedCategory, if (dateSelectedMillis != null) selectedTimestamp else null)
+                            applyFilters(posts, selectedCategory, selectedTimestamp)
                         }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)

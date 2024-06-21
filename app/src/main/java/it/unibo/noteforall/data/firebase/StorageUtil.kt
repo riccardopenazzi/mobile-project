@@ -437,7 +437,6 @@ class StorageUtil {
             if (selectedCategory != "") {
                 while (iterator.hasNext()) {
                     val post = iterator.next()
-                    Log.i("debFilter", "Analizzo: ${post.date}")
                     if (selectedCategory.isNotEmpty() && post.category != selectedCategory) {
                         iterator.remove()
                     }
@@ -447,7 +446,6 @@ class StorageUtil {
                 iterator = postsToFilter.iterator()
                 while (iterator.hasNext()) {
                     val post = iterator.next()
-                    Log.i("debFilter", "Analizzo: ${post.date} e $selectedDateMillis")
                     if (post.date!! < selectedDateMillis) {
                         iterator.remove()
                     }
