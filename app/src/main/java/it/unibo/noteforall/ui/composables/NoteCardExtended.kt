@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -164,9 +163,7 @@ fun NoteCardExtended(
                         val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
                             putExtra(SearchManager.QUERY, note.title)
                         }
-                        if (intent.resolveActivity(ctx.packageManager) != null) {
-                            ctx.startActivity(intent)
-                        }
+                        ctx.startActivity(intent)
                     }) {
                         Icon(imageVector = Icons.Outlined.Search, contentDescription = "search icon")
                         Text(text = "Search more")
