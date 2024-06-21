@@ -1,7 +1,9 @@
 package it.unibo.noteforall.ui.screen.editProfile
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -50,9 +52,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
+import it.unibo.noteforall.ui.composables.ExplanationDialog
 import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.MyAlertDialog
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
@@ -72,6 +78,7 @@ fun EditProfileScreen(
 ) {
     var isChangingInfo by rememberSaveable { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var showExplanationDialog by remember { mutableStateOf(false) }
     var showLoading by remember { mutableStateOf(false) }
     var isOldPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
@@ -115,7 +122,13 @@ fun EditProfileScreen(
         if (cameraPermission.status.isGranted) {
             cameraLauncher.captureImage()
         } else {
-            cameraPermission.launchPermissionRequest()
+            if (ContextCompat.checkSelfPermission(ctx, cameraPermission.permission) == PackageManager.PERMISSION_DENIED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ctx as Activity, cameraPermission.permission)) {
+                    showExplanationDialog = true
+                } else {
+                    cameraPermission.launchPermissionRequest()
+                }
+            }
         }
     }
 
@@ -146,6 +159,15 @@ fun EditProfileScreen(
                 icon = null
             )
         }
+    }
+
+    if (showExplanationDialog) {
+        ExplanationDialog(
+            title = "Camera permission",
+            text =
+            "The camera permission is necessary to take a picture and use it as your profile icon. To enable the permission go to settings.",
+            onDismiss = { showExplanationDialog = false }
+        )
     }
 
     LazyColumn(
