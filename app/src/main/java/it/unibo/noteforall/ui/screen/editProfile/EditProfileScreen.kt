@@ -159,7 +159,7 @@ fun EditProfileScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 IconButton(onClick = { showBottomSheet = true }, Modifier.size(80.dp)) {
                     AsyncImage(
-                        model = if (isPhotoSelected) selectedImageUri else state.imageURL,
+                        model = if (isPhotoSelected && selectedImageUri != null) selectedImageUri else state.imageURL,
                         contentDescription = "img",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.clip(CircleShape)
