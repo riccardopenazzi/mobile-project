@@ -49,11 +49,6 @@
             android:exported="true"
             android:theme="@style/Theme.NoteForAll">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
