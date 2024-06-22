@@ -3,8 +3,6 @@ package it.unibo.noteforall
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,26 +13,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import androidx.wear.compose.material.Scaffold
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.database.NoteForAllDatabase
-import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.settings.Theme
 import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
 import it.unibo.noteforall.ui.theme.NoteForAllTheme
 import it.unibo.noteforall.utils.CurrentUser
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.AuthenticationNavGraph
-import it.unibo.noteforall.utils.navigation.bottomNavigationItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +37,6 @@ import org.koin.androidx.compose.koinViewModel
 
 class AuthenticationActivity : ComponentActivity() {
     val db = Firebase.firestore
-
     private val internalDb by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -82,7 +75,7 @@ class AuthenticationActivity : ComponentActivity() {
                             val user = userDao.getUserId()
                             withContext(Dispatchers.Main) {
                                 if (user != null) {
-                                    isLogged = true;
+                                    isLogged = true
                                     val currentUser = CurrentUser(
                                         id = user.userId
                                     )

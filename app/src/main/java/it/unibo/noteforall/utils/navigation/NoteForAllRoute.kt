@@ -15,7 +15,6 @@ import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileScreen
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.home.HomeScreen
-import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.myProfile.MyProfileScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteScreen
 import it.unibo.noteforall.ui.screen.newNote.NewNoteViewModel
@@ -26,7 +25,6 @@ import it.unibo.noteforall.ui.screen.search.SearchScreen
 import it.unibo.noteforall.ui.screen.settings.SettingsScreen
 import it.unibo.noteforall.ui.screen.settings.ThemeState
 import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
-import it.unibo.noteforall.ui.screen.signup.SignupScreen
 import it.unibo.noteforall.ui.screen.viewNote.ViewNoteScreen
 import it.unibo.noteforall.utils.Note
 import org.koin.androidx.compose.koinViewModel

@@ -1,6 +1,5 @@
 package it.unibo.noteforall.utils
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +18,6 @@ enum class PermissionStatus {
     PermanentlyDenied;
 
     val isGranted get() = this == Granted
-    val isDenied get() = this == Denied || this == PermanentlyDenied
 }
 
 interface PermissionHandler {

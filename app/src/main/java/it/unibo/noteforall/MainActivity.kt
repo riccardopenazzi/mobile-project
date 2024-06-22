@@ -89,14 +89,13 @@ class MainActivity : ComponentActivity() {
                             } ?: NoteForAllRoute.Home
                         }
                     }
-//---------------------------------------------------------------------------------------------
                     LaunchedEffect(Unit) {
                         val userDao = internalDb.dao
                         CoroutineScope(Dispatchers.IO).launch {
                             val user = userDao.getUserId()
                             withContext(Dispatchers.Main) {
                                 if (user != null) {
-                                    isLogged = true;
+                                    isLogged = true
                                     val currentUser = CurrentUser(
                                         id = user.userId
                                     )
@@ -105,7 +104,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-//---------------------------------------------------------------------------------------------
                     Scaffold(
                         topBar = { AppBar(navigationController, currentRoute, posts) },
                         bottomBar = {

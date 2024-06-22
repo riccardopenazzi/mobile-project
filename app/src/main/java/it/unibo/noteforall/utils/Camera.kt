@@ -15,11 +15,9 @@ import java.io.File
 
 interface CameraLauncher {
     val capturedImageUri: Uri
-
     fun captureImage()
 }
 
-// da ricontrollare gli argomenti che vanno passati
 @Composable
 fun rememberCameraLauncher(): CameraLauncher {
     val ctx = LocalContext.current
@@ -38,12 +36,9 @@ fun rememberCameraLauncher(): CameraLauncher {
         derivedStateOf {
             object : CameraLauncher {
                 override val capturedImageUri: Uri = capturedImageUri
-
                 override fun captureImage() = cameraActivityLauncher.launch(imageUri)
-
             }
         }
     }
-
     return cameraLauncher
 }

@@ -10,7 +10,6 @@ import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
 
 sealed class AuthenticationRoute (
-    val route: String,
     val title: String
 ) {
     data object Login: NoteForAllRoute("login", "Login")
