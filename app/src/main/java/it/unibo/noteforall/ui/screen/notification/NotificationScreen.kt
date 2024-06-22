@@ -39,7 +39,7 @@ fun NotificationScreen() {
     ) {
         items(notificationList) { notification ->
             SingleNotification(notification)
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

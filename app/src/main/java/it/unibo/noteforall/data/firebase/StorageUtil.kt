@@ -769,7 +769,8 @@ class StorageUtil {
                         idTarget = notification.getString("id_target")!!,
                         postTarget = notification.getString("post_target")!!,
                         sourcePicRef = notification.getString("source_pic_ref")!!,
-                        isRead = notification.getBoolean("is_read")!!
+                        isRead = notification.getBoolean("is_read")!!,
+                        date = notification.getDate("date")!!
                     )
                 )
             }

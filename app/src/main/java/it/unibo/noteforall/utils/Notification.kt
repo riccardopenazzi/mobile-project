@@ -1,5 +1,7 @@
 package it.unibo.noteforall.utils
 
+import java.util.Date
+
 data class Notification (
     val content: String,
     val idSource: String,
@@ -7,4 +9,5 @@ data class Notification (
     val postTarget: String,
     val sourcePicRef: String,
     val isRead: Boolean,
+    val date: Date
 )
