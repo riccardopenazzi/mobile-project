@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -77,7 +76,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    db: FirebaseFirestore,
     state: EditProfileState,
     actions: EditProfileActions,
     navController: NavHostController
@@ -108,7 +106,6 @@ fun EditProfileScreen(
         photoPickerLauncher.launch(
             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
         )
-        Log.i("debImg", selectedImageUri.toString())
     }
 
     val ctx = LocalContext.current
@@ -122,7 +119,6 @@ fun EditProfileScreen(
         } else {
             Toast.makeText(ctx, "Permission denied", Toast.LENGTH_SHORT).show()
         }
-        Log.i("debImg", selectedImageUri.toString())
     }
 
     fun takePicture() {
@@ -286,7 +282,7 @@ fun EditProfileScreen(
                             IconButton(onClick = { isOldPasswordVisible = !isOldPasswordVisible }) {
                                 Icon(
                                     imageVector =
-                                    if (isOldPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        if (isOldPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                     contentDescription = if (isOldPasswordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -308,7 +304,7 @@ fun EditProfileScreen(
                             IconButton(onClick = { isNewPasswordVisible = !isNewPasswordVisible }) {
                                 Icon(
                                     imageVector =
-                                    if (isNewPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        if (isNewPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                     contentDescription = if (isNewPasswordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -327,12 +323,12 @@ fun EditProfileScreen(
                         visualTransformation = if (isRepeatPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         trailingIcon = {
-                            IconButton(onClick = {
-                                isRepeatPasswordVisible = !isRepeatPasswordVisible
-                            }) {
+                            IconButton(
+                                onClick = { isRepeatPasswordVisible = !isRepeatPasswordVisible}
+                            ) {
                                 Icon(
                                     imageVector =
-                                    if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                     contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
                                 )
                             }

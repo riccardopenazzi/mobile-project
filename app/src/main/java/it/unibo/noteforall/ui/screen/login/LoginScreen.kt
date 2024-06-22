@@ -1,7 +1,5 @@
 package it.unibo.noteforall.ui.screen.login
 
-import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,14 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.MainActivity
 import it.unibo.noteforall.data.database.NoteForAllDatabase
-import it.unibo.noteforall.data.database.User
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execLogin
 import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
-import it.unibo.noteforall.utils.CurrentUser
-import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.navigation.AuthenticationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +45,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    db: FirebaseFirestore,
     navController: NavHostController,
     internalDb: NoteForAllDatabase
 ) {
@@ -109,7 +102,7 @@ fun LoginScreen(
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                             Icon(
                                 imageVector =
-                                if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                    if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                 contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                             )
                         }
@@ -121,7 +114,7 @@ fun LoginScreen(
                     onClick = {
                         isLogging = true
                         CoroutineScope(Dispatchers.Main).launch {
-                            val res = execLogin(key, password, db, internalDb, ctx)
+                            val res = execLogin(key, password, internalDb, ctx)
                             if (!res) {
                                 isLogging = false
                             }

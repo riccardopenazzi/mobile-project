@@ -193,11 +193,21 @@ class StorageUtil {
                     if (checkPassword(oldPassword)) {
                         userUpdate["password"] = encryptPassword(newPassword)
                     } else {
-                        //error old password don't correspond
+                        //error old password doesn't correspond
+                        Toast.makeText(
+                            context,
+                            "Old password is not correct",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
+                } else {
+                    //error new passwords don't match
+                    Toast.makeText(
+                        context,
+                        "New passwords don't match",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            } else {
-                //error new passwords don't match
             }
             FirebaseFirestore.getInstance().collection("users")
                 .document(CurrentUserSingleton.currentUser!!.id).update(
@@ -227,10 +237,9 @@ class StorageUtil {
                 val savedPostsRef = FirebaseFirestore.getInstance().collection("users")
                     .document(CurrentUserSingleton.currentUser!!.id).collection("saved_posts")
                 savedPostsRef.whereEqualTo("post_id", postId).get().addOnSuccessListener { res ->
-                    Log.i("debSave", "Analizzo $postId e ritorno ${!res.isEmpty}")
                     continuation.resume(!res.isEmpty)
                 }.addOnFailureListener { exception ->
-                    Log.i("debSave", "Errore $exception")
+                    Log.e("isPostSaved", "Exception: $exception")
                 }
             }
         }
@@ -273,7 +282,6 @@ class StorageUtil {
 
         suspend fun loadHomePosts(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore,
             isLoadFinished: AtomicBoolean? = null
         ) {
             val allPosts = getAllPosts()
@@ -345,7 +353,6 @@ class StorageUtil {
 
         suspend fun loadNote(
             noteId: String,
-            db: FirebaseFirestore,
             posts: MutableList<Note>
         ) {
             val post = getPostFromId(noteId)
@@ -366,7 +373,6 @@ class StorageUtil {
 
         suspend fun loadSavedPosts(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore,
             isEmpty: AtomicBoolean
         ) {
             val savedPosts = getUserSavedPosts()
@@ -383,7 +389,6 @@ class StorageUtil {
 
         suspend fun loadUserPosts(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore,
             userId: String
         ) {
             val allUserPosts = getAllPosts()
@@ -397,7 +402,6 @@ class StorageUtil {
 
         suspend fun searchPost(
             noteList: MutableList<Note>,
-            db: FirebaseFirestore,
             key: String
         ) {
             val posts = getAllPosts()
@@ -420,7 +424,6 @@ class StorageUtil {
             FirebaseFirestore.getInstance().collection("posts").get()
                 .addOnSuccessListener { allPosts ->
                     for (post in allPosts) {
-                        Log.i("debCat", categoriesList.toString())
                         val currentCategory = post.getString("category")
                         if (currentCategory != null && !categoriesList.contains(currentCategory)) {
                             categoriesList.add(currentCategory)
@@ -489,7 +492,6 @@ class StorageUtil {
             username: String,
             password: String,
             repeatPassword: String,
-            db: FirebaseFirestore,
             internalDb: NoteForAllDatabase,
             ctx: Context,
             imageUri: Uri?,
@@ -588,7 +590,6 @@ class StorageUtil {
         suspend fun execLogin(
             key: String,
             password: String,
-            db: FirebaseFirestore,
             internalDb: NoteForAllDatabase,
             ctx: Context
         ): Boolean {
@@ -614,13 +615,19 @@ class StorageUtil {
                     }
                 }
                 //error no user found in db
-                Toast.makeText(ctx, "Error username or password wrong", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(
+                    ctx,
+                    "Error username or password wrong",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             } else {
                 //error key or password empty
-                Toast.makeText(ctx, "Error username or password is empty", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(
+                    ctx,
+                    "Error username or password is empty",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
         }
@@ -759,7 +766,7 @@ class StorageUtil {
             }
         }
 
-        suspend fun getAllUserNotifications(id: String): List<DocumentSnapshot> {
+        private suspend fun getAllUserNotifications(id: String): List<DocumentSnapshot> {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("notifications")
                     .orderBy("date", Query.Direction.DESCENDING).get().addOnSuccessListener { res ->

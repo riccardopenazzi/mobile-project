@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
@@ -39,6 +38,7 @@ import coil.compose.AsyncImage
 
 @Composable
 fun BadgeExtended(title: String, imageRef: String, instructions: String, isUnlocked: Boolean) {
+
     var isExtended by remember { mutableStateOf(false) }
     if (!isExtended) {
         IconButton(onClick = { isExtended = !isExtended }) {

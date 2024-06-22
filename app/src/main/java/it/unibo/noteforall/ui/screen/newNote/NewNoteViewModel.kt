@@ -2,10 +2,8 @@ package it.unibo.noteforall.ui.screen.newNote
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.ui.text.capitalize
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.createPost
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import kotlinx.coroutines.flow.MutableStateFlow

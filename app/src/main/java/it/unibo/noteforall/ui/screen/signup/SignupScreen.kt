@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -61,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.execSignup
 import it.unibo.noteforall.ui.composables.LoadingAnimation
@@ -79,10 +77,10 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(
-    db: FirebaseFirestore,
     navController: NavHostController,
     internalDb: NoteForAllDatabase
 ) {
+
     var name by remember {
         mutableStateOf("")
     }
@@ -119,11 +117,9 @@ fun SignupScreen(
     val locationPermission = rememberPermission(
         Manifest.permission.ACCESS_COARSE_LOCATION
     ) { status ->
-        Log.i("test", "When: " + locationService.coordinates.toString())
         when (status) {
             PermissionStatus.Granted -> {
                 locationService.requestCurrentLocation()
-                Log.i("test", "Granted: " + locationService.coordinates.toString())
             }
 
             PermissionStatus.Denied -> {}
@@ -134,9 +130,7 @@ fun SignupScreen(
             // Gestire il caso di negazione dei permessi
             // actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
 
-            PermissionStatus.Unknown -> {
-                Log.i("test", "Unknown: " + locationService.coordinates.toString())
-            }
+            PermissionStatus.Unknown -> {}
         }
     }
 
@@ -180,7 +174,7 @@ fun SignupScreen(
         }
     }
 
-    var isSigninUp by remember {
+    var isSigningUp by remember {
         mutableStateOf(false)
     }
 
@@ -210,7 +204,7 @@ fun SignupScreen(
                 .padding(contentPadding)
                 .fillMaxSize()
         ) {
-            if (isSigninUp) {
+            if (isSigningUp) {
                 item { LoadingAnimation() }
             } else {
                 item {
@@ -315,7 +309,7 @@ fun SignupScreen(
                             IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                                 Icon(
                                     imageVector =
-                                    if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        if (isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                     contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -336,7 +330,7 @@ fun SignupScreen(
                             }) {
                                 Icon(
                                     imageVector =
-                                    if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        if (isRepeatPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                     contentDescription = if (isRepeatPasswordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -375,7 +369,7 @@ fun SignupScreen(
                     Text("Longitude: ${locationService.coordinates?.longitude ?: "-"}")
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {
-                        isSigninUp = true
+                        isSigningUp = true
                         CoroutineScope(Dispatchers.Main).launch {
                             val res = execSignup(
                                 name,
@@ -384,7 +378,6 @@ fun SignupScreen(
                                 username,
                                 password,
                                 repeatPassword,
-                                db,
                                 internalDb,
                                 ctx,
                                 selectedImageUri,
@@ -392,7 +385,7 @@ fun SignupScreen(
                                 locationService.coordinates?.longitude
                             )
                             if (!res) {
-                                isSigninUp = false
+                                isSigningUp = false
                             }
                         }
                     }) {

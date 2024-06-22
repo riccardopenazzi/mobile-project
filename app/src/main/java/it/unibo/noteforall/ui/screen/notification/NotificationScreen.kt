@@ -25,7 +25,7 @@ import it.unibo.noteforall.utils.Notification
 @Composable
 fun NotificationScreen(navController: NavHostController) {
     var isLaunched by remember { mutableStateOf(false) }
-    var notificationList = remember { mutableStateListOf<Notification>() }
+    val notificationList = remember { mutableStateListOf<Notification>() }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {

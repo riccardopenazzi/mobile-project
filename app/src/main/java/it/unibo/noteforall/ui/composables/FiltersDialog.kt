@@ -59,6 +59,7 @@ fun FiltersDialog(
     clearFilters: () -> Unit,
     posts: MutableList<Note>
 ) {
+
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
     var showAlertDialog by remember { mutableStateOf(false) }
@@ -66,7 +67,7 @@ fun FiltersDialog(
         initialDisplayMode = DisplayMode.Input
     )
     var showDatePicker by remember { mutableStateOf(false)}
-    var dateSelectedMillis: Long? = null
+    var dateSelectedMillis: Long?
     val calendar = Calendar.getInstance()
     var date by remember { mutableStateOf("No date selected")}
 

@@ -50,6 +50,7 @@ fun NoteCard(
     note: Note,
     db: FirebaseFirestore
 ) {
+
     var isSaved by remember { mutableStateOf(note.isSaved) }
 
     Card(

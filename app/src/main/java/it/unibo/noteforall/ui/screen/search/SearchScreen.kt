@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.screen.search
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
-import it.unibo.noteforall.data.firebase.StorageUtil
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.searchPost
 import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.NoteCard
@@ -46,7 +43,6 @@ import it.unibo.noteforall.ui.composables.outlinedTextFieldColors
 import it.unibo.noteforall.utils.Note
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,6 +51,7 @@ fun SearchScreen(
     navController: NavHostController,
     posts: MutableList<Note>
 ) {
+
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var isLaunched by remember { mutableStateOf(false) }
@@ -79,7 +76,6 @@ fun SearchScreen(
         ) {
             item {
                 Spacer(Modifier.height(16.dp))
-                /* Consider to use SearchBar */
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
@@ -87,7 +83,12 @@ fun SearchScreen(
                     trailingIcon = {
                         IconButton(onClick = {
                             posts.clear()
-                            //searchPost(posts, db, text)
+                            isSearched = true
+                            isListUpdated = true
+                            CoroutineScope(Dispatchers.Main).launch {
+                                searchPost(posts, text)
+                                isSearched = false;
+                            }
                         }) {
                             Icon(Icons.Outlined.Search, "Search")
                         }
@@ -101,7 +102,7 @@ fun SearchScreen(
                         isSearched = true
                         isListUpdated = true
                         CoroutineScope(Dispatchers.Main).launch {
-                            searchPost(posts, db, text)
+                            searchPost(posts, text)
                             isSearched = false;
                         }
                         focusManager.clearFocus()

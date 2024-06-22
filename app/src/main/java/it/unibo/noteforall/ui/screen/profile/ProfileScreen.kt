@@ -1,6 +1,5 @@
 package it.unibo.noteforall.ui.screen.profile
 
-//import it.unibo.noteforall.ui.screen.myProfile.PrintUserNotes
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +43,7 @@ import it.unibo.noteforall.utils.Note
 
 @Composable
 fun ProfileScreen(navController: NavHostController, userId: String, db: FirebaseFirestore) {
+
     val name = remember { mutableStateOf("") }
     val surname = remember { mutableStateOf("") }
     val username = remember { mutableStateOf("") }
@@ -60,12 +59,12 @@ fun ProfileScreen(navController: NavHostController, userId: String, db: Firebase
         username.value = user.getString("username").toString()
         userPicUrl.value = user.getString("user_pic").toString()
     }.addOnFailureListener { exception ->
-        Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
+        Log.e("ProfileScreen", "Exception: ", exception)
     }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            StorageUtil.loadUserPosts(posts, db, userId)
+            StorageUtil.loadUserPosts(posts, userId)
             StorageUtil.loadUserBadges(userBadges, db, userId)
             StorageUtil.loadAllBadges(allDbBadges, db)
             isLaunched = true

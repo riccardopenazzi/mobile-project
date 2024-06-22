@@ -1,11 +1,9 @@
 package it.unibo.noteforall.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Notifications
@@ -28,8 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.checkExistNewNotification
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getCategoriesList
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.loadHomePosts
@@ -51,7 +47,6 @@ fun AppBar(
     var showFiltersDialog by remember { mutableStateOf(false) }
     val categories = remember { mutableStateListOf<String>() }
     var newNotification by remember { mutableStateOf(false) }
-    val db = Firebase.firestore
 
     getCategoriesList(categories)
 
@@ -65,7 +60,7 @@ fun AppBar(
                     NoteForAllRoute.Home.title ->
                         CoroutineScope(Dispatchers.Main).launch {
                             posts.clear()
-                            loadHomePosts(posts, db)
+                            loadHomePosts(posts)
                         }
 
                     NoteForAllRoute.Search.title ->

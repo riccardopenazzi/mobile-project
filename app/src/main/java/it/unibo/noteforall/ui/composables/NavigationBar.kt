@@ -22,6 +22,7 @@ fun NavigationBar(
     selectedItemIndex: AtomicInteger,
     currentRoute: NoteForAllRoute
 ) {
+
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface

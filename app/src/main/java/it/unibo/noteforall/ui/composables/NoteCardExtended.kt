@@ -59,13 +59,14 @@ fun NoteCardExtended(
     noteId: String,
     db: FirebaseFirestore
 ) {
+
     var isLaunched by remember { mutableStateOf(false) }
     val posts = remember { mutableStateListOf<Note>() }
     val ctx = LocalContext.current
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadNote(noteId, db, posts)
+            loadNote(noteId, posts)
             isLaunched = true
         }
     }

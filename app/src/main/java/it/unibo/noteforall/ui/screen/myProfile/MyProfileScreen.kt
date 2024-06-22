@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +45,7 @@ import it.unibo.noteforall.utils.Note
 
 @Composable
 fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
+
     val name = remember { mutableStateOf("") }
     val surname = remember { mutableStateOf("") }
     val username = remember { mutableStateOf("") }
@@ -63,12 +62,12 @@ fun MyProfileScreen(navController: NavHostController, db: FirebaseFirestore) {
             username.value = user.getString("username").toString()
             userPicUrl.value = user.getString("user_pic").toString()
         }.addOnFailureListener { exception ->
-            Log.i("debImg", "Errore durante il recupero dei dati dell'utente: ", exception)
+            Log.e("MyProfileScreen", "Exception: ", exception)
         }
 
     LaunchedEffect(isLaunched) {
         if (!isLaunched) {
-            loadUserPosts(posts, db, CurrentUserSingleton.currentUser!!.id)
+            loadUserPosts(posts, CurrentUserSingleton.currentUser!!.id)
             loadUserBadges(userBadges, db, CurrentUserSingleton.currentUser!!.id)
             loadAllBadges(allDbBadges, db)
             isLaunched = true

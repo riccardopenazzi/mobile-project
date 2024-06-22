@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
@@ -23,7 +22,6 @@ sealed class AuthenticationRoute (
 @Composable
 fun AuthenticationNavGraph(
     navController: NavHostController,
-    db: FirebaseFirestore,
     internalDb: NoteForAllDatabase
 ) {
     NavHost(
@@ -32,12 +30,12 @@ fun AuthenticationNavGraph(
     ) {
         with(AuthenticationRoute.Login) {
             composable(route) {
-                LoginScreen(db, navController, internalDb)
+                LoginScreen(navController, internalDb)
             }
         }
         with(AuthenticationRoute.Signup) {
             composable(route) {
-                SignupScreen(db, navController, internalDb)
+                SignupScreen(navController, internalDb)
             }
         }
     }

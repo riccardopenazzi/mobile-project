@@ -91,7 +91,6 @@ class AuthenticationActivity : ComponentActivity() {
                         if (!isLogged) {
                             AuthenticationNavGraph(
                                 navController = navigationController,
-                                db = db,
                                 internalDb = internalDb
                             )
                         } else {
