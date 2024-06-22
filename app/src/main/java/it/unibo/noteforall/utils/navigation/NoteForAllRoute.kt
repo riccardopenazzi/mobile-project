@@ -131,7 +131,7 @@ fun NoteForAllNavGraph(
         }
         with(NoteForAllRoute.Notifications) {
             composable(route) {
-                NotificationScreen()
+                NotificationScreen(navController)
             }
         }
     }

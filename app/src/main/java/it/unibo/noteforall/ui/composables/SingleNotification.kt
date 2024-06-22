@@ -3,6 +3,7 @@ package it.unibo.noteforall.ui.composables
 import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,12 +27,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.getUserPicFromId
 import it.unibo.noteforall.utils.Notification
+import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 
 @Composable
-fun SingleNotification(notification: Notification) {
+fun SingleNotification(notification: Notification, navController: NavHostController) {
     Column(
         modifier = Modifier
             .border(
@@ -40,6 +43,9 @@ fun SingleNotification(notification: Notification) {
             )
             .padding(8.dp)
             .fillMaxSize()
+            .clickable {
+                navController.navigate(NoteForAllRoute.ViewNote.buildRoute(notification.postTarget))
+            }
     ) {
         Row (
             horizontalArrangement = Arrangement.End,

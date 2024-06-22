@@ -794,5 +794,6 @@ class StorageUtil {
                     .document(notification.id).update("is_read", true)
             }
         }
+
     }
 }

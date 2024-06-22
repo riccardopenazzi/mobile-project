@@ -16,13 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.createNotificationList
 import it.unibo.noteforall.ui.composables.SingleNotification
 import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Notification
 
 @Composable
-fun NotificationScreen() {
+fun NotificationScreen(navController: NavHostController) {
     var isLaunched by remember { mutableStateOf(false) }
     var notificationList = remember { mutableStateListOf<Notification>() }
 
@@ -38,7 +39,7 @@ fun NotificationScreen() {
         modifier = Modifier.padding(top = 5.dp, start = 10.dp, end = 10.dp)
     ) {
         items(notificationList) { notification ->
-            SingleNotification(notification)
+            SingleNotification(notification, navController)
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
