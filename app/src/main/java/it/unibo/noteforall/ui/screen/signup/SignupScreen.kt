@@ -104,6 +104,15 @@ fun SignupScreen(
 
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isRepeatPasswordVisible by remember { mutableStateOf(false) }
+    var showExplanation by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    /* Bottom sheet */
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     val locationService = koinInject<LocationService>()
 
@@ -135,13 +144,16 @@ fun SignupScreen(
         if (locationPermission.status.isGranted) {
             locationService.requestCurrentLocation()
         } else {
-            locationPermission.launchPermissionRequest()
+            if (ContextCompat.checkSelfPermission(ctx, locationPermission.permission) == PackageManager.PERMISSION_DENIED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(ctx as Activity, locationPermission.permission)) {
+                    showExplanation = true
+                    showBottomSheet = false
+                } else {
+                    locationPermission.launchPermissionRequest()
+                }
+            }
         }
     }
-
-    /* Bottom sheet */
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     // Photo picker
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -158,12 +170,6 @@ fun SignupScreen(
 
 
     /* Camera */
-    val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var showExplanation by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-
-
     val cameraLauncher = rememberCameraLauncher()
 
     val cameraPermission = rememberPermission(Manifest.permission.CAMERA) { status ->
@@ -248,6 +254,7 @@ fun SignupScreen(
                                             )
                                             when (result) {
                                                 SnackbarResult.ActionPerformed -> {
+                                                    showExplanation = false
                                                     val intent = Intent(
                                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                                         Uri.parse("package:${ctx.packageName}")
@@ -337,7 +344,30 @@ fun SignupScreen(
                         colors = outlinedTextFieldColors()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    IconButton(onClick = ::requestLocation) {
+                    IconButton(onClick = {
+                        requestLocation()
+                        if (showExplanation) {
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "The location permission is necessary to take latitude and longitude in order to customize your profile. To enable the permission go to settings.",
+                                    actionLabel = "Settings",
+                                    duration = SnackbarDuration.Long
+                                )
+                                when (result) {
+                                    SnackbarResult.ActionPerformed -> {
+                                        showExplanation = false
+                                        val intent = Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.parse("package:${ctx.packageName}")
+                                        )
+                                        ctx.startActivity(intent)
+                                    }
+
+                                    SnackbarResult.Dismissed -> showExplanation = false
+                                }
+                            }
+                        }
+                    }) {
                         Icon(Icons.Outlined.AddLocationAlt, "Add location icon")
                     }
                     Spacer(modifier = Modifier.height(8.dp))

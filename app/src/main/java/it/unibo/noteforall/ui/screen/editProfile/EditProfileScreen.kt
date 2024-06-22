@@ -221,6 +221,7 @@ fun EditProfileScreen(
                                             )
                                             when (result) {
                                                 SnackbarResult.ActionPerformed -> {
+                                                    showExplanation = false
                                                     val intent = Intent(
                                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                                         Uri.parse("package:${ctx.packageName}")
