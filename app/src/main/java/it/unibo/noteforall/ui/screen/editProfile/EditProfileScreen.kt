@@ -84,7 +84,7 @@ fun EditProfileScreen(
 ) {
     var isChangingInfo by rememberSaveable { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-    var showExplanationDialog by remember { mutableStateOf(false) }
+    var showExplanation by remember { mutableStateOf(false) }
     var showLoading by remember { mutableStateOf(false) }
     var isOldPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
@@ -132,7 +132,7 @@ fun EditProfileScreen(
         } else {
             if (ContextCompat.checkSelfPermission(ctx, cameraPermission.permission) == PackageManager.PERMISSION_DENIED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(ctx as Activity, cameraPermission.permission)) {
-                    showExplanationDialog = true
+                    showExplanation = true
                     showBottomSheet = false
                 } else {
                     cameraPermission.launchPermissionRequest()
@@ -212,7 +212,7 @@ fun EditProfileScreen(
                                 Divider(Modifier.fillParentMaxWidth(0.8f))
                                 TextButton(onClick = {
                                     takePicture()
-                                    if (showExplanationDialog) {
+                                    if (showExplanation) {
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
                                                 message = "The camera permission is necessary to take a picture and use it as your profile icon. To enable the permission go to settings.",
@@ -222,15 +222,13 @@ fun EditProfileScreen(
                                             when (result) {
                                                 SnackbarResult.ActionPerformed -> {
                                                     val intent = Intent(
-                                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                                         Uri.parse("package:${ctx.packageName}")
-                                                    ).apply {
-                                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                    }
+                                                    )
                                                     ctx.startActivity(intent)
                                                 }
 
-                                                SnackbarResult.Dismissed -> showExplanationDialog = false
+                                                SnackbarResult.Dismissed -> showExplanation = false
                                             }
                                         }
                                     }
