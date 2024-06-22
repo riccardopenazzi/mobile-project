@@ -117,7 +117,7 @@ class StorageUtil {
             return false
         }
 
-        private fun addObtainedGamificationPost(threshold: Int) {
+        private suspend fun addObtainedGamificationPost(threshold: Int) {
             val toInsertId = when (threshold) {
                 1 -> FIRST_UPLOAD_GAMIFICATION_ID
                 else -> FIFTH_UPLOAD_GAMIFICATION_ID
@@ -128,6 +128,7 @@ class StorageUtil {
             FirebaseFirestore.getInstance().collection("users")
                 .document(CurrentUserSingleton.currentUser!!.id).collection("gamification_obtained")
                 .add(gamificationObject)
+            createNotification("", "", toInsertId, "gamification")
         }
 
         private suspend fun uploadToStorage(
@@ -245,7 +246,7 @@ class StorageUtil {
                 .add(savedPost)
             db.collection("posts").document(postId).update("num_saved", FieldValue.increment(1))
             val targetId = getAuthorFromPostId(postId)
-            createNotification(targetId, postId, "save")
+            createNotification(targetId, postId, "","save")
         }
 
         fun unsavePost(postId: String, db: FirebaseFirestore) {
@@ -693,7 +694,7 @@ class StorageUtil {
             return hashedPasswordBytes.joinToString("") { "%02x".format(it) }
         }
 
-        suspend fun getUsernameFromId(id: String): String {
+        private suspend fun getUsernameFromId(id: String): String {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("users").document(id).get()
                     .addOnSuccessListener { doc ->
@@ -702,7 +703,7 @@ class StorageUtil {
             }
         }
 
-        suspend fun getAuthorFromPostId(idPost: String): String {
+        private suspend fun getAuthorFromPostId(idPost: String): String {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("posts").document(idPost).get()
                     .addOnSuccessListener { post ->
@@ -711,21 +712,33 @@ class StorageUtil {
             }
         }
 
-        suspend fun createNotification(
+        private suspend fun getGamificationImage(idGamificationObject: String): String {
+            return suspendCoroutine { continuation ->
+                FirebaseFirestore.getInstance().collection("gamification_objects")
+                    .document(idGamificationObject).get().addOnSuccessListener { res ->
+                        continuation.resume(res.getString("image_ref").toString())
+                    }
+            }
+        }
+
+        private suspend fun createNotification(
             idTarget: String,
             postTarget: String,
+            gamificationTarget: String,
             type: String
         ) {
             if (idTarget != CurrentUserSingleton.currentUser!!.id) {
                 val username = getUsernameFromId(CurrentUserSingleton.currentUser!!.id)
-                val sourcePicRef = getUserPicFromId(CurrentUserSingleton.currentUser!!.id)
+                val sourcePicRef =
+                    if (type == "save") getUserPicFromId(CurrentUserSingleton.currentUser!!.id) else
+                        getGamificationImage(gamificationTarget)
                 val content = when (type) {
                     "save" -> "$username saved your post"
-                    else -> ""
+                    else -> "New badge obtained"
                 }
                 val notification = hashMapOf(
-                    "id_target" to idTarget,
-                    "id_source" to CurrentUserSingleton.currentUser!!.id,
+                    "id_target" to if (type == "save") idTarget else CurrentUserSingleton.currentUser!!.id,
+                    "id_source" to if (type == "save") CurrentUserSingleton.currentUser!!.id else "",
                     "content" to content,
                     "post_target" to postTarget,
                     "source_pic_ref" to sourcePicRef,
@@ -750,9 +763,10 @@ class StorageUtil {
             return suspendCoroutine { continuation ->
                 FirebaseFirestore.getInstance().collection("notifications")
                     .orderBy("date", Query.Direction.DESCENDING).get().addOnSuccessListener { res ->
-                    val filteredRes = res.documents.filter { current -> current.getString("id_target") == id }
-                    continuation.resume(filteredRes)
-                }
+                        val filteredRes =
+                            res.documents.filter { current -> current.getString("id_target") == id }
+                        continuation.resume(filteredRes)
+                    }
             }
         }
 
