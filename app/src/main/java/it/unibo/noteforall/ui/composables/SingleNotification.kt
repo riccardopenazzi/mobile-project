@@ -41,7 +41,7 @@ fun SingleNotification(notification: Notification, navController: NavHostControl
                 BorderStroke(2.dp, if (notification.isRead) Color.Black else Color.Red),
                 RoundedCornerShape(8.dp)
             )
-            .padding(8.dp)
+            .padding(4.dp)
             .fillMaxSize()
             .clickable {
                 if (notification.postTarget != "") {
@@ -61,16 +61,18 @@ fun SingleNotification(notification: Notification, navController: NavHostControl
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
         ) {
+            Spacer(modifier = Modifier.width(4.dp))
             AsyncImage(
                 model = notification.sourcePicRef,
                 contentDescription = "user source image",
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
-                    .size(55.dp)
+                    .size(35.dp)
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(text = notification.content, fontSize = 18.sp)
         }
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
