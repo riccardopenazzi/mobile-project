@@ -2,6 +2,7 @@ package it.unibo.noteforall.ui.composables
 
 import android.app.SearchManager
 import android.content.Intent
+import android.text.format.DateFormat
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -113,6 +115,16 @@ fun NoteCardExtended(
                             }
                         )
                     }
+                    note.date?.let {
+                        Text(
+                            text = DateFormat.format("dd/MM/yyyy", it.toDate()).toString(),
+                            modifier = Modifier
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
+                                .padding(6.dp),
+                            fontSize = 12.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     IconButton(onClick = {
                         if (!isSaved) {
                             CoroutineScope(Dispatchers.Main).launch {

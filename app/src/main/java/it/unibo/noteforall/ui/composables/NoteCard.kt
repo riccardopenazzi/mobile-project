@@ -1,5 +1,6 @@
 package it.unibo.noteforall.ui.composables
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -86,6 +88,16 @@ fun NoteCard(
                     modifier = Modifier.weight(1.5f),
                     onClick = { navController.navigate(NoteForAllRoute.Profile.buildRoute(note.userId)) }
                 )}
+                note.date?.let {
+                    Text(
+                        text = DateFormat.format("dd/MM/yyyy", it.toDate()).toString(),
+                        modifier = Modifier
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
+                            .padding(6.dp),
+                        fontSize = 12.sp
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
                 IconButton(onClick = {
                     if (!isSaved) {
                         CoroutineScope(Dispatchers.Main).launch {
