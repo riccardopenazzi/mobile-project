@@ -67,7 +67,7 @@ fun FiltersDialog(
         initialDisplayMode = DisplayMode.Input
     )
     var showDatePicker by remember { mutableStateOf(false)}
-    var dateSelectedMillis: Long?
+    var dateSelectedMillis: Long? = null
     val calendar = Calendar.getInstance()
     var date by remember { mutableStateOf("No date selected")}
 
@@ -90,10 +90,6 @@ fun FiltersDialog(
             confirmButton = {
                 TextButton(onClick = {
                     showDatePicker = false
-                    dateSelectedMillis = dateSelected.selectedDateMillis
-                    if (dateSelectedMillis != null) {
-                        calendar.timeInMillis = dateSelectedMillis!!
-                    }
                     date = DateFormat.format("dd/MM/yyyy", calendar.time).toString()
                 }) {
                     Text("Confirm")
@@ -225,9 +221,11 @@ fun FiltersDialog(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             onConfirm()
-                            val selectedDate = calendar.time
-                            val selectedTimestamp = Timestamp(selectedDate)
-                            applyFilters(posts, selectedCategory, selectedTimestamp)
+                            dateSelectedMillis = dateSelected.selectedDateMillis
+                            if (dateSelectedMillis != null) {
+                                calendar.timeInMillis = dateSelectedMillis!!
+                            }
+                            applyFilters(posts, selectedCategory, if (dateSelectedMillis != null) Timestamp(calendar.time) else null)
                         }
                     ) {
                         Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
