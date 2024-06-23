@@ -63,7 +63,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.composables.LoadingAnimation
 import it.unibo.noteforall.ui.composables.MyAlertDialog
 import it.unibo.noteforall.ui.composables.outlinedTextFieldColors

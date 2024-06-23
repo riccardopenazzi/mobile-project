@@ -112,7 +112,7 @@ fun FiltersDialog(
             elevation = CardDefaults.cardElevation(5.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(4 / 5f)
+                .fillMaxHeight(3 / 5f)
                 .verticalScroll(scrollState),
             shape = RoundedCornerShape(5),
             colors = CardDefaults.cardColors(
@@ -131,7 +131,7 @@ fun FiltersDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -173,7 +173,10 @@ fun FiltersDialog(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(5))
+                                .background(
+                                    MaterialTheme.colorScheme.surface,
+                                    RoundedCornerShape(5)
+                                )
                         ) {
                             categories.forEach { category ->
                                 DropdownMenuItem(
@@ -187,7 +190,7 @@ fun FiltersDialog(
                         }
                     }
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(30.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -207,29 +210,33 @@ fun FiltersDialog(
                         Text("Reset filters")
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    modifier = Modifier.padding(8.dp),
+                    onClick = onDismiss
                 ) {
-                    TextButton(
-                        modifier = Modifier.padding(8.dp),
-                        onClick = onDismiss
-                    ) {
-                        Text(text = "Dismiss", color = MaterialTheme.colorScheme.secondary)
-                    }
-                    TextButton(
-                        modifier = Modifier.padding(8.dp),
-                        onClick = {
-                            onConfirm()
-                            dateSelectedMillis = dateSelected.selectedDateMillis
-                            if (dateSelectedMillis != null) {
-                                calendar.timeInMillis = dateSelectedMillis!!
-                            }
-                            applyFilters(posts, selectedCategory, if (dateSelectedMillis != null) Timestamp(calendar.time) else null)
+                    Text(text = "Dismiss", color = MaterialTheme.colorScheme.secondary)
+                }
+                TextButton(
+                    modifier = Modifier.padding(8.dp),
+                    onClick = {
+                        onConfirm()
+                        dateSelectedMillis = dateSelected.selectedDateMillis
+                        if (dateSelectedMillis != null) {
+                            calendar.timeInMillis = dateSelectedMillis!!
                         }
-                    ) {
-                        Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
+                        applyFilters(
+                            posts,
+                            selectedCategory,
+                            if (dateSelectedMillis != null) Timestamp(calendar.time) else null
+                        )
                     }
+                ) {
+                    Text(text = "Confirm", color = MaterialTheme.colorScheme.secondary)
                 }
             }
         }
