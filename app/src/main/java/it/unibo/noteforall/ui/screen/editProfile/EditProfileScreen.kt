@@ -189,54 +189,6 @@ fun EditProfileScreen(
                             modifier = Modifier.clip(CircleShape)
                         )
                     }
-
-                    /* Bottom sheet */
-                    if (showBottomSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = { showBottomSheet = false },
-                            sheetState = sheetState,
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                TextButton(onClick = ::photoPicker) {
-                                    Text("Pick a photo")
-                                }
-                                Divider(Modifier.fillParentMaxWidth(0.8f))
-                                TextButton(onClick = {
-                                    takePicture()
-                                    if (showExplanation) {
-                                        scope.launch {
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = "The camera permission is necessary to take a picture and use it as your profile icon. To enable the permission go to settings.",
-                                                actionLabel = "Settings",
-                                                duration = SnackbarDuration.Long
-                                            )
-                                            when (result) {
-                                                SnackbarResult.ActionPerformed -> {
-                                                    showExplanation = false
-                                                    val intent = Intent(
-                                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                                        Uri.parse("package:${ctx.packageName}")
-                                                    )
-                                                    ctx.startActivity(intent)
-                                                }
-
-                                                SnackbarResult.Dismissed -> showExplanation = false
-                                            }
-                                        }
-                                    }
-                                }) {
-                                    Text("Take a picture")
-                                }
-                                Spacer(modifier = Modifier.height(20.dp))
-                            }
-                        }
-                    }
-
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = state.name,
@@ -374,6 +326,50 @@ fun EditProfileScreen(
             }
         }
     }
+
+    /* Bottom sheet */
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextButton(onClick = ::photoPicker) {
+                    Text("Pick a photo")
+                }
+                Divider(Modifier.fillMaxWidth(0.8f))
+                TextButton(onClick = {
+                    takePicture()
+                    if (showExplanation) {
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "The camera permission is required.",
+                                actionLabel = "Go to settings",
+                                duration = SnackbarDuration.Long
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                showExplanation = false
+                                ctx.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", ctx.packageName, null)
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }) {
+                    Text("Take a picture")
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
 }
 
 fun editProfileInfo(
@@ -396,8 +392,4 @@ fun editProfileInfo(
             navController
         )
     }
-}
-
-fun getUserInfo(db: FirebaseFirestore) {
-
 }

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,7 +80,9 @@ import org.koin.compose.koinInject
 @Composable
 fun SignupScreen(
     navController: NavHostController,
-    internalDb: NoteForAllDatabase
+    internalDb: NoteForAllDatabase,
+    state: LocationState,
+    actions: LocationActions
 ) {
 
     var name by remember {
@@ -122,30 +126,24 @@ fun SignupScreen(
                 locationService.requestCurrentLocation()
             }
 
-            PermissionStatus.Denied -> {}
-            // Gestire il caso di negazione dei permessi
-            // actions.setShowLocationPermissionDeniedAlert(true)
+            PermissionStatus.Denied ->
+                actions.setShowLocationPermissionDeniedAlert(true)
 
-            PermissionStatus.PermanentlyDenied -> {}
-            // Gestire il caso di negazione dei permessi
-            // actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
+            PermissionStatus.PermanentlyDenied ->
+                actions.setShowLocationPermissionPermanentlyDeniedSnackbar(true)
 
             PermissionStatus.Unknown -> {}
         }
     }
 
     fun requestLocation() {
+        if (locationService.isLocationEnabled != true) {
+            actions.setShowLocationDisabledAlert(locationService.isLocationEnabled == false)
+        }
         if (locationPermission.status.isGranted) {
             locationService.requestCurrentLocation()
         } else {
-            if (ContextCompat.checkSelfPermission(ctx, locationPermission.permission) == PackageManager.PERMISSION_DENIED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ctx as Activity, locationPermission.permission)) {
-                    showExplanation = true
-                    showBottomSheet = false
-                } else {
-                    locationPermission.launchPermissionRequest()
-                }
-            }
+            locationPermission.launchPermissionRequest()
         }
     }
 
@@ -222,52 +220,6 @@ fun SignupScreen(
                             modifier = Modifier.size(50.dp)
                         )
                     }
-
-                    /* Bottom sheet */
-                    if (showBottomSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = { showBottomSheet = false },
-                            sheetState = sheetState
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                TextButton(onClick = ::photoPicker) {
-                                    Text("Pick a photo")
-                                }
-                                Divider(Modifier.fillParentMaxWidth(0.8f))
-                                TextButton(onClick = {
-                                    takePicture()
-                                    if (showExplanation) {
-                                        scope.launch {
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = "The camera permission is necessary to take a picture and use it as your profile icon. To enable the permission go to settings.",
-                                                actionLabel = "Settings",
-                                                duration = SnackbarDuration.Long
-                                            )
-                                            when (result) {
-                                                SnackbarResult.ActionPerformed -> {
-                                                    showExplanation = false
-                                                    val intent = Intent(
-                                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                                        Uri.parse("package:${ctx.packageName}")
-                                                    )
-                                                    ctx.startActivity(intent)
-                                                }
-
-                                                SnackbarResult.Dismissed -> showExplanation = false
-                                            }
-                                        }
-                                    }
-                                }) {
-                                    Text("Take a picture")
-                                }
-                                Spacer(modifier = Modifier.height(20.dp))
-                            }
-                        }
-                    }
-
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = name,
@@ -406,6 +358,109 @@ fun SignupScreen(
                     }
                 }
             }
+        }
+    }
+
+    /* Bottom sheet */
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextButton(onClick = ::photoPicker) {
+                    Text("Pick a photo")
+                }
+                Divider(Modifier.fillMaxWidth(0.8f))
+                TextButton(onClick = {
+                    takePicture()
+                    if (showExplanation) {
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "The camera permission is required.",
+                                actionLabel = "Go to settings",
+                                duration = SnackbarDuration.Long
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                showExplanation = false
+                                ctx.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", ctx.packageName, null)
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }) {
+                    Text("Take a picture")
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+
+    if (state.showLocationDisabledAlert) {
+        AlertDialog(
+            title = { Text("Location disabled") },
+            text = { Text("Location must be enabled to get your current location in the app.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    locationService.openLocationSettings()
+                    actions.setShowLocationDisabledAlert(false)
+                }) {
+                    Text("Enable")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { actions.setShowLocationDisabledAlert(false) }) {
+                    Text("Dismiss")
+                }
+            },
+            onDismissRequest = { actions.setShowLocationDisabledAlert(false) }
+        )
+    }
+
+    if (state.showLocationPermissionDeniedAlert) {
+        AlertDialog(
+            title = { Text("Location permission denied") },
+            text = { Text("Location permission is required to get your current location in the app.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    locationPermission.launchPermissionRequest()
+                    actions.setShowLocationPermissionDeniedAlert(false)
+                }) {
+                    Text("Grant")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { actions.setShowLocationPermissionDeniedAlert(false) }) {
+                    Text("Dismiss")
+                }
+            },
+            onDismissRequest = { actions.setShowLocationPermissionDeniedAlert(false) }
+        )
+    }
+
+    if (state.showLocationPermissionPermanentlyDeniedSnackbar) {
+        LaunchedEffect(snackbarHostState) {
+            val res = snackbarHostState.showSnackbar(
+                "Location permission is required.",
+                "Go to Settings",
+                duration = SnackbarDuration.Long
+            )
+            if (res == SnackbarResult.ActionPerformed) {
+                ctx.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", ctx.packageName, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                )
+            }
+            actions.setShowLocationPermissionPermanentlyDeniedSnackbar(false)
         }
     }
 }

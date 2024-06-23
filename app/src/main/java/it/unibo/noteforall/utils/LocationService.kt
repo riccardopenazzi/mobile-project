@@ -2,9 +2,11 @@ package it.unibo.noteforall.utils
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Looper
+import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,6 +27,10 @@ data class Coordinates(val latitude: Double, val longitude: Double)
 class LocationService (private val ctx: Context) {
     var coordinates: Coordinates? by mutableStateOf(null)
         private set
+
+    var isLocationEnabled: Boolean? by mutableStateOf(null)
+        private set
+
     private var monitoringStatus by mutableStateOf(MonitoringStatus.NotMonitoring)
 
     private val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ctx)
@@ -44,11 +50,20 @@ class LocationService (private val ctx: Context) {
         }
     }
 
+    fun openLocationSettings() {
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        if (intent.resolveActivity(ctx.packageManager) != null) {
+            ctx.startActivity(intent)
+        }
+    }
+
     fun requestCurrentLocation(): StartMonitoringResult {
         val locationManager = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-        if (!isLocationEnabled) return StartMonitoringResult.GPSDisabled
+        if (isLocationEnabled != true) return StartMonitoringResult.GPSDisabled
 
         val permissionGranted = ContextCompat.checkSelfPermission(
             ctx,

@@ -10,6 +10,7 @@ import it.unibo.noteforall.data.repositories.ThemeRepository
 import it.unibo.noteforall.ui.screen.editProfile.EditProfileViewModel
 import it.unibo.noteforall.ui.screen.newNote.NewNoteViewModel
 import it.unibo.noteforall.ui.screen.settings.ThemeViewModel
+import it.unibo.noteforall.ui.screen.signup.SignupViewModel
 import it.unibo.noteforall.utils.LocationService
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -37,4 +38,6 @@ val appModule = module {
     viewModel { ThemeViewModel(get()) }
 
     viewModel { NewNoteViewModel() }
+
+    viewModel { SignupViewModel() }
 }

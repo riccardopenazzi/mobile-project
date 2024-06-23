@@ -1,12 +1,16 @@
 package it.unibo.noteforall.utils.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import it.unibo.noteforall.data.database.NoteForAllDatabase
 import it.unibo.noteforall.ui.screen.login.LoginScreen
 import it.unibo.noteforall.ui.screen.signup.SignupScreen
+import it.unibo.noteforall.ui.screen.signup.SignupViewModel
+import org.koin.androidx.compose.koinViewModel
 
 sealed class AuthenticationRoute (
     val title: String
@@ -35,7 +39,9 @@ fun AuthenticationNavGraph(
         }
         with(AuthenticationRoute.Signup) {
             composable(route) {
-                SignupScreen(navController, internalDb)
+                val signupVm = koinViewModel<SignupViewModel>()
+                val state by signupVm.state.collectAsStateWithLifecycle()
+                SignupScreen(navController, internalDb, state, signupVm.actions)
             }
         }
     }
