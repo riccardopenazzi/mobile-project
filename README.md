@@ -2,12 +2,12 @@
 
 L'applicazione mira a creare un ambiente dove è possibile scambiare appunti.
 
-##Autori
+## Autori
 
 - Filippo Pracucci
 - Riccardo Penazzi
 
-##Istruzioni
+## Istruzioni
 
 - Clonare localmente il repository
 - Aprire il progetto tramite un IDE (consigliato Android Studio)
