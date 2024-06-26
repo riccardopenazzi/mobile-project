@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Star
@@ -62,7 +63,7 @@ fun NoteCardExtended(
     navController: NavHostController,
     noteId: String,
     db: FirebaseFirestore,
-    fromMyProfile: Boolean = false,
+    fromMyProfile: Boolean,
 ) {
 
     var isLaunched by remember { mutableStateOf(false) }
@@ -135,6 +136,13 @@ fun NoteCardExtended(
                                 contentDescription = if (isSaved) "Unsave the post" else "Save the post"
                             )
                         }
+                    } else if (fromMyProfile) {
+                        Text(text = note.numSaved.toString())
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(
+                            imageVector = Icons.Outlined.Bookmark,
+                            contentDescription = "Bookmark icon"
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.size(10.dp))

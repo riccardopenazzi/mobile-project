@@ -7,10 +7,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.ui.composables.NoteCardExtended
 
 @Composable
-fun ViewNoteScreen(navController: NavHostController, noteId: String, db: FirebaseFirestore) {
+fun ViewNoteScreen(navController: NavHostController, noteId: String, fromMyProfile: Boolean, db: FirebaseFirestore) {
     LazyColumn {
         item {
-            NoteCardExtended(navController, noteId, db)
+            NoteCardExtended(navController, noteId, db, fromMyProfile)
         }
     }
 }

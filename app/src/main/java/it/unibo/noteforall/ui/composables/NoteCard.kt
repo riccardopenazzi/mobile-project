@@ -68,7 +68,13 @@ fun NoteCard(
         }
     }
     Card(
-        onClick = { navController.navigate(NoteForAllRoute.ViewNote.buildRoute(note.postId!!, currentRoute == NoteForAllRoute.MyProfile)) },
+        onClick = {
+            navController.navigate(
+                NoteForAllRoute.ViewNote.buildRoute(
+                    note.postId!!,
+                    currentRoute == NoteForAllRoute.MyProfile
+                )
+            )},
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier.padding(10.dp),
         shape = RoundedCornerShape(5),

@@ -41,11 +41,11 @@ sealed class NoteForAllRoute (
     data object EditProfile: NoteForAllRoute("edit_profile", "Edit Profile")
     data object NewNote: NoteForAllRoute("new_note", "New Note")
     data object ViewNote: NoteForAllRoute(
-        "view_note/{noteId, fromMyProfile}",
+        "view_note/{noteId}/{fromMyProfile}",
         "Note",
         listOf(navArgument("noteId") { type = NavType.StringType }, navArgument("fromMyProfile") {type = NavType.BoolType})
     ) {
-        fun buildRoute(noteId: String, fromMyProfile: Boolean = false) = "view_note/${noteId}"
+        fun buildRoute(noteId: String, fromMyProfile: Boolean = false) = "view_note/${noteId}/${fromMyProfile}"
     }
     data object Settings: NoteForAllRoute("settings", "Settings")
     data object Profile: NoteForAllRoute(
@@ -113,7 +113,8 @@ fun NoteForAllNavGraph(
         with(NoteForAllRoute.ViewNote) {
             composable(route, arguments) {backStackEntry ->
                 val id = backStackEntry.arguments?.getString("noteId")!!
-                ViewNoteScreen(navController, id, db)
+                val fromMyProfile = backStackEntry.arguments?.getBoolean("fromMyProfile")!!
+                ViewNoteScreen(navController, id, fromMyProfile, db)
             }
         }
         with(NoteForAllRoute.Settings) {
