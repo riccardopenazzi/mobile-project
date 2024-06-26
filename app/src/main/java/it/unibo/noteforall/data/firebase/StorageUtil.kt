@@ -263,11 +263,23 @@ class StorageUtil {
                 .collection("saved_posts")
                 .whereEqualTo("post_id", postId).get().addOnSuccessListener { post ->
                     if (!post.isEmpty) {
+                        Log.i("debSave", "Sono qui")
                         post.documents.first().reference.delete()
                         db.collection("posts").document(postId)
                             .update("num_saved", FieldValue.increment(-1))
+                        deleteNotification(postId)
                     }
                 }
+        }
+
+         private fun deleteNotification(postId: String) {
+            FirebaseFirestore.getInstance().collection("notifications").whereEqualTo("post_target", postId).get().addOnSuccessListener { res ->
+                for (notification in res) {
+                    if (notification.getString("id_source") != null && notification.getString("id_source") == CurrentUserSingleton.currentUser!!.id) {
+                        FirebaseFirestore.getInstance().collection("notifications").document(notification.id).delete()
+                    }
+                }
+            }
         }
 
         private suspend fun getAllPosts(): QuerySnapshot {
