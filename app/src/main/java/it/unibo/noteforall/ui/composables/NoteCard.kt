@@ -94,10 +94,12 @@ fun NoteCard(
                     Spacer(modifier = Modifier.width(12.dp))
                     IconButton(onClick = {
                         if (!isSaved) {
+                            note.isSaved = true
                             CoroutineScope(Dispatchers.Main).launch {
                                 note.postId?.let { savePost(it, db) }
                             }
                         } else {
+                            note.isSaved = false
                             note.postId?.let { unsavePost(it, db) }
                         }
                         isSaved = !isSaved

@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 
 data class Note(
     val postId: String? = null,
-    val isSaved: Boolean = false,
+    var isSaved: Boolean = false,
     val title: String? = null,
     val description: String? = null,
     val category: String? = null,

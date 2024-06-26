@@ -49,6 +49,7 @@ import com.google.firebase.Timestamp
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.applyFilters
 import it.unibo.noteforall.utils.Note
 import java.util.Calendar
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +91,7 @@ fun FiltersDialog(
             confirmButton = {
                 TextButton(onClick = {
                     showDatePicker = false
-                    date = DateFormat.format("dd/MM/yyyy", calendar.time).toString()
+                    date = DateFormat.format("dd/MM/yyyy", Date(dateSelected.selectedDateMillis!!)).toString()
                 }) {
                     Text("Confirm")
                 }
