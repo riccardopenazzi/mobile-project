@@ -61,7 +61,8 @@ import kotlinx.coroutines.launch
 fun NoteCardExtended(
     navController: NavHostController,
     noteId: String,
-    db: FirebaseFirestore
+    db: FirebaseFirestore,
+    fromMyProfile: Boolean = false,
 ) {
 
     var isLaunched by remember { mutableStateOf(false) }

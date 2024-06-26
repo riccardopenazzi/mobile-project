@@ -44,7 +44,9 @@ fun SingleNotification(notification: Notification, navController: NavHostControl
             .fillMaxSize()
             .clickable {
                 if (notification.postTarget != "") {
-                    navController.navigate(NoteForAllRoute.ViewNote.buildRoute(notification.postTarget))
+                    navController.navigate(NoteForAllRoute.ViewNote.buildRoute(
+                        notification.postTarget
+                    ))
                 }
             }
     ) {

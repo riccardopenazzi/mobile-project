@@ -296,11 +296,16 @@ class StorageUtil {
             noteList: MutableList<Note>,
             isLoadFinished: AtomicBoolean? = null
         ) {
+            var removed = 0
             val allPosts = getAllPosts()
             for (post in allPosts) {
-                val isSaved = isPostSaved(post.id)
-                addPostInList(post, noteList, isSaved)
-                if (allPosts.size() == noteList.size) {
+                if (post.getString("user_id") != CurrentUserSingleton.currentUser!!.id) {
+                    val isSaved = isPostSaved(post.id)
+                    addPostInList(post, noteList, isSaved)
+                } else {
+                    removed++
+                }
+                if (allPosts.size() == (noteList.size + removed)) {
                     isLoadFinished?.set(true)
                 }
             }
@@ -328,7 +333,8 @@ class StorageUtil {
                     authorPicRef = post.getString("user_id")
                         ?.let { getUserSingleInfo(it, "user_pic") },
                     userId = post.getString("user_id")!!,
-                    date = post.getTimestamp("date")!!
+                    date = post.getTimestamp("date")!!,
+                    numSaved = post.getLong("num_saved"),
                 )
             )
         }

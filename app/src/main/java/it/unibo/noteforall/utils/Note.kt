@@ -14,5 +14,6 @@ data class Note(
     val authorPicRef: String? = null,
     val userId: String,
     val date: Timestamp?,
-    val savedDate: Timestamp? = null
+    val savedDate: Timestamp? = null,
+    val numSaved: Long?,
 )

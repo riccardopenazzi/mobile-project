@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Card
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
@@ -56,9 +59,16 @@ fun NoteCard(
 ) {
 
     var isSaved by remember { mutableStateOf(note.isSaved) }
-
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute by remember {
+        derivedStateOf {
+            NoteForAllRoute.routes.find {
+                it.route == backStackEntry?.destination?.route
+            } ?: NoteForAllRoute.Home
+        }
+    }
     Card(
-        onClick = { navController.navigate(NoteForAllRoute.ViewNote.buildRoute(note.postId!!)) },
+        onClick = { navController.navigate(NoteForAllRoute.ViewNote.buildRoute(note.postId!!, currentRoute == NoteForAllRoute.MyProfile)) },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier.padding(10.dp),
         shape = RoundedCornerShape(5),
@@ -109,6 +119,13 @@ fun NoteCard(
                             contentDescription = if (isSaved) "Unsave the post" else "Save the post"
                         )
                     }
+                } else if (currentRoute == NoteForAllRoute.MyProfile) {
+                    Text(text = note.numSaved.toString())
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Bookmark,
+                        contentDescription = "Bookmark icon"
+                    )
                 }
             }
             Spacer(modifier = Modifier.size(10.dp))

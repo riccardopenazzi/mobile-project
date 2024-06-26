@@ -41,11 +41,11 @@ sealed class NoteForAllRoute (
     data object EditProfile: NoteForAllRoute("edit_profile", "Edit Profile")
     data object NewNote: NoteForAllRoute("new_note", "New Note")
     data object ViewNote: NoteForAllRoute(
-        "view_note/{noteId}",
+        "view_note/{noteId, fromMyProfile}",
         "Note",
-        listOf(navArgument("noteId") { type = NavType.StringType })
+        listOf(navArgument("noteId") { type = NavType.StringType }, navArgument("fromMyProfile") {type = NavType.BoolType})
     ) {
-        fun buildRoute(noteId: String) = "view_note/${noteId}"
+        fun buildRoute(noteId: String, fromMyProfile: Boolean = false) = "view_note/${noteId}"
     }
     data object Settings: NoteForAllRoute("settings", "Settings")
     data object Profile: NoteForAllRoute(
