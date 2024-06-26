@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -39,6 +40,7 @@ import coil.compose.AsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.savePost
 import it.unibo.noteforall.data.firebase.StorageUtil.Companion.unsavePost
+import it.unibo.noteforall.utils.CurrentUserSingleton
 import it.unibo.noteforall.utils.Note
 import it.unibo.noteforall.utils.navigation.NoteForAllRoute
 import kotlinx.coroutines.CoroutineScope
@@ -88,30 +90,23 @@ fun NoteCard(
                     modifier = Modifier.weight(1.5f),
                     onClick = { navController.navigate(NoteForAllRoute.Profile.buildRoute(note.userId)) }
                 )}
-                note.date?.let {
-                    Text(
-                        text = DateFormat.format("dd/MM/yyyy", it.toDate()).toString(),
-                        modifier = Modifier
-                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30))
-                            .padding(6.dp),
-                        fontSize = 12.sp
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                IconButton(onClick = {
-                    if (!isSaved) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            note.postId?.let { savePost(it, db) }
+                if (note.userId != CurrentUserSingleton.currentUser!!.id) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    IconButton(onClick = {
+                        if (!isSaved) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                note.postId?.let { savePost(it, db) }
+                            }
+                        } else {
+                            note.postId?.let { unsavePost(it, db) }
                         }
-                    } else {
-                        note.postId?.let { unsavePost(it, db) }
+                        isSaved = !isSaved
+                    }) {
+                        Icon(
+                            imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
+                            contentDescription = if (isSaved) "Unsave the post" else "Save the post"
+                        )
                     }
-                    isSaved = !isSaved
-                }) {
-                    Icon(
-                        imageVector = if (!isSaved) Icons.Outlined.StarBorder else Icons.Outlined.Star,
-                        contentDescription = if (isSaved) "Unsave the post" else "Save the post"
-                    )
                 }
             }
             Spacer(modifier = Modifier.size(10.dp))
@@ -123,6 +118,14 @@ fun NoteCard(
                     .size(400.dp)
                     .clip(RoundedCornerShape(5))
             )
+            Spacer(modifier = Modifier.size(10.dp))
+            note.date?.let {
+                Text(
+                    text = DateFormat.format("dd/MM/yyyy", it.toDate()).toString(),
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic,
+                )
+            }
             Spacer(modifier = Modifier.size(10.dp))
             note.title?.let {
                 Text(text = it,style = MaterialTheme.typography.titleLarge)
