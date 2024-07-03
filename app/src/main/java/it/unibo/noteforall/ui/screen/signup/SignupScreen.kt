@@ -326,8 +326,8 @@ fun SignupScreen(
                             val res = execSignup(
                                 name,
                                 surname,
-                                email,
-                                username,
+                                email.trim(),
+                                username.trim(),
                                 password,
                                 repeatPassword,
                                 internalDb,

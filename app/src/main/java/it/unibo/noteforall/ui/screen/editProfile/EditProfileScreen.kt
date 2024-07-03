@@ -384,7 +384,7 @@ fun editProfileInfo(
             ctx,
             state.name,
             state.surname,
-            state.username,
+            state.username.trim(),
             state.oldPassword,
             state.newPassword,
             state.repeatPassword,

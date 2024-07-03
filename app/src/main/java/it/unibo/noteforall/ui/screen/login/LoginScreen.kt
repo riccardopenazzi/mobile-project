@@ -114,7 +114,7 @@ fun LoginScreen(
                     onClick = {
                         isLogging = true
                         CoroutineScope(Dispatchers.Main).launch {
-                            val res = execLogin(key, password, internalDb, ctx)
+                            val res = execLogin(key.trim(), password, internalDb, ctx)
                             if (!res) {
                                 isLogging = false
                             }
